@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="robots" content="noindex, nofollow">
     <title>FinanceHub - Controle Financeiro Familiar</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
@@ -41,6 +42,76 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
+        }
+
+        /* Password Screen */
+        .password-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .password-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .password-card .logo {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+
+        .password-card h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .password-card p {
+            color: var(--text-light);
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .password-error {
+            color: var(--danger);
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .password-error.show {
+            display: block;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
         }
 
         /* Login Screen */
@@ -80,6 +151,7 @@
             gap: 10px;
             flex-wrap: wrap;
             margin: 20px 0;
+            justify-content: center;
         }
 
         .avatar-btn {
@@ -170,7 +242,8 @@
             display: block;
         }
 
-        .login-screen.hidden {
+        .login-screen.hidden,
+        .password-screen.hidden {
             display: none;
         }
 
@@ -396,7 +469,7 @@
             color: white;
         }
 
-        /* Shared Section */
+        /* Comparison Cards */
         .comparison-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -441,12 +514,6 @@
             50% { opacity: 0.5; }
         }
 
-        .export-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
         @media (max-width: 768px) {
             .app-header {
                 flex-direction: column;
@@ -467,8 +534,28 @@
     </style>
 </head>
 <body>
+    <!-- Tela de Senha -->
+    <div id="passwordScreen" class="password-screen">
+        <div class="password-card">
+            <div class="logo">🔐</div>
+            <h1>Área Restrita</h1>
+            <p>Digite a senha do casal para acessar</p>
+            <input 
+                type="password" 
+                id="passwordInput" 
+                class="password-input" 
+                placeholder="Digite a senha..."
+                autocomplete="off"
+            >
+            <div class="password-error" id="passwordError">Senha incorreta! Tente novamente.</div>
+            <button class="btn btn-primary" onclick="checkPassword()">
+                Acessar
+            </button>
+        </div>
+    </div>
+
     <!-- Tela de Login -->
-    <div id="loginScreen" class="login-screen">
+    <div id="loginScreen" class="login-screen hidden">
         <div class="login-card">
             <div class="login-header">
                 <h1>💰 FinanceHub</h1>
@@ -684,7 +771,6 @@
             </div>
         </main>
 
-        <!-- Indicador de Sync -->
         <div class="sync-indicator">
             <span class="sync-dot"></span>
             Dados salvos localmente
@@ -692,11 +778,37 @@
     </div>
 
     <script>
+        // ============ PASSWORD PROTECTION ============
+        const CORRECT_PASSWORD = 'Amor@2104';
+        
+        function checkPassword() {
+            const input = document.getElementById('passwordInput').value;
+            const errorElement = document.getElementById('passwordError');
+            
+            if (input === CORRECT_PASSWORD) {
+                document.getElementById('passwordScreen').classList.add('hidden');
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('passwordInput').value = '';
+                errorElement.classList.remove('show');
+            } else {
+                errorElement.classList.add('show');
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        // Permitir Enter para enviar senha
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
         // ============ APP STATE ============
         let currentUser = null;
         let selectedAvatar = '👤';
+        let charts = {};
         
-        // Categorias
         const categories = {
             food: { name: 'Alimentação', icon: '🍽️', color: '#FF6B6B', type: 'expense' },
             housing: { name: 'Moradia', icon: '🏠', color: '#4ECDC4', type: 'expense' },
@@ -720,11 +832,6 @@
 
         function saveData(data) {
             localStorage.setItem('financeHubData', JSON.stringify(data));
-            // Disparar evento para sincronização entre abas
-            window.dispatchEvent(new StorageEvent('storage', {
-                key: 'financeHubData',
-                newValue: JSON.stringify(data)
-            }));
         }
 
         function getCurrentUserData() {
@@ -763,19 +870,16 @@
                 loginTime: new Date().toISOString()
             };
 
-            // Salvar usuário
             const data = getData();
             if (!data.users[currentUser.id]) {
                 data.users[currentUser.id] = currentUser;
             }
             saveData(data);
 
-            // Atualizar UI
             document.getElementById('userBadge').textContent = `${currentUser.avatar} ${currentUser.name}`;
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.add('active');
 
-            // Carregar dados
             loadAllData();
             showTab('dashboard');
         }
@@ -783,9 +887,10 @@
         function logout() {
             if (confirm('Tem certeza que deseja sair?')) {
                 currentUser = null;
-                document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('mainApp').classList.remove('active');
+                document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('userName').value = '';
+                document.getElementById('passwordScreen').classList.add('hidden');
             }
         }
 
@@ -795,7 +900,20 @@
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
             
             document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
+            
+            const tabs = document.querySelectorAll('.nav-tab');
+            const tabTexts = {
+                'dashboard': '📊 Dashboard',
+                'transactions': '💳 Transações',
+                'investments': '📈 Investimentos',
+                'shared': '👥 Compartilhado'
+            };
+            
+            tabs.forEach(tab => {
+                if (tab.textContent.trim() === tabTexts[tabName]) {
+                    tab.classList.add('active');
+                }
+            });
 
             switch(tabName) {
                 case 'dashboard':
@@ -824,7 +942,6 @@
             const transactions = userData.transactions;
             const investments = userData.investments;
 
-            // Calcular totais do mês atual
             const now = new Date();
             const currentMonth = now.getMonth();
             const currentYear = now.getFullYear();
@@ -845,7 +962,6 @@
             const balance = monthlyIncome - monthlyExpenses;
             const totalInvestments = investments.reduce((sum, i) => sum + (i.currentValue || i.amount), 0);
 
-            // Atualizar cards
             document.getElementById('summaryCards').innerHTML = `
                 <div class="summary-card income">
                     <div class="card-label">💵 Receitas do Mês</div>
@@ -865,7 +981,6 @@
                 </div>
             `;
 
-            // Gráfico de categorias
             const expensesByCategory = {};
             monthlyTransactions
                 .filter(t => t.type === 'expense')
@@ -884,7 +999,6 @@
 
             createPieChart('categoryChart', categoryData);
 
-            // Últimas transações
             const recentTransactions = transactions
                 .sort((a, b) => new Date(b.date) - new Date(a.date))
                 .slice(0, 5);
@@ -918,6 +1032,38 @@
             `;
         }
 
+        function createPieChart(canvasId, data) {
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) return;
+            
+            // Destruir gráfico anterior se existir
+            if (charts[canvasId]) {
+                charts[canvasId].destroy();
+            }
+            
+            charts[canvasId] = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: data.map(d => d.category),
+                    datasets: [{
+                        data: data.map(d => d.amount),
+                        backgroundColor: data.map(d => d.color),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
         // ============ TRANSACTIONS ============
         function addTransaction() {
             const type = document.getElementById('transType').value;
@@ -947,7 +1093,6 @@
             data.transactions.push(transaction);
             saveData(data);
 
-            // Limpar campos
             document.getElementById('transDescription').value = '';
             document.getElementById('transAmount').value = '';
 
@@ -967,90 +1112,4 @@
 
         function loadTransactions() {
             const userData = getCurrentUserData();
-            const transactions = userData.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            document.getElementById('transactionsTable').innerHTML = transactions.map(t => `
-                <tr>
-                    <td>${new Date(t.date).toLocaleDateString('pt-BR')}</td>
-                    <td>${t.description}</td>
-                    <td>${categories[t.category]?.icon || ''} ${categories[t.category]?.name || t.category}</td>
-                    <td style="color: ${t.type === 'income' ? 'var(--success)' : 'var(--danger)'}; font-weight: 600;">
-                        ${t.type === 'income' ? '+' : '-'} R$ ${t.amount.toFixed(2)}
-                    </td>
-                    <td>
-                        <span style="padding: 4px 8px; border-radius: 12px; font-size: 12px; 
-                                   background: ${t.type === 'income' ? '#dcfce7' : '#fee2e2'}; 
-                                   color: ${t.type === 'income' ? 'var(--success)' : 'var(--danger)'};">
-                            ${t.type === 'income' ? 'Receita' : 'Despesa'}
-                        </span>
-                    </td>
-                    <td>
-                        <button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>
-                    </td>
-                </tr>
-            `).join('') || '<tr><td colspan="6" style="text-align: center; padding: 20px;">Nenhuma transação encontrada</td></tr>';
-        }
-
-        // ============ INVESTMENTS ============
-        function addInvestment() {
-            const type = document.getElementById('invType').value;
-            const name = document.getElementById('invName').value;
-            const amount = parseFloat(document.getElementById('invAmount').value);
-            const currentValue = parseFloat(document.getElementById('invCurrent').value) || amount;
-            const date = document.getElementById('invDate').value || new Date().toISOString().split('T')[0];
-
-            if (!name || !amount || amount <= 0) {
-                alert('Preencha todos os campos corretamente');
-                return;
-            }
-
-            const investment = {
-                id: 'inv_' + Date.now(),
-                type,
-                name,
-                amount,
-                currentValue,
-                date,
-                userId: currentUser.id,
-                createdAt: new Date().toISOString()
-            };
-
-            const data = getData();
-            data.investments.push(investment);
-            saveData(data);
-
-            document.getElementById('invName').value = '';
-            document.getElementById('invAmount').value = '';
-            document.getElementById('invCurrent').value = '';
-
-            loadInvestments();
-            loadDashboard();
-        }
-
-        function deleteInvestment(id) {
-            if (!confirm('Deseja excluir este investimento?')) return;
-
-            const data = getData();
-            data.investments = data.investments.filter(i => i.id !== id);
-            saveData(data);
-            loadInvestments();
-            loadDashboard();
-        }
-
-        function loadInvestments() {
-            const userData = getCurrentUserData();
-            const investments = userData.investments;
-
-            const totalInvested = investments.reduce((sum, i) => sum + i.amount, 0);
-            const totalCurrent = investments.reduce((sum, i) => sum + (i.currentValue || i.amount), 0);
-            const returnValue = totalCurrent - totalInvested;
-            const returnPct = totalInvested > 0 ? ((returnValue / totalInvested) * 100) : 0;
-
-            document.getElementById('investmentSummary').innerHTML = `
-                <div class="summary-card investment">
-                    <div class="card-label">💼 Total Investido</div>
-                    <div class="card-value">R$ ${totalInvested.toFixed(2)}</div>
-                </div>
-                <div class="summary-card ${returnValue >= 0 ? 'income' : 'expense'}">
-                    <div class="card-label">📊 Valor Atual</div>
-                    <div class="card-value ${returnValue >= 0 ? 'positive' : 'negative'}">
+            const transactions = userData.trans
