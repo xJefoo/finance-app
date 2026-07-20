@@ -38,13 +38,6 @@
             color: var(--text);
         }
 
-        .app {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Password Screen */
         .password-screen {
             display: flex;
             justify-content: center;
@@ -114,13 +107,16 @@
             75% { transform: translateX(10px); }
         }
 
-        /* Login Screen */
         .login-screen {
-            display: flex;
+            display: none;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+        }
+
+        .login-screen.active {
+            display: flex;
         }
 
         .login-card {
@@ -202,10 +198,10 @@
         }
 
         .btn {
-            padding: 12px 24px;
+            padding: 14px 24px;
             border: none;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
@@ -228,21 +224,17 @@
             color: white;
         }
 
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        /* Main App */
         .main-app {
             display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
         .main-app.active {
             display: block;
         }
 
-        .login-screen.hidden,
         .password-screen.hidden {
             display: none;
         }
@@ -331,7 +323,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Summary Cards */
         .summary-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -375,7 +366,6 @@
         .card-value.positive { color: var(--success); }
         .card-value.negative { color: var(--danger); }
 
-        /* Charts */
         .charts-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -400,7 +390,6 @@
             height: 300px;
         }
 
-        /* Forms */
         .add-form {
             background: white;
             border-radius: var(--radius);
@@ -421,7 +410,6 @@
             margin-bottom: 15px;
         }
 
-        /* Tables */
         .table-container {
             overflow-x: auto;
         }
@@ -459,17 +447,11 @@
             margin: 0 2px;
         }
 
-        .btn-edit {
-            background: var(--warning);
-            color: white;
-        }
-
         .btn-delete {
             background: var(--danger);
             color: white;
         }
 
-        /* Comparison Cards */
         .comparison-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -484,7 +466,6 @@
             border: 1px solid var(--border);
         }
 
-        /* Sync Indicator */
         .sync-indicator {
             position: fixed;
             bottom: 20px;
@@ -555,7 +536,7 @@
     </div>
 
     <!-- Tela de Login -->
-    <div id="loginScreen" class="login-screen hidden">
+    <div id="loginScreen" class="login-screen">
         <div class="login-card">
             <div class="login-header">
                 <h1>💰 FinanceHub</h1>
@@ -582,11 +563,6 @@
             <button class="btn btn-primary" onclick="login()">
                 Entrar no App
             </button>
-
-            <div style="margin-top: 20px; text-align: center; font-size: 12px; color: var(--text-light);">
-                <p>🔒 Dados salvos no navegador</p>
-                <p>📱 Compartilhe o link com sua esposa</p>
-            </div>
         </div>
     </div>
 
@@ -619,12 +595,6 @@
                         <h3>📊 Gastos por Categoria</h3>
                         <div class="chart-wrapper">
                             <canvas id="categoryChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <h3>📈 Fluxo de Caixa Mensal</h3>
-                        <div class="chart-wrapper">
-                            <canvas id="cashFlowChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -730,13 +700,6 @@
                 </div>
 
                 <div class="summary-cards" id="investmentSummary"></div>
-                
-                <div class="chart-container" style="margin-bottom: 20px;">
-                    <h3>📊 Evolução dos Investimentos</h3>
-                    <div class="chart-wrapper">
-                        <canvas id="investmentChart"></canvas>
-                    </div>
-                </div>
 
                 <div class="table-container">
                     <table>
@@ -760,14 +723,6 @@
             <div id="shared" class="tab-content">
                 <h2 style="margin-bottom: 20px;">👥 Visão Compartilhada</h2>
                 <div class="comparison-cards" id="comparisonCards"></div>
-                <div class="charts-grid">
-                    <div class="chart-container">
-                        <h3>Comparativo de Gastos</h3>
-                        <div class="chart-wrapper">
-                            <canvas id="comparisonChart"></canvas>
-                        </div>
-                    </div>
-                </div>
             </div>
         </main>
 
@@ -779,25 +734,24 @@
 
     <script>
         // ============ PASSWORD PROTECTION ============
-        const CORRECT_PASSWORD = 'Amor@2104';
+        const CORRECT_PASSWORD = 'Senha@2009';
         
         function checkPassword() {
-            const input = document.getElementById('passwordInput').value;
+            const input = document.getElementById('passwordInput');
             const errorElement = document.getElementById('passwordError');
             
-            if (input === CORRECT_PASSWORD) {
+            if (input.value === CORRECT_PASSWORD) {
                 document.getElementById('passwordScreen').classList.add('hidden');
-                document.getElementById('loginScreen').classList.remove('hidden');
-                document.getElementById('passwordInput').value = '';
+                document.getElementById('loginScreen').classList.add('active');
+                input.value = '';
                 errorElement.classList.remove('show');
             } else {
                 errorElement.classList.add('show');
-                document.getElementById('passwordInput').value = '';
-                document.getElementById('passwordInput').focus();
+                input.value = '';
+                input.focus();
             }
         }
 
-        // Permitir Enter para enviar senha
         document.getElementById('passwordInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 checkPassword();
@@ -835,7 +789,7 @@
         }
 
         function getCurrentUserData() {
-            if (!currentUser) return { transactions: [], investments: [] };
+            if (!currentUser) return { transactions: [], investments: [], allTransactions: [], allInvestments: [], allData: {} };
             const allData = getData();
             return {
                 transactions: allData.transactions.filter(t => t.userId === currentUser.id),
@@ -857,7 +811,9 @@
 
         // ============ LOGIN/LOGOUT ============
         function login() {
-            const name = document.getElementById('userName').value.trim();
+            const nameInput = document.getElementById('userName');
+            const name = nameInput.value.trim();
+            
             if (!name) {
                 alert('Por favor, digite seu nome');
                 return;
@@ -876,11 +832,10 @@
             }
             saveData(data);
 
-            document.getElementById('userBadge').textContent = `${currentUser.avatar} ${currentUser.name}`;
-            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('userBadge').textContent = currentUser.avatar + ' ' + currentUser.name;
+            document.getElementById('loginScreen').classList.remove('active');
             document.getElementById('mainApp').classList.add('active');
 
-            loadAllData();
             showTab('dashboard');
         }
 
@@ -888,9 +843,8 @@
             if (confirm('Tem certeza que deseja sair?')) {
                 currentUser = null;
                 document.getElementById('mainApp').classList.remove('active');
-                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('loginScreen').classList.add('active');
                 document.getElementById('userName').value = '';
-                document.getElementById('passwordScreen').classList.add('hidden');
             }
         }
 
@@ -901,19 +855,17 @@
             
             document.getElementById(tabName).classList.add('active');
             
-            const tabs = document.querySelectorAll('.nav-tab');
-            const tabTexts = {
-                'dashboard': '📊 Dashboard',
-                'transactions': '💳 Transações',
-                'investments': '📈 Investimentos',
-                'shared': '👥 Compartilhado'
+            const tabButtons = document.querySelectorAll('.nav-tab');
+            const tabMap = {
+                'dashboard': 0,
+                'transactions': 1,
+                'investments': 2,
+                'shared': 3
             };
             
-            tabs.forEach(tab => {
-                if (tab.textContent.trim() === tabTexts[tabName]) {
-                    tab.classList.add('active');
-                }
-            });
+            if (tabButtons[tabMap[tabName]]) {
+                tabButtons[tabMap[tabName]].classList.add('active');
+            }
 
             switch(tabName) {
                 case 'dashboard':
@@ -929,11 +881,6 @@
                     loadSharedView();
                     break;
             }
-        }
-
-        // ============ LOAD ALL DATA ============
-        function loadAllData() {
-            loadDashboard();
         }
 
         // ============ DASHBOARD ============
@@ -997,7 +944,9 @@
                 color: categories[cat]?.color || '#ccc'
             }));
 
-            createPieChart('categoryChart', categoryData);
+            if (categoryData.length > 0) {
+                createPieChart('categoryChart', categoryData);
+            }
 
             const recentTransactions = transactions
                 .sort((a, b) => new Date(b.date) - new Date(a.date))
@@ -1025,7 +974,7 @@
                                         ${t.type === 'income' ? '+' : '-'} R$ ${t.amount.toFixed(2)}
                                     </td>
                                 </tr>
-                            `).join('')}
+                            `).join('') || '<tr><td colspan="4" style="text-align:center;padding:20px;">Nenhuma transação ainda</td></tr>'}
                         </tbody>
                     </table>
                 </div>
@@ -1036,7 +985,6 @@
             const ctx = document.getElementById(canvasId);
             if (!ctx) return;
             
-            // Destruir gráfico anterior se existir
             if (charts[canvasId]) {
                 charts[canvasId].destroy();
             }
@@ -1097,7 +1045,6 @@
             document.getElementById('transAmount').value = '';
 
             loadTransactions();
-            loadDashboard();
         }
 
         function deleteTransaction(id) {
@@ -1107,9 +1054,199 @@
             data.transactions = data.transactions.filter(t => t.id !== id);
             saveData(data);
             loadTransactions();
-            loadDashboard();
         }
 
         function loadTransactions() {
             const userData = getCurrentUserData();
-            const transactions = userData.trans
+            const transactions = userData.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            document.getElementById('transactionsTable').innerHTML = transactions.map(t => `
+                <tr>
+                    <td>${new Date(t.date).toLocaleDateString('pt-BR')}</td>
+                    <td>${t.description}</td>
+                    <td>${categories[t.category]?.icon || ''} ${categories[t.category]?.name || t.category}</td>
+                    <td style="color: ${t.type === 'income' ? 'var(--success)' : 'var(--danger)'}; font-weight: 600;">
+                        ${t.type === 'income' ? '+' : '-'} R$ ${t.amount.toFixed(2)}
+                    </td>
+                    <td>
+                        <span style="padding: 4px 8px; border-radius: 12px; font-size: 12px; 
+                                   background: ${t.type === 'income' ? '#dcfce7' : '#fee2e2'}; 
+                                   color: ${t.type === 'income' ? 'var(--success)' : 'var(--danger)'};">
+                            ${t.type === 'income' ? 'Receita' : 'Despesa'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>
+                    </td>
+                </tr>
+            `).join('') || '<tr><td colspan="6" style="text-align: center; padding: 20px;">Nenhuma transação encontrada</td></tr>';
+        }
+
+        // ============ INVESTMENTS ============
+        function addInvestment() {
+            const type = document.getElementById('invType').value;
+            const name = document.getElementById('invName').value;
+            const amount = parseFloat(document.getElementById('invAmount').value);
+            const currentValue = parseFloat(document.getElementById('invCurrent').value) || amount;
+            const date = document.getElementById('invDate').value || new Date().toISOString().split('T')[0];
+
+            if (!name || !amount || amount <= 0) {
+                alert('Preencha todos os campos corretamente');
+                return;
+            }
+
+            const investment = {
+                id: 'inv_' + Date.now(),
+                type,
+                name,
+                amount,
+                currentValue,
+                date,
+                userId: currentUser.id,
+                createdAt: new Date().toISOString()
+            };
+
+            const data = getData();
+            data.investments.push(investment);
+            saveData(data);
+
+            document.getElementById('invName').value = '';
+            document.getElementById('invAmount').value = '';
+            document.getElementById('invCurrent').value = '';
+
+            loadInvestments();
+        }
+
+        function deleteInvestment(id) {
+            if (!confirm('Deseja excluir este investimento?')) return;
+
+            const data = getData();
+            data.investments = data.investments.filter(i => i.id !== id);
+            saveData(data);
+            loadInvestments();
+        }
+
+        function loadInvestments() {
+            const userData = getCurrentUserData();
+            const investments = userData.investments;
+
+            const totalInvested = investments.reduce((sum, i) => sum + i.amount, 0);
+            const totalCurrent = investments.reduce((sum, i) => sum + (i.currentValue || i.amount), 0);
+            const returnValue = totalCurrent - totalInvested;
+            const returnPct = totalInvested > 0 ? ((returnValue / totalInvested) * 100) : 0;
+
+            document.getElementById('investmentSummary').innerHTML = `
+                <div class="summary-card investment">
+                    <div class="card-label">💼 Total Investido</div>
+                    <div class="card-value">R$ ${totalInvested.toFixed(2)}</div>
+                </div>
+                <div class="summary-card ${returnValue >= 0 ? 'income' : 'expense'}">
+                    <div class="card-label">📊 Valor Atual</div>
+                    <div class="card-value ${returnValue >= 0 ? 'positive' : 'negative'}">R$ ${totalCurrent.toFixed(2)}</div>
+                </div>
+                <div class="summary-card ${returnValue >= 0 ? 'income' : 'expense'}">
+                    <div class="card-label">📈 Rentabilidade Total</div>
+                    <div class="card-value ${returnValue >= 0 ? 'positive' : 'negative'}">${returnPct.toFixed(2)}%</div>
+                </div>
+            `;
+
+            document.getElementById('investmentsTable').innerHTML = investments.map(inv => {
+                const retorno = inv.currentValue - inv.amount;
+                const retornoPct = inv.amount > 0 ? ((retorno / inv.amount) * 100) : 0;
+                
+                return `
+                    <tr>
+                        <td>${inv.type}</td>
+                        <td>${inv.name}</td>
+                        <td>R$ ${inv.amount.toFixed(2)}</td>
+                        <td>R$ ${inv.currentValue.toFixed(2)}</td>
+                        <td style="color: ${retorno >= 0 ? 'var(--success)' : 'var(--danger)'}; font-weight: 600;">
+                            ${retornoPct.toFixed(2)}%
+                        </td>
+                        <td>${new Date(inv.date).toLocaleDateString('pt-BR')}</td>
+                        <td>
+                            <button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('') || '<tr><td colspan="7" style="text-align: center; padding: 20px;">Nenhum investimento encontrado</td></tr>';
+        }
+
+        // ============ SHARED VIEW ============
+        function loadSharedView() {
+            const userData = getCurrentUserData();
+            const allTransactions = userData.allTransactions;
+            const allInvestments = userData.allInvestments;
+            const allData = userData.allData;
+            
+            const users = allData.users || {};
+            
+            // Agrupar por usuário
+            const userExpenses = {};
+            const userIncomes = {};
+            
+            allTransactions.forEach(t => {
+                const userName = t.userName || 'Usuário';
+                if (!userExpenses[userName]) {
+                    userExpenses[userName] = 0;
+                    userIncomes[userName] = 0;
+                }
+                
+                if (t.type === 'expense') {
+                    userExpenses[userName] += t.amount;
+                } else {
+                    userIncomes[userName] += t.amount;
+                }
+            });
+            
+            let cardsHTML = '';
+            Object.keys({...userExpenses, ...userIncomes}).forEach(userName => {
+                const expenses = userExpenses[userName] || 0;
+                const incomes = userIncomes[userName] || 0;
+                const balance = incomes - expenses;
+                
+                cardsHTML += `
+                    <div class="comparison-card">
+                        <h3>${userName}</h3>
+                        <p>💵 Receitas: <strong style="color: var(--success);">R$ ${incomes.toFixed(2)}</strong></p>
+                        <p>💸 Despesas: <strong style="color: var(--danger);">R$ ${expenses.toFixed(2)}</strong></p>
+                        <p>💰 Saldo: <strong style="color: ${balance >= 0 ? 'var(--success)' : 'var(--danger)'};">R$ ${balance.toFixed(2)}</strong></p>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('comparisonCards').innerHTML = cardsHTML || '<p>Nenhum dado compartilhado ainda.</p>';
+            
+            const totalFamilia = Object.values(userExpenses).reduce((a, b) => a + b, 0);
+            const totalInvestimentos = allInvestments.reduce((sum, inv) => sum + (inv.currentValue || inv.amount), 0);
+        }
+    </script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import {
+        getAuth,
+        GoogleAuthProvider,
+        signInWithPopup,
+        onAuthStateChanged,
+        signOut
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCm4N4NK18X-ok3Pi7R1f-4tTWdZf7kzec",
+        authDomain: "app-damins.firebaseapp.com",
+        projectId: "app-damins",
+        storageBucket: "app-damins.firebasestorage.app",
+        messagingSenderId: "704942561066",
+        appId: "1:704942561066:web:55bda959851be7ea917053"
+    };
+
+    const app = initializeApp(firebaseConfig);
+
+    window.auth = getAuth(app);
+    window.provider = new GoogleAuthProvider();
+    window.signInWithPopup = signInWithPopup;
+    window.onAuthStateChanged = onAuthStateChanged;
+    window.signOutFirebase = signOut;
+</script>
+</body>
+</html>
