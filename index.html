@@ -38,85 +38,12 @@
             color: var(--text);
         }
 
-        .password-screen {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .password-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-        }
-
-        .password-card .logo {
-            font-size: 50px;
-            margin-bottom: 20px;
-        }
-
-        .password-card h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: var(--text);
-        }
-
-        .password-card p {
-            color: var(--text-light);
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        .password-input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            font-size: 18px;
-            text-align: center;
-            margin-bottom: 15px;
-            transition: border-color 0.3s;
-        }
-
-        .password-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .password-error {
-            color: var(--danger);
-            font-size: 14px;
-            margin-bottom: 15px;
-            display: none;
-        }
-
-        .password-error.show {
-            display: block;
-            animation: shake 0.5s;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
         .login-screen {
-            display: none;
+            display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
-        }
-
-        .login-screen.active {
-            display: flex;
         }
 
         .login-card {
@@ -140,34 +67,6 @@
 
         .login-header p {
             color: var(--text-light);
-        }
-
-        .avatar-grid {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin: 20px 0;
-            justify-content: center;
-        }
-
-        .avatar-btn {
-            width: 50px;
-            height: 50px;
-            border: 2px solid var(--border);
-            border-radius: 50%;
-            background: white;
-            font-size: 24px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .avatar-btn.selected {
-            border-color: var(--primary);
-            background: #eff6ff;
-            transform: scale(1.1);
         }
 
         .form-group {
@@ -224,6 +123,28 @@
             color: white;
         }
 
+        .btn-google {
+            background: white;
+            color: var(--text);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .btn-google:hover {
+            background: #f8f9fa;
+            border-color: #dadce0;
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+
         .main-app {
             display: none;
             max-width: 1400px;
@@ -235,7 +156,7 @@
             display: block;
         }
 
-        .password-screen.hidden {
+        .login-screen.hidden {
             display: none;
         }
 
@@ -495,6 +416,33 @@
             50% { opacity: 0.5; }
         }
 
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
             .app-header {
                 flex-direction: column;
@@ -515,27 +463,6 @@
     </style>
 </head>
 <body>
-<button onclick="loginGoogle()">Testar Login Google</button>
-    <!-- Tela de Senha -->
-    <div id="passwordScreen" class="password-screen">
-        <div class="password-card">
-            <div class="logo">🔐</div>
-            <h1>Área Restrita</h1>
-            <p>Digite a senha do casal para acessar</p>
-            <input 
-                type="password" 
-                id="passwordInput" 
-                class="password-input" 
-                placeholder="Digite a senha..."
-                autocomplete="off"
-            >
-            <div class="password-error" id="passwordError">Senha incorreta! Tente novamente.</div>
-            <button class="btn btn-primary" onclick="checkPassword()">
-                Acessar
-            </button>
-        </div>
-    </div>
-
     <!-- Tela de Login -->
     <div id="loginScreen" class="login-screen">
         <div class="login-card">
@@ -544,26 +471,19 @@
                 <p>Controle Financeiro Familiar</p>
             </div>
 
-            <div class="form-group">
-                <label>Escolha seu avatar:</label>
-                <div class="avatar-grid" id="avatarGrid">
-                    <button class="avatar-btn selected" data-avatar="👤">👤</button>
-                    <button class="avatar-btn" data-avatar="👩">👩</button>
-                    <button class="avatar-btn" data-avatar="👨">👨</button>
-                    <button class="avatar-btn" data-avatar="👩‍💼">👩‍💼</button>
-                    <button class="avatar-btn" data-avatar="👨‍💼">👨‍💼</button>
-                    <button class="avatar-btn" data-avatar="👩‍💻">👩‍💻</button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Seu nome:</label>
-                <input type="text" id="userName" placeholder="Digite seu nome..." required>
-            </div>
-
-            <button class="btn btn-primary" onclick="login()">
-                Entrar no App
+            <button class="btn btn-google" onclick="loginWithGoogle()">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Entrar com Google
             </button>
+
+            <p style="text-align: center; margin-top: 20px; font-size: 12px; color: var(--text-light);">
+                🔒 Apenas contas autorizadas têm acesso
+            </p>
         </div>
     </div>
 
@@ -733,35 +653,79 @@
         </div>
     </div>
 
-    <script>
-        // ============ PASSWORD PROTECTION ============
-        const CORRECT_PASSWORD = 'Senha@2009';
-        
-        function checkPassword() {
-            const input = document.getElementById('passwordInput');
-            const errorElement = document.getElementById('passwordError');
-            
-            if (input.value === CORRECT_PASSWORD) {
-                document.getElementById('passwordScreen').classList.add('hidden');
-                document.getElementById('loginScreen').classList.add('active');
-                input.value = '';
-                errorElement.classList.remove('show');
-            } else {
-                errorElement.classList.add('show');
-                input.value = '';
-                input.focus();
-            }
-        }
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import {
+            getAuth,
+            GoogleAuthProvider,
+            signInWithPopup,
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                checkPassword();
+        const firebaseConfig = {
+            apiKey: "AIzaSyCm4N4NK18X-ok3Pi7R1f-4tTWdZf7kzec",
+            authDomain: "app-damins.firebaseapp.com",
+            projectId: "app-damins",
+            storageBucket: "app-damins.firebasestorage.app",
+            messagingSenderId: "704942561066",
+            appId: "1:704942561066:web:55bda959851be7ea917053"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // ============ GOOGLE LOGIN ============
+        window.loginWithGoogle = async function() {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                
+                currentUser = {
+                    id: user.uid,
+                    name: user.displayName || user.email.split('@')[0],
+                    avatar: user.photoURL || '👤',
+                    email: user.email,
+                    loginTime: new Date().toISOString()
+                };
+
+                const data = getData();
+                if (!data.users[currentUser.id]) {
+                    data.users[currentUser.id] = currentUser;
+                }
+                saveData(data);
+
+                enterApp();
+            } catch (error) {
+                console.error('Erro no login Google:', error);
+                alert('Erro ao fazer login com Google: ' + error.message);
+            }
+        };
+
+        // Verificar se já está logado
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = {
+                    id: user.uid,
+                    name: user.displayName || user.email.split('@')[0],
+                    avatar: user.photoURL || '👤',
+                    email: user.email,
+                    loginTime: new Date().toISOString()
+                };
+
+                const data = getData();
+                if (!data.users[currentUser.id]) {
+                    data.users[currentUser.id] = currentUser;
+                }
+                saveData(data);
+
+                enterApp();
             }
         });
 
         // ============ APP STATE ============
         let currentUser = null;
-        let selectedAvatar = '👤';
         let charts = {};
         
         const categories = {
@@ -801,56 +765,29 @@
             };
         }
 
-        // ============ AVATAR SELECTION ============
-        document.getElementById('avatarGrid').addEventListener('click', (e) => {
-            if (e.target.classList.contains('avatar-btn')) {
-                document.querySelectorAll('.avatar-btn').forEach(b => b.classList.remove('selected'));
-                e.target.classList.add('selected');
-                selectedAvatar = e.target.dataset.avatar;
-            }
-        });
-
-        // ============ LOGIN/LOGOUT ============
-        function login() {
-            const nameInput = document.getElementById('userName');
-            const name = nameInput.value.trim();
-            
-            if (!name) {
-                alert('Por favor, digite seu nome');
-                return;
-            }
-
-            currentUser = {
-                id: 'user_' + Date.now(),
-                name: name,
-                avatar: selectedAvatar,
-                loginTime: new Date().toISOString()
-            };
-
-            const data = getData();
-            if (!data.users[currentUser.id]) {
-                data.users[currentUser.id] = currentUser;
-            }
-            saveData(data);
-
+        function enterApp() {
             document.getElementById('userBadge').textContent = currentUser.avatar + ' ' + currentUser.name;
-            document.getElementById('loginScreen').classList.remove('active');
+            document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.add('active');
-
             showTab('dashboard');
         }
 
-        function logout() {
+        // ============ LOGOUT ============
+        window.logout = async function() {
             if (confirm('Tem certeza que deseja sair?')) {
+                try {
+                    await signOut(auth);
+                } catch (e) {
+                    console.error('Erro ao sair:', e);
+                }
                 currentUser = null;
                 document.getElementById('mainApp').classList.remove('active');
-                document.getElementById('loginScreen').classList.add('active');
-                document.getElementById('userName').value = '';
+                document.getElementById('loginScreen').classList.remove('hidden');
             }
-        }
+        };
 
         // ============ TAB NAVIGATION ============
-        function showTab(tabName) {
+        window.showTab = function(tabName) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
             
@@ -882,7 +819,7 @@
                     loadSharedView();
                     break;
             }
-        }
+        };
 
         // ============ DASHBOARD ============
         function loadDashboard() {
@@ -1014,7 +951,7 @@
         }
 
         // ============ TRANSACTIONS ============
-        function addTransaction() {
+        window.addTransaction = function() {
             const type = document.getElementById('transType').value;
             const description = document.getElementById('transDescription').value;
             const amount = parseFloat(document.getElementById('transAmount').value);
@@ -1046,16 +983,16 @@
             document.getElementById('transAmount').value = '';
 
             loadTransactions();
-        }
+        };
 
-        function deleteTransaction(id) {
+        window.deleteTransaction = function(id) {
             if (!confirm('Deseja excluir esta transação?')) return;
 
             const data = getData();
             data.transactions = data.transactions.filter(t => t.id !== id);
             saveData(data);
             loadTransactions();
-        }
+        };
 
         function loadTransactions() {
             const userData = getCurrentUserData();
@@ -1084,7 +1021,7 @@
         }
 
         // ============ INVESTMENTS ============
-        function addInvestment() {
+        window.addInvestment = function() {
             const type = document.getElementById('invType').value;
             const name = document.getElementById('invName').value;
             const amount = parseFloat(document.getElementById('invAmount').value);
@@ -1116,16 +1053,16 @@
             document.getElementById('invCurrent').value = '';
 
             loadInvestments();
-        }
+        };
 
-        function deleteInvestment(id) {
+        window.deleteInvestment = function(id) {
             if (!confirm('Deseja excluir este investimento?')) return;
 
             const data = getData();
             data.investments = data.investments.filter(i => i.id !== id);
             saveData(data);
             loadInvestments();
-        }
+        };
 
         function loadInvestments() {
             const userData = getCurrentUserData();
@@ -1180,9 +1117,6 @@
             const allInvestments = userData.allInvestments;
             const allData = userData.allData;
             
-            const users = allData.users || {};
-            
-            // Agrupar por usuário
             const userExpenses = {};
             const userIncomes = {};
             
@@ -1217,50 +1151,7 @@
             });
             
             document.getElementById('comparisonCards').innerHTML = cardsHTML || '<p>Nenhum dado compartilhado ainda.</p>';
-            
-            const totalFamilia = Object.values(userExpenses).reduce((a, b) => a + b, 0);
-            const totalInvestimentos = allInvestments.reduce((sum, inv) => sum + (inv.currentValue || inv.amount), 0);
         }
     </script>
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-    import {
-        getAuth,
-        GoogleAuthProvider,
-        signInWithPopup,
-        onAuthStateChanged,
-        signOut
-    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyCm4N4NK18X-ok3Pi7R1f-4tTWdZf7kzec",
-        authDomain: "app-damins.firebaseapp.com",
-        projectId: "app-damins",
-        storageBucket: "app-damins.firebasestorage.app",
-        messagingSenderId: "704942561066",
-        appId: "1:704942561066:web:55bda959851be7ea917053"
-    };
-
-    const app = initializeApp(firebaseConfig);
-
-    window.auth = getAuth(app);
-    window.provider = new GoogleAuthProvider();
-    window.signInWithPopup = signInWithPopup;
-    window.onAuthStateChanged = onAuthStateChanged;
-    window.signOutFirebase = signOut;
-window.loginGoogle = async function () {
-    try {
-        const result = await signInWithPopup(window.auth, window.provider);
-
-        console.log("Usuário logado:", result.user);
-
-        alert("Login realizado com sucesso!\n\n" + result.user.email);
-
-    } catch (e) {
-        console.error(e);
-        alert(e.message);
-    }
-};
-</script>
 </body>
 </html>
