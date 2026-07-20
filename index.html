@@ -515,6 +515,7 @@
     </style>
 </head>
 <body>
+<button onclick="loginGoogle()">Testar Login Google</button>
     <!-- Tela de Senha -->
     <div id="passwordScreen" class="password-screen">
         <div class="password-card">
@@ -1247,6 +1248,19 @@
     window.signInWithPopup = signInWithPopup;
     window.onAuthStateChanged = onAuthStateChanged;
     window.signOutFirebase = signOut;
+window.loginGoogle = async function () {
+    try {
+        const result = await signInWithPopup(window.auth, window.provider);
+
+        console.log("Usuário logado:", result.user);
+
+        alert("Login realizado com sucesso!\n\n" + result.user.email);
+
+    } catch (e) {
+        console.error(e);
+        alert(e.message);
+    }
+};
 </script>
 </body>
 </html>
