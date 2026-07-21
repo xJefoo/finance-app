@@ -21,8 +21,10 @@ FH.updatePeriodLabel = () => {
     const { qty, unit } = FH.state.currentPeriod;
     const unitNames = { m: 'minutos', h: 'horas', d: 'dias', M: 'meses', y: 'anos' };
     const label = unit === 'custom' ? 'Personalizado' : `Últimos ${qty} ${unitNames[unit] || unit}`;
-    document.getElementById('periodLabel')?.textContent = label;
-    document.getElementById('periodCurrent')?.textContent = '📍 ' + label;
+    const periodLabel = document.getElementById('periodLabel');
+    if (periodLabel) periodLabel.textContent = label;
+    const periodCurrent = document.getElementById('periodCurrent');
+    if (periodCurrent) periodCurrent.textContent = '📍 ' + label;
     const { start, end } = FH.getPeriodRange();
     const fmtDate = d => d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
     const fmtTime = d => d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });

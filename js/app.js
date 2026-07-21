@@ -39,6 +39,31 @@ FH.setupRecurringButtons = () => {
     document.getElementById('recSaveBtn')?.addEventListener('click', FH.saveRecurring);
     document.getElementById('recCancelBtn')?.addEventListener('click', FH.cancelEditRecurring);
 };
+FH.setupCategoryPickers = () => {
+    const colorPicker = document.getElementById('colorPicker');
+    const iconPicker = document.getElementById('iconPicker');
+    const catIconInput = document.getElementById('catIconInput');
+    if (!colorPicker || !iconPicker || !catIconInput) return;
+    colorPicker.addEventListener('click', e => {
+        const target = e.target;
+        if (target.classList.contains('color-option')) {
+            FH.state.selectedColor = target.dataset.color;
+            FH.updateColorPicker();
+        }
+    });
+    iconPicker.addEventListener('click', e => {
+        const target = e.target;
+        if (target.classList.contains('icon-option')) {
+            FH.state.selectedIcon = target.dataset.icon;
+            catIconInput.value = FH.state.selectedIcon;
+            FH.updateIconPicker();
+        }
+    });
+    catIconInput.addEventListener('input', e => {
+        FH.state.selectedIcon = e.target.value || '📦';
+        FH.updateIconPicker();
+    });
+};
 FH.initialize = () => {
     FH.setupGlobalHandlers();
     FH.setupCategoryPickers();

@@ -90,9 +90,12 @@ FH.startEditRecurring = rid => {
     document.getElementById('recDate').value = rec.startDate || '';
     document.getElementById('recFreq').value = rec.frequency || '1m';
     document.getElementById('recType').value = rec.type || 'income';
-    document.getElementById('recAddBtn')?.style.display = 'none';
-    document.getElementById('recSaveBtn')?.style.display = 'inline';
-    document.getElementById('recCancelBtn')?.style.display = 'inline';
+    const recAddBtn = document.getElementById('recAddBtn');
+    if (recAddBtn) recAddBtn.style.display = 'none';
+    const recSaveBtn = document.getElementById('recSaveBtn');
+    if (recSaveBtn) recSaveBtn.style.display = 'inline';
+    const recCancelBtn = document.getElementById('recCancelBtn');
+    if (recCancelBtn) recCancelBtn.style.display = 'inline';
 };
 FH.cancelEditRecurring = () => {
     FH.state.editingRecurringId = null;
@@ -101,9 +104,12 @@ FH.cancelEditRecurring = () => {
     document.getElementById('recDate').value = '';
     document.getElementById('recFreq').value = '1m';
     document.getElementById('recType').value = 'income';
-    document.getElementById('recAddBtn')?.style.display = 'inline';
-    document.getElementById('recSaveBtn')?.style.display = 'none';
-    document.getElementById('recCancelBtn')?.style.display = 'none';
+    const recAddBtn = document.getElementById('recAddBtn');
+    if (recAddBtn) recAddBtn.style.display = 'inline';
+    const recSaveBtn = document.getElementById('recSaveBtn');
+    if (recSaveBtn) recSaveBtn.style.display = 'none';
+    const recCancelBtn = document.getElementById('recCancelBtn');
+    if (recCancelBtn) recCancelBtn.style.display = 'none';
 };
 FH.saveRecurring = async () => {
     if (!FH.currentUser) return;
