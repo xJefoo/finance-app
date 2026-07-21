@@ -167,11 +167,17 @@
 </head>
 <body>
     <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
+
+    <!-- Modals -->
     <div id="categoryModal" class="modal-overlay"><div class="modal"><div class="modal-header"><h2>Nova Categoria</h2><button class="modal-close" onclick="closeCategoryModal()">✕</button></div><div class="form-group"><label>Nome</label><input type="text" id="catName"></div><div class="form-group"><label>Tipo</label><select id="catType"><option value="expense">Despesa</option><option value="income">Receita</option></select></div><div class="form-group"><label>Cor</label><div class="color-picker" id="colorPicker"><div class="color-option selected" style="background:#FF6B6B" data-color="#FF6B6B"></div><div class="color-option" style="background:#4ECDC4" data-color="#4ECDC4"></div><div class="color-option" style="background:#45B7D1" data-color="#45B7D1"></div><div class="color-option" style="background:#96CEB4" data-color="#96CEB4"></div><div class="color-option" style="background:#FFEAA7" data-color="#FFEAA7"></div><div class="color-option" style="background:#DDA0DD" data-color="#DDA0DD"></div><div class="color-option" style="background:#98D8C8" data-color="#98D8C8"></div><div class="color-option" style="background:#2ECC71" data-color="#2ECC71"></div><div class="color-option" style="background:#3498DB" data-color="#3498DB"></div><div class="color-option" style="background:#9B59B6" data-color="#9B59B6"></div><div class="color-option" style="background:#E67E22" data-color="#E67E22"></div><div class="color-option" style="background:#F39C12" data-color="#F39C12"></div></div></div><div class="form-group"><label>Ícone</label><div style="display:flex;gap:4px;align-items:center;"><input type="text" id="catIconInput" maxlength="4" placeholder="📦"><span style="font-size:10px;color:var(--text-light);">💡 Win+.</span></div></div><div class="form-group"><label>Sugestões:</label><div class="icon-picker" id="iconPicker"><span class="icon-option selected" data-icon="📦">📦</span><span class="icon-option" data-icon="🍽️">🍽️</span><span class="icon-option" data-icon="🏠">🏠</span><span class="icon-option" data-icon="🚗">🚗</span><span class="icon-option" data-icon="🏥">🏥</span><span class="icon-option" data-icon="📚">📚</span><span class="icon-option" data-icon="🎮">🎮</span><span class="icon-option" data-icon="🐾">🐾</span><span class="icon-option" data-icon="💳">💳</span><span class="icon-option" data-icon="🎬">🎬</span><span class="icon-option" data-icon="✈️">✈️</span><span class="icon-option" data-icon="🎁">🎁</span><span class="icon-option" data-icon="💻">💻</span><span class="icon-option" data-icon="📱">📱</span><span class="icon-option" data-icon="👕">👕</span><span class="icon-option" data-icon="💄">💄</span></div></div><button class="btn btn-primary" onclick="saveCategory()">Salvar</button></div></div>
     <div id="transactionModal" class="modal-overlay"><div class="modal"><div class="modal-header"><h2 id="transModalTitle">Nova Transação</h2><button class="modal-close" onclick="closeTransactionModal()">✕</button></div><div class="form-row"><div class="form-group"><label>Tipo</label><select id="transType" onchange="updateCategoryDropdown()"><option value="expense">Despesa</option><option value="income">Receita</option></select></div><div class="form-group"><label>Categoria</label><select id="transCategory"></select></div></div><div class="form-group"><label>Descrição</label><input type="text" id="transDescription"></div><div class="form-row"><div class="form-group"><label>Valor (R$)</label><input type="text" id="transAmount" inputmode="decimal" placeholder="0,00"></div><div class="form-group"><label>Data</label><input type="date" id="transDate"></div></div><input type="hidden" id="transEditId"><button class="btn btn-primary" onclick="saveTransaction()">Salvar</button></div></div>
     <div id="goalModal" class="modal-overlay"><div class="modal"><div class="modal-header"><h2 id="goalModalTitle">Nova Meta</h2><button class="modal-close" onclick="closeGoalModal()">✕</button></div><div class="form-group"><label>Investimento</label><select id="goalInvestment"></select></div><div class="form-row"><div class="form-group"><label>Objetivo (R$)</label><input type="text" id="goalTarget" inputmode="decimal" placeholder="0,00"></div><div class="form-group"><label>Data Alvo</label><input type="date" id="goalDeadline"></div></div><input type="hidden" id="goalEditId"><button class="btn btn-primary" onclick="saveGoal()">Salvar</button></div></div>
     <div id="investmentModal" class="modal-overlay"><div class="modal"><div class="modal-header"><h2 id="investmentModalTitle">Novo Investimento</h2><button class="modal-close" onclick="closeInvestmentModal()">✕</button></div><div class="form-row"><div class="form-group"><label>Tipo</label><select id="invType"><option>CDB</option><option>Tesouro Direto</option><option>Ações</option><option>Fundos Imobiliários</option><option>LCI/LCA</option><option>Poupança</option><option>Criptomoedas</option><option>Outros</option></select></div><div class="form-group"><label>Instituição</label><input type="text" id="invInstitution"></div></div><div class="form-row"><div class="form-group"><label>Nome/Ativo</label><input type="text" id="invName"></div><div class="form-group"><label>Valor Inicial (R$)</label><input type="text" id="invInitialValue" inputmode="decimal" placeholder="0,00"></div></div><div class="form-row"><div class="form-group"><label>Taxa</label><input type="text" id="invRate" inputmode="numeric"></div><div class="form-group"><label>Indexador</label><select id="invIndexer"><option value="cdi">% do CDI</option><option value="selic">% da Selic</option><option value="ipca">IPCA +</option><option value="pre">Pré-fixado</option></select></div></div><div class="form-row"><div class="form-group"><label>Data Início</label><input type="date" id="invStartDate"></div><div class="form-group"><label>Vencimento</label><input type="date" id="invEndDate"><span style="font-size:9px;color:var(--text-light);">vazio = +1 ano</span></div></div><input type="hidden" id="invEditId"><button class="btn btn-primary" onclick="saveInvestment()">Salvar</button></div></div>
+
+    <!-- Login -->
     <div id="loginScreen" class="login-screen"><div class="login-card"><div class="login-header"><h1>💰 FinanceHub</h1><p>Controle Financeiro Familiar</p></div><div class="error-message" id="loginError">Acesso não autorizado.</div><button class="btn btn-google" onclick="loginWithGoogle()"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Entrar com Google</button></div></div>
+
+    <!-- App -->
     <div id="mainApp" class="main-app">
         <header class="app-header">
             <div class="header-left"><h1>💰 FinanceHub</h1><span class="user-badge" id="userBadge"></span></div>
@@ -215,6 +221,7 @@
         </main>
         <div class="sync-indicator"><span class="sync-dot"></span>Sincronizado ☁️</div>
     </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
@@ -228,6 +235,13 @@
         let selectedColor = '#FF6B6B', selectedIcon = '📦', editingTransactionId = null, editingInvestmentId = null, editingGoalId = null, editingRecurringId = null;
         let currentPeriod = { qty: 30, unit: 'd' };
 
+        // ============ UTILS ============
+        const fmt = v => { const n = Number(v) || 0; const p = n.toFixed(2).split('.'); return `${p[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${p[1]}`; };
+        const parseMoney = v => { if (v === null || v === undefined || v === '') return 0; const s = String(v).replace(/R\$|\s/g, '').replace(/\./g, '').replace(',', '.'); return parseFloat(s) || 0; };
+        const toLocalDateStr = d => { const dd = new Date(d); return dd.getFullYear() + '-' + String(dd.getMonth()+1).padStart(2,'0') + '-' + String(dd.getDate()).padStart(2,'0'); };
+        const getDateWithFallback = (v, fb = new Date()) => { const base = String(v || '').split('T')[0] || toLocalDateStr(fb); return new Date(base + 'T12:00:00'); };
+        const escapeHtml = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+
         function getPeriodRange() { const now = new Date(); let start = new Date(now); const { qty, unit } = currentPeriod; switch (unit) { case 'm': start.setMinutes(now.getMinutes() - qty); break; case 'h': start.setHours(now.getHours() - qty); break; case 'd': start.setDate(now.getDate() - qty); break; case 'M': start.setMonth(now.getMonth() - qty); break; case 'y': start.setFullYear(now.getFullYear() - qty); break; case 'custom': start = currentPeriod.start || start; break; default: start.setDate(now.getDate() - 30); } const end = (unit === 'custom' && currentPeriod.end) ? new Date(currentPeriod.end) : now; if (unit !== 'custom') start.setHours(0, 0, 0, 0); return { start, end }; }
         function filterByPeriod(arr) { const { start, end } = getPeriodRange(); return arr.filter(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); return d >= start && d <= end; }); }
 
@@ -238,14 +252,14 @@
             document.getElementById('periodLabel').textContent = label;
             document.getElementById('periodCurrent').textContent = '📍 ' + label;
             const { start, end } = getPeriodRange();
-            const fmtDate = (d) => d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
-            const fmtTime = (d) => d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const fmtDate = d => d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+            const fmtTime = d => d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             let startStr = fmtDate(start), endStr = fmtDate(end);
             if (unit === 'm' || unit === 'h') { startStr += ' ' + fmtTime(start); endStr += ' ' + fmtTime(end); }
             document.querySelectorAll('.period-badge').forEach(el => el.textContent = `${startStr} - ${endStr}`);
         }
 
-        function parseCustomPeriod(str) { const match = str.match(/^(\d+)\s*(m|h|d|M|y)$/); if (!match) return null; return { qty: parseInt(match[1]), unit: match[2] }; }
+        function parseCustomPeriod(str) { const m = str.match(/^(\d+)\s*(m|h|d|M|y)$/); return m ? { qty: parseInt(m[1]), unit: m[2] } : null; }
         function toggleDropdown() { document.getElementById('periodDropdown').classList.toggle('open'); }
         function selectChip(period) {
             document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active'));
@@ -275,49 +289,23 @@
             document.addEventListener('click', function(e) { if (!e.target.closest('.period-trigger')) { document.getElementById('periodDropdown').classList.remove('open'); } });
         }
 
-        function parseMoney(val) {
-            if (val === null || val === undefined || val === '') return 0;
-            const normalized = String(val).replace(/R\$|\s/g, '').replace(/\./g, '').replace(',', '.');
-            return parseFloat(normalized) || 0;
-        }
-        function formatMoney(val) {
-            const number = Number(val) || 0;
-            // Formatar manualmente para garantir padrão brasileiro
-            const parts = number.toFixed(2).split('.');
-            const integer = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-            const decimal = parts[1];
-            return `R$ ${integer},${decimal}`;
-        }
-        function toLocalDateStr(date) { const d = new Date(date); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
-        function getDateWithFallback(value, fallback = new Date()) {
-            const base = String(value || '').split('T')[0] || toLocalDateStr(fallback);
-            return new Date(base + 'T12:00:00');
-        }
-
-        function getUniqueUsers(source) {
-            const s = new Set();
-            (source || []).forEach(x => { if (x && x.userName) s.add(x.userName); });
-            return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR'));
-        }
+        function getUniqueUsers(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.userName) s.add(x.userName); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
 
         function renderUserFilterTabs(containerId, currentFilter, users, onChangeCallback) {
             const container = document.getElementById(containerId);
             if (!container) return;
             const uniq = Array.isArray(users) ? users : [];
-            let html = `<div class="user-filter-tabs">`;
-            html += `<span class="user-filter-chip ${currentFilter === 'all' ? 'active' : ''}" data-user="all">👤 Todos</span>`;
-            uniq.forEach(u => { html += `<span class="user-filter-chip ${currentFilter === u ? 'active' : ''}" data-user="${escapeHtml(u)}">👤 ${escapeHtml(u)}</span>`; });
+            let html = `<div class="user-filter-tabs"><span class="user-filter-chip ${currentFilter==='all'?'active':''}" data-user="all">👤 Todos</span>`;
+            uniq.forEach(u => { html += `<span class="user-filter-chip ${currentFilter===u?'active':''}" data-user="${escapeHtml(u)}">👤 ${escapeHtml(u)}</span>`; });
             html += `</div>`;
             container.innerHTML = html;
-            container.querySelectorAll('.user-filter-chip').forEach(el => el.addEventListener('click', function(e) {
+            container.querySelectorAll('.user-filter-chip').forEach(el => el.addEventListener('click', function() {
                 const user = this.dataset.user;
                 container.querySelectorAll('.user-filter-chip').forEach(c => c.classList.remove('active'));
                 this.classList.add('active');
                 if (typeof onChangeCallback === 'function') onChangeCallback(user);
             }));
         }
-
-        function escapeHtml(str) { return String(str).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
 
         const defaultCategories = { food: { name: 'Alimentação', icon: '🍽️', color: '#FF6B6B', type: 'expense' }, housing: { name: 'Moradia', icon: '🏠', color: '#4ECDC4', type: 'expense' }, transport: { name: 'Transporte', icon: '🚗', color: '#45B7D1', type: 'expense' }, health: { name: 'Saúde', icon: '🏥', color: '#96CEB4', type: 'expense' }, leisure: { name: 'Lazer', icon: '🎮', color: '#DDA0DD', type: 'expense' }, other: { name: 'Outros', icon: '📦', color: '#98D8C8', type: 'expense' }, salary: { name: 'Salário', icon: '💰', color: '#2ECC71', type: 'income' }, freelance: { name: 'Freelance', icon: '💻', color: '#3498DB', type: 'income' } };
         function getCategories() { return Object.keys(allCategories).length > 0 ? { ...defaultCategories, ...allCategories } : defaultCategories; }
@@ -327,6 +315,7 @@
         function calcCurrentValue(aportes, rate, indexer) { return calcProjectedValue(aportes, rate, indexer, new Date()); }
         function recalcInvestment(inv) { const a = inv.aportes || []; inv.currentValue = calcCurrentValue(a, inv.rate, inv.indexer); inv.projectedValue = calcProjectedValue(a, inv.rate, inv.indexer, new Date(inv.endDate || Date.now() + 365 * 86400000)); inv.totalInvested = a.reduce((s, x) => s + x.value, 0); return inv; }
 
+        // ============ RECURRING ============
         async function processRecurring() {
             const now = new Date();
             for (const rec of allRecurring) {
@@ -355,7 +344,7 @@
             if (!rec) return;
             editingRecurringId = rid;
             document.getElementById('recName').value = rec.name;
-            document.getElementById('recValue').value = formatMoney(rec.value);
+            document.getElementById('recValue').value = fmt(rec.value);
             document.getElementById('recDate').value = rec.startDate;
             document.getElementById('recFreq').value = rec.frequency;
             document.getElementById('recType').value = rec.type;
@@ -395,6 +384,7 @@
 
         window.deleteRecurring = async function(id) { if (!confirm('Excluir?')) return; try { await deleteDoc(doc(db, "recurring", id)); } catch (e) { } };
 
+        // ============ AUTH ============
         async function checkUserAuthorization(uid) { try { const s = await getDoc(doc(db, "users", uid)); return s.exists() && s.data().allowed === true; } catch (e) { return false; } }
         function startListeningToFirestore() {
             onSnapshot(query(collection(db, "transactions"), orderBy("createdAt", "desc")), snap => { allTransactions = []; snap.forEach(d => allTransactions.push({ id: d.id, ...d.data() })); refreshCurrentView(); });
@@ -416,30 +406,30 @@
 
         function createLineChart(cid, labels, datasets) { const ctx = document.getElementById(cid); if (!ctx) return; if (charts[cid]) charts[cid].destroy(); charts[cid] = new Chart(ctx, { type: 'line', data: { labels, datasets: datasets.map(ds => ({ label: ds.label, data: ds.data, borderColor: ds.color, backgroundColor: ds.color + '20', fill: true, tension: 0.4, pointRadius: 2 })) }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true, ticks: { callback: v => 'R$ ' + v } } } } }); }
 
+        // ============ DASHBOARD ============
         function loadDashboard() {
             let ft = filterByPeriod(allTransactions);
-            if (transactionUserFilter && transactionUserFilter !== 'all') {
-                ft = ft.filter(t => (t.userName || 'Outro') === transactionUserFilter);
-            }
+            if (transactionUserFilter && transactionUserFilter !== 'all') ft = ft.filter(t => (t.userName || 'Outro') === transactionUserFilter);
             const mi = ft.filter(t => t.type === 'income').reduce((s, t) => s + (t.amount || 0), 0);
             const me = ft.filter(t => t.type === 'expense').reduce((s, t) => s + (t.amount || 0), 0);
             const bal = mi - me;
             const ti = allInvestments.reduce((s, i) => s + (i.currentValue || i.totalInvested || 0), 0);
-            document.getElementById('summaryCards').innerHTML = `<div class="summary-card income"><div class="card-label">💵 Receitas</div><div class="card-value positive">R$ ${mi.toFixed(2)}</div></div><div class="summary-card expense"><div class="card-label">💸 Despesas</div><div class="card-value negative">R$ ${me.toFixed(2)}</div></div><div class="summary-card balance"><div class="card-label">💰 Saldo</div><div class="card-value ${bal >= 0 ? 'positive' : 'negative'}">R$ ${bal.toFixed(2)}</div></div><div class="summary-card investment"><div class="card-label">📈 Investimentos</div><div class="card-value">R$ ${ti.toFixed(2)}</div></div>`;
+            document.getElementById('summaryCards').innerHTML = `<div class="summary-card income"><div class="card-label">💵 Receitas</div><div class="card-value positive">R$ ${fmt(mi)}</div></div><div class="summary-card expense"><div class="card-label">💸 Despesas</div><div class="card-value negative">R$ ${fmt(me)}</div></div><div class="summary-card balance"><div class="card-label">💰 Saldo</div><div class="card-value ${bal>=0?'positive':'negative'}">R$ ${fmt(bal)}</div></div><div class="summary-card investment"><div class="card-label">📈 Investimentos</div><div class="card-value">R$ ${fmt(ti)}</div></div>`;
             const ec = {}; ft.filter(t => t.type === 'expense').forEach(t => { const cat = t.category || 'other'; if (!ec[cat]) ec[cat] = 0; ec[cat] += (t.amount || 0); });
             const cats = getCategories(); const cd = Object.entries(ec).map(([id, amt]) => ({ category: cats[id]?.name || id, amount: amt, color: cats[id]?.color || '#ccc' }));
             if (cd.length > 0) { const ctx = document.getElementById('categoryChart'); if (ctx) { if (charts['categoryChart']) charts['categoryChart'].destroy(); charts['categoryChart'] = new Chart(ctx, { type: 'pie', data: { labels: cd.map(d => d.category), datasets: [{ data: cd.map(d => d.amount), backgroundColor: cd.map(d => d.color), borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); } }
-            try { renderUserFilterTabs('transactionUserFilter', transactionUserFilter, getUniqueUsers(allTransactions), function(u){ transactionUserFilter = u; loadDashboard(); }); } catch(e) { }
+            try { renderUserFilterTabs('transactionUserFilter', transactionUserFilter, getUniqueUsers(allTransactions), function(u){ transactionUserFilter = u; loadDashboard(); }); } catch(e) {}
             const displayTrans = ft.slice(0, 20);
-            document.getElementById('transactionCards').innerHTML = displayTrans.map(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); const cat = getCategoryById(t.category); const own = t.userId === currentUser?.id; return `<div class="data-card"><div class="data-card-header"><h4>${cat.icon} ${t.description}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openTransactionModal('${t.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (t.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>${t.type === 'income' ? 'Receita' : 'Despesa'}</span><span>📅 ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span></div><div class="data-card-amount ${t.type === 'income' ? 'income' : 'expense'}" style="margin-top:6px;">${t.type === 'income' ? '+' : '-'} R$ ${(t.amount || 0).toFixed(2)}</div></div>`; }).join('') || '<p style="text-align:center;padding:20px;">Nenhuma transação neste período.</p>';
+            document.getElementById('transactionCards').innerHTML = displayTrans.map(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); const cat = getCategoryById(t.category); const own = t.userId === currentUser?.id; return `<div class="data-card"><div class="data-card-header"><h4>${cat.icon} ${t.description}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openTransactionModal('${t.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (t.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>${t.type==='income'?'Receita':'Despesa'}</span><span>📅 ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span></div><div class="data-card-amount ${t.type==='income'?'income':'expense'}" style="margin-top:6px;">${t.type==='income'?'+':'-'} R$ ${fmt(t.amount||0)}</div></div>`; }).join('') || '<p style="text-align:center;padding:20px;">Nenhuma transação neste período.</p>';
         }
 
-        window.openTransactionModal = function(tid = null) { editingTransactionId = tid; document.getElementById('transactionModal').classList.add('active'); updateCategoryDropdown(); if (tid) { const t = allTransactions.find(x => x.id === tid); if (t) { document.getElementById('transModalTitle').textContent = 'Editar Transação'; document.getElementById('transType').value = t.type; document.getElementById('transDescription').value = t.description; document.getElementById('transAmount').value = formatMoney(t.amount); document.getElementById('transDate').value = t.date || toLocalDateStr(new Date(t.createdAt?.toDate ? t.createdAt.toDate() : t.createdAt)); document.getElementById('transEditId').value = tid; updateCategoryDropdown(); setTimeout(() => { document.getElementById('transCategory').value = t.category; }, 100); } } else { document.getElementById('transModalTitle').textContent = 'Nova Transação'; document.getElementById('transType').value = 'expense'; document.getElementById('transDescription').value = ''; document.getElementById('transAmount').value = ''; document.getElementById('transDate').value = toLocalDateStr(new Date()); document.getElementById('transEditId').value = ''; updateCategoryDropdown(); } };
+        window.openTransactionModal = function(tid = null) { editingTransactionId = tid; document.getElementById('transactionModal').classList.add('active'); updateCategoryDropdown(); if (tid) { const t = allTransactions.find(x => x.id === tid); if (t) { document.getElementById('transModalTitle').textContent = 'Editar Transação'; document.getElementById('transType').value = t.type; document.getElementById('transDescription').value = t.description; document.getElementById('transAmount').value = fmt(t.amount); document.getElementById('transDate').value = t.date || toLocalDateStr(new Date(t.createdAt?.toDate ? t.createdAt.toDate() : t.createdAt)); document.getElementById('transEditId').value = tid; updateCategoryDropdown(); setTimeout(() => { document.getElementById('transCategory').value = t.category; }, 100); } } else { document.getElementById('transModalTitle').textContent = 'Nova Transação'; document.getElementById('transType').value = 'expense'; document.getElementById('transDescription').value = ''; document.getElementById('transAmount').value = ''; document.getElementById('transDate').value = toLocalDateStr(new Date()); document.getElementById('transEditId').value = ''; updateCategoryDropdown(); } };
         window.closeTransactionModal = function() { document.getElementById('transactionModal').classList.remove('active'); };
         window.saveTransaction = async function() { const type = document.getElementById('transType').value, desc = document.getElementById('transDescription').value.trim(), amt = parseMoney(document.getElementById('transAmount').value), cat = document.getElementById('transCategory').value, date = document.getElementById('transDate').value || toLocalDateStr(new Date()); if (!desc || !amt || amt <= 0) { alert('Preencha'); return; } try { if (editingTransactionId) { await updateDoc(doc(db, "transactions", editingTransactionId), { type, description: desc, amount: amt, category: cat, date, updatedAt: serverTimestamp() }); } else { await addDoc(collection(db, "transactions"), { type, description: desc, amount: amt, category: cat, date, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeTransactionModal(); } catch (e) { alert('Erro'); } };
         window.deleteTransaction = async function(id) { if (!confirm('Excluir?')) return; try { await deleteDoc(doc(db, "transactions", id)); } catch (e) { } };
 
-        window.openInvestmentModal = function(invId = null) { editingInvestmentId = invId; document.getElementById('investmentModal').classList.add('active'); if (invId) { const inv = allInvestments.find(i => i.id === invId); if (inv) { document.getElementById('investmentModalTitle').textContent = 'Editar'; document.getElementById('invType').value = inv.type; document.getElementById('invInstitution').value = inv.institution || ''; document.getElementById('invName').value = inv.name; document.getElementById('invRate').value = inv.rate || ''; document.getElementById('invIndexer').value = inv.indexer || 'cdi'; document.getElementById('invStartDate').value = inv.startDate || ''; document.getElementById('invEndDate').value = inv.endDate || ''; document.getElementById('invInitialValue').value = formatMoney((inv.aportes && inv.aportes.length > 0) ? inv.aportes[0].value : 0); document.getElementById('invEditId').value = invId; } } else { document.getElementById('investmentModalTitle').textContent = 'Novo'; document.getElementById('invType').value = 'CDB'; document.getElementById('invInstitution').value = ''; document.getElementById('invName').value = ''; document.getElementById('invRate').value = ''; document.getElementById('invIndexer').value = 'cdi'; document.getElementById('invStartDate').value = toLocalDateStr(new Date()); document.getElementById('invEndDate').value = ''; document.getElementById('invInitialValue').value = ''; document.getElementById('invEditId').value = ''; } };
+        // ============ INVESTMENTS ============
+        window.openInvestmentModal = function(invId = null) { editingInvestmentId = invId; document.getElementById('investmentModal').classList.add('active'); if (invId) { const inv = allInvestments.find(i => i.id === invId); if (inv) { document.getElementById('investmentModalTitle').textContent = 'Editar'; document.getElementById('invType').value = inv.type; document.getElementById('invInstitution').value = inv.institution || ''; document.getElementById('invName').value = inv.name; document.getElementById('invRate').value = inv.rate || ''; document.getElementById('invIndexer').value = inv.indexer || 'cdi'; document.getElementById('invStartDate').value = inv.startDate || ''; document.getElementById('invEndDate').value = inv.endDate || ''; document.getElementById('invInitialValue').value = fmt((inv.aportes && inv.aportes.length > 0) ? inv.aportes[0].value : 0); document.getElementById('invEditId').value = invId; } } else { document.getElementById('investmentModalTitle').textContent = 'Novo'; document.getElementById('invType').value = 'CDB'; document.getElementById('invInstitution').value = ''; document.getElementById('invName').value = ''; document.getElementById('invRate').value = ''; document.getElementById('invIndexer').value = 'cdi'; document.getElementById('invStartDate').value = toLocalDateStr(new Date()); document.getElementById('invEndDate').value = ''; document.getElementById('invInitialValue').value = ''; document.getElementById('invEditId').value = ''; } };
         window.closeInvestmentModal = function() { document.getElementById('investmentModal').classList.remove('active'); };
         window.saveInvestment = async function() { const type = document.getElementById('invType').value, institution = document.getElementById('invInstitution').value.trim(), name = document.getElementById('invName').value.trim(), rate = parseFloat(document.getElementById('invRate').value) || 0, indexer = document.getElementById('invIndexer').value, startDate = document.getElementById('invStartDate').value || toLocalDateStr(new Date()); let endDate = document.getElementById('invEndDate').value; if (!endDate) { const sd = new Date(startDate + 'T12:00:00'); sd.setFullYear(sd.getFullYear() + 1); endDate = toLocalDateStr(sd); } const initialValue = parseMoney(document.getElementById('invInitialValue').value); if (!name || !initialValue || initialValue <= 0) { alert('Preencha'); return; } const aportes = [{ value: initialValue, date: startDate }]; const currentValue = calcCurrentValue(aportes, rate, indexer), projectedValue = calcProjectedValue(aportes, rate, indexer, new Date(endDate + 'T12:00:00')); const invData = { type, institution, name, rate, indexer, startDate, endDate, aportes, totalInvested: initialValue, currentValue, projectedValue, updatedAt: serverTimestamp() }; try { if (editingInvestmentId) { await updateDoc(doc(db, "investments", editingInvestmentId), invData); } else { await addDoc(collection(db, "investments"), { ...invData, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeInvestmentModal(); } catch (e) { alert('Erro'); } };
         window.deleteInvestment = async function(id) { if (!confirm('Excluir?')) return; try { await deleteDoc(doc(db, "investments", id)); } catch (e) { } };
@@ -451,69 +441,51 @@
             let investments = allInvestments.slice();
             if (investmentUserFilter && investmentUserFilter !== 'all') investments = investments.filter(i => (i.userName || 'Outro') === investmentUserFilter);
             const ti = investments.reduce((s, i) => s + (i.totalInvested || 0), 0), tc = investments.reduce((s, i) => s + (i.currentValue || 0), 0), rv = tc - ti, rp = ti > 0 ? (rv / ti) * 100 : 0;
-            document.getElementById('investmentSummary').innerHTML = `<div class="summary-card investment"><div class="card-label">💼 Total Investido</div><div class="card-value">R$ ${ti.toFixed(2)}</div></div><div class="summary-card ${rv >= 0 ? 'income' : 'expense'}"><div class="card-label">📊 Valor Atual</div><div class="card-value ${rv >= 0 ? 'positive' : 'negative'}">R$ ${tc.toFixed(2)}</div></div><div class="summary-card ${rv >= 0 ? 'income' : 'expense'}"><div class="card-label">📈 Rent. Nominal</div><div class="card-value ${rv >= 0 ? 'positive' : 'negative'}">${rp.toFixed(2)}%</div></div><div class="summary-card ${rv - (indexers.ipca || 0) >= 0 ? 'income' : 'expense'}"><div class="card-label">💎 Rent. Real</div><div class="card-value ${rv - (indexers.ipca || 0) >= 0 ? 'positive' : 'negative'}">${(rp - (indexers.ipca || 0)).toFixed(2)}%</div></div>`;
+            document.getElementById('investmentSummary').innerHTML = `<div class="summary-card investment"><div class="card-label">💼 Total Investido</div><div class="card-value">R$ ${fmt(ti)}</div></div><div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">📊 Valor Atual</div><div class="card-value ${rv>=0?'positive':'negative'}">R$ ${fmt(tc)}</div></div><div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">📈 Rent. Nominal</div><div class="card-value ${rv>=0?'positive':'negative'}">${rp.toFixed(2)}%</div></div><div class="summary-card ${rv-(indexers.ipca||0)>=0?'income':'expense'}"><div class="card-label">💎 Rent. Real</div><div class="card-value ${rv-(indexers.ipca||0)>=0?'positive':'negative'}">${(rp-(indexers.ipca||0)).toFixed(2)}%</div></div>`;
             
             const fixaTypes = ['CDB', 'Tesouro Direto', 'LCI/LCA', 'Poupança']; let tf = 0, tv = 0;
             allInvestments.forEach(inv => { const v = inv.currentValue || inv.totalInvested || 0; if (fixaTypes.includes(inv.type)) tf += v; else tv += v; });
             const tp = tf + tv;
-            if (tp > 0) { const fp = (tf / tp) * 100, vp = (tv / tp) * 100; const ctxP = document.getElementById('portfolioTypeChart'); if (ctxP) { if (charts['portfolioTypeChart']) charts['portfolioTypeChart'].destroy(); charts['portfolioTypeChart'] = new Chart(ctxP, { type: 'pie', data: { labels: ['Renda Fixa', 'Renda Variável'], datasets: [{ data: [tf, tv], backgroundColor: ['#2563eb', '#ea580c'], borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); } const df = fp - 60; document.getElementById('portfolioTypeAnalysis').innerHTML = `<strong>Ideal 60/40:</strong> Fixa: <strong style="color:#2563eb;">${fp.toFixed(1)}%</strong> ${df > 5 ? '⚠️ Conservador' : df < -5 ? '⚠️ Arriscado' : '✅'} | Var: <strong style="color:#ea580c;">${vp.toFixed(1)}%</strong>${Math.abs(df) > 10 ? '<br>💡 Rebalancear' : ''}`; }
+            if (tp > 0) { const fp = (tf / tp) * 100, vp = (tv / tp) * 100; const ctxP = document.getElementById('portfolioTypeChart'); if (ctxP) { if (charts['portfolioTypeChart']) charts['portfolioTypeChart'].destroy(); charts['portfolioTypeChart'] = new Chart(ctxP, { type: 'pie', data: { labels: ['Renda Fixa', 'Renda Variável'], datasets: [{ data: [tf, tv], backgroundColor: ['#2563eb', '#ea580c'], borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); } const df = fp - 60; document.getElementById('portfolioTypeAnalysis').innerHTML = `<strong>Ideal 60/40:</strong> Fixa: <strong style="color:#2563eb;">${fp.toFixed(1)}%</strong> ${df>5?'⚠️ Conservador':df<-5?'⚠️ Arriscado':'✅'} | Var: <strong style="color:#ea580c;">${vp.toFixed(1)}%</strong>${Math.abs(df)>10?'<br>💡 Rebalancear':''}`; }
 
             const allAportes = []; investments.forEach(inv => { (inv.aportes || []).forEach(ap => allAportes.push({ ...ap, rate: inv.rate, indexer: inv.indexer, endDate: inv.endDate })); });
             if (allAportes.length > 0) {
                 const dailyData = {}; allAportes.forEach(ap => { const d = getDateWithFallback(ap.date); const key = toLocalDateStr(d); if (!dailyData[key]) dailyData[key] = { invested: 0, aportesDoDia: [] }; dailyData[key].invested += ap.value; dailyData[key].aportesDoDia.push(ap); });
-                const sortedDays = Object.keys(dailyData).sort();
-                const investedLine = [], currentLine = [], projLine = [];
-                let cumInvested = 0;
+                const sortedDays = Object.keys(dailyData).sort(); const investedLine = [], currentLine = [], projLine = []; let cumInvested = 0;
                 let maxProjDate = new Date();
-                investments.forEach(inv => {
-                    const ed = new Date((inv.endDate || toLocalDateStr(new Date(new Date().setFullYear(new Date().getFullYear()+1)))) + 'T12:00:00');
-                    if (ed > maxProjDate) maxProjDate = ed;
-                });
+                investments.forEach(inv => { const ed = new Date((inv.endDate || toLocalDateStr(new Date(new Date().setFullYear(new Date().getFullYear()+1)))) + 'T12:00:00'); if (ed > maxProjDate) maxProjDate = ed; });
                 sortedDays.forEach(day => {
-                    cumInvested += dailyData[day].invested;
-                    investedLine.push(cumInvested);
+                    cumInvested += dailyData[day].invested; investedLine.push(cumInvested);
                     const allUntilNow = []; sortedDays.filter(d => d <= day).forEach(d => { dailyData[d].aportesDoDia.forEach(ap => allUntilNow.push(ap)); });
-                    const curVal = allUntilNow.reduce((s, ap) => s + calcProjectedValue([ap], ap.rate || 0, ap.indexer || 'pre', new Date()), 0);
-                    currentLine.push(curVal);
-                    const projVal = allUntilNow.reduce((s, ap) => s + calcProjectedValue([ap], ap.rate || 0, ap.indexer || 'pre', maxProjDate), 0);
-                    projLine.push(projVal);
+                    currentLine.push(allUntilNow.reduce((s, ap) => s + calcProjectedValue([ap], ap.rate || 0, ap.indexer || 'pre', new Date()), 0));
+                    projLine.push(allUntilNow.reduce((s, ap) => s + calcProjectedValue([ap], ap.rate || 0, ap.indexer || 'pre', maxProjDate), 0));
                 });
-                const projDays = [];
-                const lastDay = new Date(sortedDays[sortedDays.length-1] + 'T12:00:00');
-                const current = new Date(lastDay);
-                while (current <= maxProjDate) {
-                    current.setDate(current.getDate() + 30);
-                    if (current <= maxProjDate) projDays.push(toLocalDateStr(current));
-                }
-                if (projDays.length === 0 || projDays[projDays.length-1] !== toLocalDateStr(maxProjDate)) {
-                    projDays.push(toLocalDateStr(maxProjDate));
-                }
+                const projDays = []; const lastDay = new Date(sortedDays[sortedDays.length-1] + 'T12:00:00'); const current = new Date(lastDay);
+                while (current <= maxProjDate) { current.setDate(current.getDate() + 30); if (current <= maxProjDate) projDays.push(toLocalDateStr(current)); }
+                if (projDays.length === 0 || projDays[projDays.length-1] !== toLocalDateStr(maxProjDate)) projDays.push(toLocalDateStr(maxProjDate));
                 const allLabels = [...sortedDays, ...projDays];
-                const fullInvestedLine = [...investedLine, ...projDays.map(() => investedLine[investedLine.length-1])];
-                const fullCurrentLine = [...currentLine, ...projDays.map(() => currentLine[currentLine.length-1])];
-                const fullProjLine = [...projLine, ...projDays.map(() => projLine[projLine.length-1])];
                 createLineChart('investmentEvolutionChart', allLabels, [
-                    { label: 'Valor Investido', data: fullInvestedLine, color: '#2563eb' },
-                    { label: 'Valor Atual', data: fullCurrentLine, color: '#16a34a' },
-                    { label: 'Projeção (até ' + maxProjDate.toLocaleDateString('pt-BR',{month:'short',year:'numeric'}) + ')', data: fullProjLine, color: '#7c3aed' }
+                    { label: 'Valor Investido', data: [...investedLine, ...projDays.map(() => investedLine[investedLine.length-1])], color: '#2563eb' },
+                    { label: 'Valor Atual', data: [...currentLine, ...projDays.map(() => currentLine[currentLine.length-1])], color: '#16a34a' },
+                    { label: 'Projeção (até ' + maxProjDate.toLocaleDateString('pt-BR',{month:'short',year:'numeric'}) + ')', data: [...projLine, ...projDays.map(() => projLine[projLine.length-1])], color: '#7c3aed' }
                 ]);
             }
             
-            try { renderUserFilterTabs('investmentUserFilter', investmentUserFilter, getUniqueUsers(allInvestments), function(u){ investmentUserFilter = u; loadInvestments(); }); } catch(e) { }
+            try { renderUserFilterTabs('investmentUserFilter', investmentUserFilter, getUniqueUsers(allInvestments), function(u){ investmentUserFilter = u; loadInvestments(); }); } catch(e) {}
             
-            document.getElementById('investmentCards').innerHTML = investments.map(inv => { const ret = (inv.currentValue || 0) - (inv.totalInvested || 0), retP = inv.totalInvested > 0 ? (ret / inv.totalInvested) * 100 : 0, realRet = retP - (indexers.ipca || 0); const own = inv.userId === currentUser?.id, aportes = inv.aportes || []; return `<div class="data-card"><div class="data-card-header"><h4>📈 ${inv.name}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openInvestmentModal('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (inv.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>🏦 ${inv.institution || '-'}</span><span>📋 ${inv.type}</span><span>📊 ${inv.rate || 0}% ${idx[inv.indexer] || ''}</span><span>📅 ${new Date(inv.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span><span>🏁 ${new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span></div><div class="investment-card-values"><div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${(inv.totalInvested || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${(inv.currentValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${(inv.projectedValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Nominal</div><div class="val-number ${ret >= 0 ? 'positive' : 'negative'}">${retP.toFixed(2)}%</div></div><div class="val-item"><div class="val-label">💎 Real</div><div class="val-number ${realRet >= 0 ? 'positive' : 'negative'}">${realRet.toFixed(2)}</div></div></div><div class="aportes-section"><h4>🏷️ Aportes (${aportes.length})</h4>${aportes.map((ap, i) => `<div class="aporte-mini-item"><span>R$ ${ap.value.toFixed(2)}</span><span class="aporte-date">${new Date(ap.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>${i > 0 && own ? `<button onclick="removeAporteFromInvestment('${inv.id}',${i})">✕</button>` : (i === 0 ? '<span style="font-size:10px;">inicial</span>' : '')}</div>`).join('')}${own ? `<div class="aporte-add-mini"><input type="text" id="aporte-val-${inv.id}" placeholder="Valor" inputmode="decimal"><input type="date" id="aporte-date-${inv.id}"><button class="btn-sm btn-add" onclick="addAporteToInvestment('${inv.id}')">+</button></div>` : ''}</div></div>`; }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento.</p>';
+            document.getElementById('investmentCards').innerHTML = investments.map(inv => { const ret = (inv.currentValue || 0) - (inv.totalInvested || 0), retP = inv.totalInvested > 0 ? (ret / inv.totalInvested) * 100 : 0, realRet = retP - (indexers.ipca || 0); const own = inv.userId === currentUser?.id, aportes = inv.aportes || []; return `<div class="data-card"><div class="data-card-header"><h4>📈 ${inv.name}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openInvestmentModal('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (inv.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>🏦 ${inv.institution || '-'}</span><span>📋 ${inv.type}</span><span>📊 ${inv.rate || 0}% ${idx[inv.indexer] || ''}</span><span>📅 ${new Date(inv.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span><span>🏁 ${new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span></div><div class="investment-card-values"><div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${fmt(inv.totalInvested || 0)}</div></div><div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${fmt(inv.currentValue || 0)}</div></div><div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${fmt(inv.projectedValue || 0)}</div></div><div class="val-item"><div class="val-label">📈 Nominal</div><div class="val-number ${ret>=0?'positive':'negative'}">${retP.toFixed(2)}%</div></div><div class="val-item"><div class="val-label">💎 Real</div><div class="val-number ${realRet>=0?'positive':'negative'}">${realRet.toFixed(2)}%</div></div></div><div class="aportes-section"><h4>🏷️ Aportes (${aportes.length})</h4>${aportes.map((ap, i) => `<div class="aporte-mini-item"><span>R$ ${fmt(ap.value)}</span><span class="aporte-date">${new Date(ap.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>${i > 0 && own ? `<button onclick="removeAporteFromInvestment('${inv.id}',${i})">✕</button>` : (i === 0 ? '<span style="font-size:10px;">inicial</span>' : '')}</div>`).join('')}${own ? `<div class="aporte-add-mini"><input type="text" id="aporte-val-${inv.id}" placeholder="Valor" inputmode="decimal"><input type="date" id="aporte-date-${inv.id}"><button class="btn-sm btn-add" onclick="addAporteToInvestment('${inv.id}')">+</button></div>` : ''}</div></div>`; }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento.</p>';
         }
 
         // ============ GOALS ============
         function getUniqueInvestmentNames() { const names = new Set(); allInvestments.forEach(inv => { if (inv.name) names.add(inv.name); }); return [...names].sort(); }
         function updateGoalDropdown() { const select = document.getElementById('goalInvestment'); if (!select) return; const names = getUniqueInvestmentNames(); select.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('') || '<option value="">Nenhum investimento disponível</option>'; }
-        window.openGoalModal = function(gid = null) { editingGoalId = gid; updateGoalDropdown(); document.getElementById('goalModal').classList.add('active'); if (gid) { const g = allGoals.find(x => x.id === gid); if (g) { document.getElementById('goalModalTitle').textContent = 'Editar Meta'; document.getElementById('goalInvestment').value = g.investmentName || ''; document.getElementById('goalTarget').value = formatMoney(g.target); document.getElementById('goalDeadline').value = g.deadline || ''; document.getElementById('goalEditId').value = gid; } } else { document.getElementById('goalModalTitle').textContent = 'Nova Meta'; document.getElementById('goalTarget').value = ''; document.getElementById('goalDeadline').value = ''; document.getElementById('goalEditId').value = ''; } };
+        window.openGoalModal = function(gid = null) { editingGoalId = gid; updateGoalDropdown(); document.getElementById('goalModal').classList.add('active'); if (gid) { const g = allGoals.find(x => x.id === gid); if (g) { document.getElementById('goalModalTitle').textContent = 'Editar Meta'; document.getElementById('goalInvestment').value = g.investmentName || ''; document.getElementById('goalTarget').value = fmt(g.target); document.getElementById('goalDeadline').value = g.deadline || ''; document.getElementById('goalEditId').value = gid; } } else { document.getElementById('goalModalTitle').textContent = 'Nova Meta'; document.getElementById('goalTarget').value = ''; document.getElementById('goalDeadline').value = ''; document.getElementById('goalEditId').value = ''; } };
         window.closeGoalModal = function() { document.getElementById('goalModal').classList.remove('active'); editingGoalId = null; };
         window.saveGoal = async function() { const investmentName = document.getElementById('goalInvestment').value; const target = parseMoney(document.getElementById('goalTarget').value); const deadline = document.getElementById('goalDeadline').value; if (!investmentName || !target || target <= 0) { alert('Escolha um investimento e defina um objetivo'); return; } try { const goalData = { investmentName, target, deadline, updatedAt: serverTimestamp() }; if (editingGoalId) { await updateDoc(doc(db, "goals", editingGoalId), goalData); } else { await addDoc(collection(db, "goals"), { ...goalData, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeGoalModal(); } catch (e) { alert('Erro ao salvar meta'); } };
         window.deleteGoal = async function(id) { if (!confirm('Excluir meta?')) return; try { await deleteDoc(doc(db, "goals", id)); } catch (e) { } };
         
         function loadGoals() {
-            try { renderUserFilterTabs('goalsUserFilter', goalUserFilter, getUniqueUsers(allGoals), function(u){ goalUserFilter = u; loadGoals(); }); } catch(e) { }
+            try { renderUserFilterTabs('goalsUserFilter', goalUserFilter, getUniqueUsers(allGoals), function(u){ goalUserFilter = u; loadGoals(); }); } catch(e) {}
             let goalsSource = allGoals.slice();
             if (goalUserFilter && goalUserFilter !== 'all') goalsSource = goalsSource.filter(g => (g.userName || 'Outro') === goalUserFilter);
 
@@ -528,45 +500,32 @@
                 let monthlyHint = '';
                 if (dl && dl > now && remaining > 0) {
                     const monthsLeft = (dl.getFullYear() - now.getFullYear()) * 12 + (dl.getMonth() - now.getMonth()) + 1;
-                    if (monthsLeft > 0) monthlyHint = `💡 Precisa investir + R$ ${(remaining / monthsLeft).toFixed(2)}/mês`;
+                    if (monthsLeft > 0) monthlyHint = `💡 Precisa investir + R$ ${fmt(remaining / monthsLeft)}/mês`;
                 }
                 const firstInv = matchingInvestments[0] || {};
-                return { 
-                    ...g, currentValue, totalInvested, pct, remaining, monthlyHint, 
-                    institution: firstInv.institution || '', type: firstInv.type || '', 
-                    rate: firstInv.rate || 0, indexer: firstInv.indexer || '',
-                    matchCount: matchingInvestments.length
-                };
+                return { ...g, currentValue, totalInvested, pct, remaining, monthlyHint, institution: firstInv.institution || '', type: firstInv.type || '', rate: firstInv.rate || 0, indexer: firstInv.indexer || '', matchCount: matchingInvestments.length };
             });
 
             const totalTarget = goalsWithData.reduce((s, g) => s + g.target, 0);
             const totalCurrent = goalsWithData.reduce((s, g) => s + g.currentValue, 0);
             const totalPct = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
 
-            document.getElementById('goalsSummary').innerHTML = `
-                <div class="summary-card investment"><div class="card-label">🎯 Total em Metas</div><div class="card-value">R$ ${totalTarget.toFixed(2)}</div></div>
-                <div class="summary-card income"><div class="card-label">💰 Valor Atual</div><div class="card-value positive">R$ ${totalCurrent.toFixed(2)}</div></div>
-                <div class="summary-card balance"><div class="card-label">📊 Progresso Geral</div><div class="card-value">${totalPct.toFixed(1)}%</div></div>`;
+            document.getElementById('goalsSummary').innerHTML = `<div class="summary-card investment"><div class="card-label">🎯 Total em Metas</div><div class="card-value">R$ ${fmt(totalTarget)}</div></div><div class="summary-card income"><div class="card-label">💰 Valor Atual</div><div class="card-value positive">R$ ${fmt(totalCurrent)}</div></div><div class="summary-card balance"><div class="card-label">📊 Progresso Geral</div><div class="card-value">${totalPct.toFixed(1)}%</div></div>`;
 
             document.getElementById('goalsList').innerHTML = goalsWithData.map(g => {
                 const own = g.userId === currentUser?.id;
                 const cls = g.pct >= 80 && g.pct < 100 ? 'yellow' : 'green';
                 return `<div class="goal-card">
-                    <div class="goal-card-header">
-                        <h3>🎯 Meta: ${g.investmentName} ${g.matchCount > 1 ? `<span style="font-size:11px;color:var(--text-light);">(${g.matchCount} investimentos)</span>` : ''}</h3>
-                        <div>${own ? `<button class="btn-sm btn-edit" onclick="openGoalModal('${g.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteGoal('${g.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (g.userName || 'Outro') + '</span>'}</div>
-                    </div>
-                    <div class="goal-card-meta">
-                        <span>🏦 ${g.institution || '-'}</span><span>📋 ${g.type || '-'}</span><span>📊 ${g.rate || 0}% ${idx[g.indexer] || ''}</span>
-                    </div>
+                    <div class="goal-card-header"><h3>🎯 Meta: ${g.investmentName} ${g.matchCount > 1 ? `<span style="font-size:11px;color:var(--text-light);">(${g.matchCount} investimentos)</span>` : ''}</h3><div>${own ? `<button class="btn-sm btn-edit" onclick="openGoalModal('${g.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteGoal('${g.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (g.userName || 'Outro') + '</span>'}</div></div>
+                    <div class="goal-card-meta"><span>🏦 ${g.institution || '-'}</span><span>📋 ${g.type || '-'}</span><span>📊 ${g.rate || 0}% ${idx[g.indexer] || ''}</span></div>
                     <div class="goal-card-values">
-                        <div class="val-item"><div class="val-label">🎯 Objetivo</div><div class="val-number">R$ ${g.target.toFixed(2)}</div></div>
-                        <div class="val-item"><div class="val-label">📊 Valor Atual</div><div class="val-number">R$ ${g.currentValue.toFixed(2)}</div></div>
-                        <div class="val-item"><div class="val-label">💰 Já investido</div><div class="val-number">R$ ${g.totalInvested.toFixed(2)}</div></div>
+                        <div class="val-item"><div class="val-label">🎯 Objetivo</div><div class="val-number">R$ ${fmt(g.target)}</div></div>
+                        <div class="val-item"><div class="val-label">📊 Valor Atual</div><div class="val-number">R$ ${fmt(g.currentValue)}</div></div>
+                        <div class="val-item"><div class="val-label">💰 Já investido</div><div class="val-number">R$ ${fmt(g.totalInvested)}</div></div>
                         ${g.deadline ? `<div class="val-item"><div class="val-label">📅 Data Alvo</div><div class="val-number" style="font-size:12px;">${new Date(g.deadline + 'T12:00:00').toLocaleDateString('pt-BR')}</div></div>` : ''}
                     </div>
                     <div class="goal-progress-bar"><div class="goal-progress-fill ${cls}" style="width:${Math.min(g.pct, 100)}%"></div></div>
-                    <div class="goal-stats"><span>${g.pct.toFixed(1)}% concluído</span> <span>Faltam R$ ${(g.remaining > 0 ? g.remaining : 0).toFixed(2)}</span></div>
+                    <div class="goal-stats"><span>${g.pct.toFixed(1)}% concluído</span> <span>Faltam R$ ${fmt(g.remaining > 0 ? g.remaining : 0)}</span></div>
                     ${g.monthlyHint ? `<p class="goal-hint">${g.monthlyHint}</p>` : ''}
                 </div>`;
             }).join('') || '<p style="text-align:center;padding:30px;">Nenhuma meta criada.</p>';
@@ -575,7 +534,7 @@
         // ============ SETTINGS ============
         function loadSettingsView() {
             document.getElementById('indexersContainer').innerHTML = `<div class="indexer-row"><label>CDI</label><input type="number" id="idxCdi" value="${indexers.cdi || 13.65}" step="0.01"> <span>% a.a.</span> <button class="btn-sm btn-save" onclick="saveIndexer('cdi')">💾</button></div><div class="indexer-row"><label>Selic</label><input type="number" id="idxSelic" value="${indexers.selic || 13.75}" step="0.01"> <span>% a.a.</span> <button class="btn-sm btn-save" onclick="saveIndexer('selic')">💾</button></div><div class="indexer-row"><label>IPCA</label><input type="number" id="idxIpca" value="${indexers.ipca || 4.20}" step="0.01"> <span>% a.a.</span> <button class="btn-sm btn-save" onclick="saveIndexer('ipca')">💾</button></div>`;
-            document.getElementById('recurringContainer').innerHTML = allRecurring.map(r => { const own = r.userId === currentUser?.id; return `<div class="recurring-row"><span style="flex:1;font-size:11px;"><strong>${r.name}</strong> - R$ ${r.value.toFixed(2)} - ${r.type==='income'?'Receita':'Despesa'} - a cada ${r.frequency==='7d'?'7 dias':r.frequency==='15d'?'15 dias':'1 mês'} - desde ${new Date(r.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span>${own?`<button class="btn-sm btn-edit" onclick="startEditRecurring('${r.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteRecurring('${r.id}')">🗑️</button>`:'<span class="user-tag">👤 '+(r.userName||'Outro')+'</span>'}</div>`; }).join('') || '<p style="font-size:11px;color:var(--text-light);">Nenhuma recorrência.</p>';
+            document.getElementById('recurringContainer').innerHTML = allRecurring.map(r => { const own = r.userId === currentUser?.id; return `<div class="recurring-row"><span style="flex:1;font-size:11px;"><strong>${r.name}</strong> - R$ ${fmt(r.value)} - ${r.type==='income'?'Receita':'Despesa'} - a cada ${r.frequency==='7d'?'7 dias':r.frequency==='15d'?'15 dias':'1 mês'} - desde ${new Date(r.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span>${own?`<button class="btn-sm btn-edit" onclick="startEditRecurring('${r.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteRecurring('${r.id}')">🗑️</button>`:'<span class="user-tag">👤 '+(r.userName||'Outro')+'</span>'}</div>`; }).join('') || '<p style="font-size:11px;color:var(--text-light);">Nenhuma recorrência.</p>';
             const cats = getCategories(), defIds = Object.keys(defaultCategories); let html = ''; const custom = Object.entries(cats).filter(([id]) => !defIds.includes(id)); const def = Object.entries(cats).filter(([id]) => defIds.includes(id)); if (custom.length > 0) { html += '<h4 style="margin-bottom:4px;">✨ Personalizadas</h4><div class="category-pills" style="margin-bottom:10px;">'; custom.forEach(([id, cat]) => html += `<div class="category-pill"><span class="color-dot" style="background:${cat.color}"></span>${cat.icon} ${cat.name} <button onclick="deleteCategory('${id}')" style="background:none;border:none;font-size:10px;">🗑️</button></div>`); html += '</div>'; } html += '<h4 style="margin-bottom:4px;">📋 Padrão</h4><div class="category-pills">'; def.forEach(([id, cat]) => html += `<div class="category-pill"><span class="color-dot" style="background:${cat.color}"></span>${cat.icon} ${cat.name}</div>`); html += '</div>'; document.getElementById('categoryPills').innerHTML = html;
         }
         window.saveIndexer = async function(type) { const val = parseFloat(document.getElementById(`idx${type.charAt(0).toUpperCase() + type.slice(1)}`).value); if (!val || val <= 0) return; indexers[type] = val; try { await setDoc(doc(db, "settings", "indexers"), indexers); } catch (e) { alert('Erro'); } };
