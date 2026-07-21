@@ -156,6 +156,8 @@
         .icon-option.selected { border-color:var(--primary); background:#eff6ff; }
         #catIconInput { width:50px; text-align:center; font-size:20px; padding:5px; border:2px solid var(--border); border-radius:4px; }
         .user-tag { font-size:9px; color:var(--text-light); background:#f3f4f6; padding:2px 6px; border-radius:8px; }
+        .investment-name-institution { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+        .investment-name-institution .inst-badge { font-size:10px; background:#eff6ff; color:var(--primary); padding:2px 8px; border-radius:10px; }
         @media (max-width:768px) {
             .app-header { flex-direction:column; }
             .summary-cards { grid-template-columns:1fr 1fr; }
@@ -207,7 +209,11 @@
             <div id="investments" class="tab-content">
                 <div class="section-header"><h2>📈 Investimentos</h2><button class="btn btn-primary btn-sm" onclick="openInvestmentModal()">➕ Novo</button></div>
                 <div class="summary-cards" id="investmentSummary"></div>
-                <div class="charts-grid" style="margin-bottom:12px;"><div class="chart-container"><h3>📊 Distribuição por Tipo</h3><div class="chart-wrapper"><canvas id="portfolioTypeChart"></canvas></div><div id="portfolioTypeAnalysis" style="margin-top:6px;font-size:11px;color:var(--text-light);text-align:center;"></div></div></div>
+                <!-- Filtro por instituição/tipo -->
+                <div class="user-filter-tabs" id="investmentTypeFilter" style="margin-bottom:12px;"></div>
+                <div class="charts-grid" style="margin-bottom:12px;">
+                    <div class="chart-container"><h3>📊 Distribuição por Tipo</h3><div class="chart-wrapper"><canvas id="portfolioTypeChart"></canvas></div><div id="portfolioTypeAnalysis" style="margin-top:6px;font-size:11px;color:var(--text-light);text-align:center;"></div></div>
+                </div>
                 <div class="chart-container" style="margin-bottom:12px;"><h3>📈 Burnup - Evolução do Patrimônio</h3><div class="chart-wrapper large"><canvas id="investmentEvolutionChart"></canvas></div></div>
                 <h3>💼 Seus Investimentos</h3><div id="investmentUserFilter"></div><div id="investmentCards"></div>
             </div>
@@ -231,7 +237,7 @@
         const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getFirestore(app), provider = new GoogleAuthProvider();
         let currentUser = null, charts = {}, allTransactions = [], allInvestments = [], allGoals = [], allCategories = {}, allRecurring = [], indexers = { cdi: 13.65, selic: 13.75, ipca: 4.20 };
         const idx = { cdi: '% CDI', selic: '% Selic', ipca: 'IPCA +', pre: 'Pré' };
-        let transactionUserFilter = 'all', investmentUserFilter = 'all', goalUserFilter = 'all';
+        let transactionUserFilter = 'all', investmentUserFilter = 'all', goalUserFilter = 'all', investmentTypeFilter = 'all';
         let selectedColor = '#FF6B6B', selectedIcon = '📦', editingTransactionId = null, editingInvestmentId = null, editingGoalId = null, editingRecurringId = null;
         let currentPeriod = { qty: 30, unit: 'd' };
 
@@ -290,13 +296,16 @@
         }
 
         function getUniqueUsers(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.userName) s.add(x.userName); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
+        function getUniqueInstitutions(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.institution) s.add(x.institution); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
+        function getUniqueTypes(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.type) s.add(x.type); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
 
-        function renderUserFilterTabs(containerId, currentFilter, users, onChangeCallback) {
+        function renderUserFilterTabs(containerId, currentFilter, users, onChangeCallback, labelFn) {
             const container = document.getElementById(containerId);
             if (!container) return;
             const uniq = Array.isArray(users) ? users : [];
+            const lbl = labelFn || (u => u);
             let html = `<div class="user-filter-tabs"><span class="user-filter-chip ${currentFilter==='all'?'active':''}" data-user="all">👤 Todos</span>`;
-            uniq.forEach(u => { html += `<span class="user-filter-chip ${currentFilter===u?'active':''}" data-user="${escapeHtml(u)}">👤 ${escapeHtml(u)}</span>`; });
+            uniq.forEach(u => { html += `<span class="user-filter-chip ${currentFilter===u?'active':''}" data-user="${escapeHtml(u)}">${lbl(u)}</span>`; });
             html += `</div>`;
             container.innerHTML = html;
             container.querySelectorAll('.user-filter-chip').forEach(el => el.addEventListener('click', function() {
@@ -339,49 +348,9 @@
             }
         }
 
-        window.startEditRecurring = function(rid) {
-            const rec = allRecurring.find(r => r.id === rid);
-            if (!rec) return;
-            editingRecurringId = rid;
-            document.getElementById('recName').value = rec.name;
-            document.getElementById('recValue').value = fmt(rec.value);
-            document.getElementById('recDate').value = rec.startDate;
-            document.getElementById('recFreq').value = rec.frequency;
-            document.getElementById('recType').value = rec.type;
-            document.getElementById('recAddBtn').style.display = 'none';
-            document.getElementById('recSaveBtn').style.display = 'inline';
-            document.getElementById('recCancelBtn').style.display = 'inline';
-        };
-
-        window.cancelEditRecurring = function() {
-            editingRecurringId = null;
-            document.getElementById('recName').value = '';
-            document.getElementById('recValue').value = '';
-            document.getElementById('recDate').value = '';
-            document.getElementById('recFreq').value = '1m';
-            document.getElementById('recType').value = 'income';
-            document.getElementById('recAddBtn').style.display = 'inline';
-            document.getElementById('recSaveBtn').style.display = 'none';
-            document.getElementById('recCancelBtn').style.display = 'none';
-        };
-
-        window.saveRecurring = async function() {
-            const name = document.getElementById('recName').value.trim();
-            const value = parseMoney(document.getElementById('recValue').value);
-            const date = document.getElementById('recDate').value;
-            const frequency = document.getElementById('recFreq').value;
-            const type = document.getElementById('recType').value;
-            if (!name || !value || value <= 0 || !date) { alert('Preencha'); return; }
-            try {
-                if (editingRecurringId) {
-                    await updateDoc(doc(db, "recurring", editingRecurringId), { name, value, startDate: date, lastRun: date, frequency, type, updatedAt: serverTimestamp() });
-                } else {
-                    await addDoc(collection(db, "recurring"), { name, value, startDate: date, lastRun: date, frequency, type, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() });
-                }
-                cancelEditRecurring();
-            } catch (e) { alert('Erro'); }
-        };
-
+        window.startEditRecurring = function(rid) { const rec = allRecurring.find(r => r.id === rid); if (!rec) return; editingRecurringId = rid; document.getElementById('recName').value = rec.name; document.getElementById('recValue').value = fmt(rec.value); document.getElementById('recDate').value = rec.startDate; document.getElementById('recFreq').value = rec.frequency; document.getElementById('recType').value = rec.type; document.getElementById('recAddBtn').style.display = 'none'; document.getElementById('recSaveBtn').style.display = 'inline'; document.getElementById('recCancelBtn').style.display = 'inline'; };
+        window.cancelEditRecurring = function() { editingRecurringId = null; document.getElementById('recName').value = ''; document.getElementById('recValue').value = ''; document.getElementById('recDate').value = ''; document.getElementById('recFreq').value = '1m'; document.getElementById('recType').value = 'income'; document.getElementById('recAddBtn').style.display = 'inline'; document.getElementById('recSaveBtn').style.display = 'none'; document.getElementById('recCancelBtn').style.display = 'none'; };
+        window.saveRecurring = async function() { const name = document.getElementById('recName').value.trim(); const value = parseMoney(document.getElementById('recValue').value); const date = document.getElementById('recDate').value; const frequency = document.getElementById('recFreq').value; const type = document.getElementById('recType').value; if (!name || !value || value <= 0 || !date) { alert('Preencha'); return; } try { if (editingRecurringId) { await updateDoc(doc(db, "recurring", editingRecurringId), { name, value, startDate: date, lastRun: date, frequency, type, updatedAt: serverTimestamp() }); } else { await addDoc(collection(db, "recurring"), { name, value, startDate: date, lastRun: date, frequency, type, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } cancelEditRecurring(); } catch (e) { alert('Erro'); } };
         window.deleteRecurring = async function(id) { if (!confirm('Excluir?')) return; try { await deleteDoc(doc(db, "recurring", id)); } catch (e) { } };
 
         // ============ AUTH ============
@@ -404,7 +373,57 @@
         window.logout = async function() { if (confirm('Sair?')) { try { await signOut(auth); } catch (e) { } currentUser = null; allTransactions = []; allInvestments = []; allGoals = []; allCategories = {}; allRecurring = []; document.getElementById('mainApp').classList.remove('active'); document.getElementById('loginScreen').classList.remove('hidden'); } };
         window.showTab = function(tn) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active')); const te = document.getElementById(tn); if (te) te.classList.add('active'); const tm = { dashboard: 0, investments: 1, goals: 2, settings: 3 }; const bt = document.querySelectorAll('.nav-tab'); if (bt[tm[tn]]) bt[tm[tn]].classList.add('active'); switch (tn) { case 'dashboard': loadDashboard(); break; case 'investments': loadInvestments(); break; case 'goals': loadGoals(); break; case 'settings': loadSettingsView(); break; } };
 
-        function createLineChart(cid, labels, datasets) { const ctx = document.getElementById(cid); if (!ctx) return; if (charts[cid]) charts[cid].destroy(); charts[cid] = new Chart(ctx, { type: 'line', data: { labels, datasets: datasets.map(ds => ({ label: ds.label, data: ds.data, borderColor: ds.color, backgroundColor: ds.color + '20', fill: true, tension: 0.4, pointRadius: 2 })) }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true, ticks: { callback: v => 'R$ ' + v } } } } }); }
+        // ============ CHARTS ============
+        function createLineChart(cid, labels, datasets) {
+            const ctx = document.getElementById(cid);
+            if (!ctx) return;
+            if (charts[cid]) charts[cid].destroy();
+            // Reduzir número de labels mostrados
+            const maxLabels = 8;
+            const step = labels.length > maxLabels ? Math.ceil(labels.length / maxLabels) : 1;
+            const displayLabels = labels.map((l, i) => (i % step === 0 || i === labels.length - 1) ? l : '');
+            
+            charts[cid] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets.map(ds => ({
+                        label: ds.label,
+                        data: ds.data,
+                        borderColor: ds.color,
+                        backgroundColor: ds.color + '20',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 2,
+                        pointHoverRadius: 6
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': R$ ' + fmt(ctx.raw) } }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                maxTicksLimit: 8,
+                                autoSkip: true,
+                                maxRotation: 45
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: v => 'R$ ' + fmt(v)
+                            }
+                        }
+                    }
+                }
+            });
+        }
 
         // ============ DASHBOARD ============
         function loadDashboard() {
@@ -440,14 +459,26 @@
             allInvestments.forEach(inv => recalcInvestment(inv));
             let investments = allInvestments.slice();
             if (investmentUserFilter && investmentUserFilter !== 'all') investments = investments.filter(i => (i.userName || 'Outro') === investmentUserFilter);
+            
+            // Filtro por tipo/instituição
+            if (investmentTypeFilter && investmentTypeFilter !== 'all') {
+                investments = investments.filter(i => i.type === investmentTypeFilter || i.institution === investmentTypeFilter);
+            }
+            
             const ti = investments.reduce((s, i) => s + (i.totalInvested || 0), 0), tc = investments.reduce((s, i) => s + (i.currentValue || 0), 0), rv = tc - ti, rp = ti > 0 ? (rv / ti) * 100 : 0;
             document.getElementById('investmentSummary').innerHTML = `<div class="summary-card investment"><div class="card-label">💼 Total Investido</div><div class="card-value">R$ ${fmt(ti)}</div></div><div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">📊 Valor Atual</div><div class="card-value ${rv>=0?'positive':'negative'}">R$ ${fmt(tc)}</div></div><div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">📈 Rent. Nominal</div><div class="card-value ${rv>=0?'positive':'negative'}">${rp.toFixed(2)}%</div></div><div class="summary-card ${rv-(indexers.ipca||0)>=0?'income':'expense'}"><div class="card-label">💎 Rent. Real</div><div class="card-value ${rv-(indexers.ipca||0)>=0?'positive':'negative'}">${(rp-(indexers.ipca||0)).toFixed(2)}%</div></div>`;
             
+            // Filtro por tipo/instituição - chips
+            const instTypes = [...new Set([...getUniqueTypes(allInvestments), ...getUniqueInstitutions(allInvestments)])];
+            try { renderUserFilterTabs('investmentTypeFilter', investmentTypeFilter, instTypes, function(u){ investmentTypeFilter = u; loadInvestments(); }, u => '🏷️ ' + u); } catch(e) {}
+
+            // Portfólio (usar TODOS os investimentos, não filtrados)
             const fixaTypes = ['CDB', 'Tesouro Direto', 'LCI/LCA', 'Poupança']; let tf = 0, tv = 0;
             allInvestments.forEach(inv => { const v = inv.currentValue || inv.totalInvested || 0; if (fixaTypes.includes(inv.type)) tf += v; else tv += v; });
             const tp = tf + tv;
             if (tp > 0) { const fp = (tf / tp) * 100, vp = (tv / tp) * 100; const ctxP = document.getElementById('portfolioTypeChart'); if (ctxP) { if (charts['portfolioTypeChart']) charts['portfolioTypeChart'].destroy(); charts['portfolioTypeChart'] = new Chart(ctxP, { type: 'pie', data: { labels: ['Renda Fixa', 'Renda Variável'], datasets: [{ data: [tf, tv], backgroundColor: ['#2563eb', '#ea580c'], borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); } const df = fp - 60; document.getElementById('portfolioTypeAnalysis').innerHTML = `<strong>Ideal 60/40:</strong> Fixa: <strong style="color:#2563eb;">${fp.toFixed(1)}%</strong> ${df>5?'⚠️ Conservador':df<-5?'⚠️ Arriscado':'✅'} | Var: <strong style="color:#ea580c;">${vp.toFixed(1)}%</strong>${Math.abs(df)>10?'<br>💡 Rebalancear':''}`; }
 
+            // Burnup
             const allAportes = []; investments.forEach(inv => { (inv.aportes || []).forEach(ap => allAportes.push({ ...ap, rate: inv.rate, indexer: inv.indexer, endDate: inv.endDate })); });
             if (allAportes.length > 0) {
                 const dailyData = {}; allAportes.forEach(ap => { const d = getDateWithFallback(ap.date); const key = toLocalDateStr(d); if (!dailyData[key]) dailyData[key] = { invested: 0, aportesDoDia: [] }; dailyData[key].invested += ap.value; dailyData[key].aportesDoDia.push(ap); });
@@ -473,7 +504,8 @@
             
             try { renderUserFilterTabs('investmentUserFilter', investmentUserFilter, getUniqueUsers(allInvestments), function(u){ investmentUserFilter = u; loadInvestments(); }); } catch(e) {}
             
-            document.getElementById('investmentCards').innerHTML = investments.map(inv => { const ret = (inv.currentValue || 0) - (inv.totalInvested || 0), retP = inv.totalInvested > 0 ? (ret / inv.totalInvested) * 100 : 0, realRet = retP - (indexers.ipca || 0); const own = inv.userId === currentUser?.id, aportes = inv.aportes || []; return `<div class="data-card"><div class="data-card-header"><h4>📈 ${inv.name}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openInvestmentModal('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (inv.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>🏦 ${inv.institution || '-'}</span><span>📋 ${inv.type}</span><span>📊 ${inv.rate || 0}% ${idx[inv.indexer] || ''}</span><span>📅 ${new Date(inv.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span><span>🏁 ${new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span></div><div class="investment-card-values"><div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${fmt(inv.totalInvested || 0)}</div></div><div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${fmt(inv.currentValue || 0)}</div></div><div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${fmt(inv.projectedValue || 0)}</div></div><div class="val-item"><div class="val-label">📈 Nominal</div><div class="val-number ${ret>=0?'positive':'negative'}">${retP.toFixed(2)}%</div></div><div class="val-item"><div class="val-label">💎 Real</div><div class="val-number ${realRet>=0?'positive':'negative'}">${realRet.toFixed(2)}%</div></div></div><div class="aportes-section"><h4>🏷️ Aportes (${aportes.length})</h4>${aportes.map((ap, i) => `<div class="aporte-mini-item"><span>R$ ${fmt(ap.value)}</span><span class="aporte-date">${new Date(ap.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>${i > 0 && own ? `<button onclick="removeAporteFromInvestment('${inv.id}',${i})">✕</button>` : (i === 0 ? '<span style="font-size:10px;">inicial</span>' : '')}</div>`).join('')}${own ? `<div class="aporte-add-mini"><input type="text" id="aporte-val-${inv.id}" placeholder="Valor" inputmode="decimal"><input type="date" id="aporte-date-${inv.id}"><button class="btn-sm btn-add" onclick="addAporteToInvestment('${inv.id}')">+</button></div>` : ''}</div></div>`; }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento.</p>';
+            // Cards com instituição ao lado do nome
+            document.getElementById('investmentCards').innerHTML = investments.map(inv => { const ret = (inv.currentValue || 0) - (inv.totalInvested || 0), retP = inv.totalInvested > 0 ? (ret / inv.totalInvested) * 100 : 0, realRet = retP - (indexers.ipca || 0); const own = inv.userId === currentUser?.id, aportes = inv.aportes || []; return `<div class="data-card"><div class="data-card-header"><h4><span class="investment-name-institution">📈 ${inv.name} ${inv.institution ? `<span class="inst-badge">🏦 ${inv.institution}</span>` : ''}</span></h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openInvestmentModal('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (inv.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>📋 ${inv.type}</span><span>📊 ${inv.rate || 0}% ${idx[inv.indexer] || ''}</span><span>📅 ${new Date(inv.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span><span>🏁 ${new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span></div><div class="investment-card-values"><div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${fmt(inv.totalInvested || 0)}</div></div><div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${fmt(inv.currentValue || 0)}</div></div><div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${fmt(inv.projectedValue || 0)}</div></div><div class="val-item"><div class="val-label">📈 Nominal</div><div class="val-number ${ret>=0?'positive':'negative'}">${retP.toFixed(2)}%</div></div><div class="val-item"><div class="val-label">💎 Real</div><div class="val-number ${realRet>=0?'positive':'negative'}">${realRet.toFixed(2)}%</div></div></div><div class="aportes-section"><h4>🏷️ Aportes (${aportes.length})</h4>${aportes.map((ap, i) => `<div class="aporte-mini-item"><span>R$ ${fmt(ap.value)}</span><span class="aporte-date">${new Date(ap.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>${i > 0 && own ? `<button onclick="removeAporteFromInvestment('${inv.id}',${i})">✕</button>` : (i === 0 ? '<span style="font-size:10px;">inicial</span>' : '')}</div>`).join('')}${own ? `<div class="aporte-add-mini"><input type="text" id="aporte-val-${inv.id}" placeholder="Valor" inputmode="decimal"><input type="date" id="aporte-date-${inv.id}"><button class="btn-sm btn-add" onclick="addAporteToInvestment('${inv.id}')">+</button></div>` : ''}</div></div>`; }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento.</p>';
         }
 
         // ============ GOALS ============
@@ -488,7 +520,6 @@
             try { renderUserFilterTabs('goalsUserFilter', goalUserFilter, getUniqueUsers(allGoals), function(u){ goalUserFilter = u; loadGoals(); }); } catch(e) {}
             let goalsSource = allGoals.slice();
             if (goalUserFilter && goalUserFilter !== 'all') goalsSource = goalsSource.filter(g => (g.userName || 'Outro') === goalUserFilter);
-
             const goalsWithData = goalsSource.map(g => {
                 const matchingInvestments = allInvestments.filter(i => i.name === g.investmentName);
                 const currentValue = matchingInvestments.reduce((sum, inv) => sum + (inv.currentValue || inv.totalInvested || 0), 0);
@@ -505,13 +536,10 @@
                 const firstInv = matchingInvestments[0] || {};
                 return { ...g, currentValue, totalInvested, pct, remaining, monthlyHint, institution: firstInv.institution || '', type: firstInv.type || '', rate: firstInv.rate || 0, indexer: firstInv.indexer || '', matchCount: matchingInvestments.length };
             });
-
             const totalTarget = goalsWithData.reduce((s, g) => s + g.target, 0);
             const totalCurrent = goalsWithData.reduce((s, g) => s + g.currentValue, 0);
             const totalPct = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
-
             document.getElementById('goalsSummary').innerHTML = `<div class="summary-card investment"><div class="card-label">🎯 Total em Metas</div><div class="card-value">R$ ${fmt(totalTarget)}</div></div><div class="summary-card income"><div class="card-label">💰 Valor Atual</div><div class="card-value positive">R$ ${fmt(totalCurrent)}</div></div><div class="summary-card balance"><div class="card-label">📊 Progresso Geral</div><div class="card-value">${totalPct.toFixed(1)}%</div></div>`;
-
             document.getElementById('goalsList').innerHTML = goalsWithData.map(g => {
                 const own = g.userId === currentUser?.id;
                 const cls = g.pct >= 80 && g.pct < 100 ? 'yellow' : 'green';
@@ -547,7 +575,6 @@
         document.getElementById('iconPicker').addEventListener('click', e => { if (e.target.classList.contains('icon-option')) { selectedIcon = e.target.dataset.icon; document.getElementById('catIconInput').value = selectedIcon; updateIconPicker(); } });
         document.getElementById('catIconInput').addEventListener('input', e => { selectedIcon = e.target.value || '📦'; updateIconPicker(); });
         function updateIconPicker() { document.querySelectorAll('#iconPicker .icon-option').forEach(el => el.classList.toggle('selected', el.dataset.icon === selectedIcon)); }
-
         document.getElementById('recAddBtn').addEventListener('click', () => window.saveRecurring());
         document.getElementById('recSaveBtn').addEventListener('click', () => window.saveRecurring());
         document.getElementById('recCancelBtn').addEventListener('click', () => window.cancelEditRecurring());
