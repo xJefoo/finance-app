@@ -104,7 +104,6 @@
         .aportes-section { margin-top:6px; }
         .aportes-section h4 { font-size:11px; color:var(--text-light); margin-bottom:4px; }
         .aporte-mini-item { display:flex; align-items:center; gap:4px; padding:3px 6px; background:#f9fafb; border-radius:3px; margin-bottom:2px; font-size:11px; }
-        .aporte-mini-item .aporte-date { color:var(--text-light); font-size:9px; }
         .aporte-add-mini { display:flex; gap:4px; align-items:center; margin-top:4px; }
         .aporte-add-mini input { padding:4px 6px; border:1px solid var(--border); border-radius:3px; font-size:11px; width:90px; }
         .aporte-add-mini input[type=date] { width:105px; }
@@ -119,15 +118,19 @@
         .form-group input, .form-group select { padding:9px; border:1px solid var(--border); border-radius:6px; font-size:14px; }
         .form-group input:focus, .form-group select:focus { outline:none; border-color:var(--primary); }
         .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-        .goal-card { background:#fff; border-radius:var(--radius); padding:18px; border:1px solid var(--border); }
-        .goal-header { display:flex; justify-content:space-between; margin-bottom:10px; }
-        .goal-header h3 { font-size:15px; }
-        .goal-progress-bar { height:8px; background:#e5e7eb; border-radius:4px; overflow:hidden; margin:6px 0; }
-        .goal-progress-fill { height:100%; border-radius:4px; transition:width .5s; }
+
+        /* Goal card (novo estilo) */
+        .goal-card { background:#fff; border-radius:var(--radius); padding:20px; border:1px solid var(--border); margin-bottom:12px; }
+        .goal-card-header { display:flex; justify-content:space-between; align-items:start; margin-bottom:12px; flex-wrap:wrap; gap:8px; }
+        .goal-card-header h3 { font-size:16px; display:flex; align-items:center; gap:6px; }
+        .goal-card-meta { display:flex; gap:12px; flex-wrap:wrap; font-size:11px; color:var(--text-light); margin-bottom:10px; }
+        .goal-progress-bar { height:10px; background:#e5e7eb; border-radius:5px; overflow:hidden; margin:8px 0; }
+        .goal-progress-fill { height:100%; border-radius:5px; transition:width .5s; }
         .goal-progress-fill.green { background:var(--success); }
         .goal-progress-fill.yellow { background:var(--warning); }
-        .goal-stats { display:flex; justify-content:space-between; font-size:12px; margin-top:4px; }
-        .goal-hint { font-size:10px; color:var(--text-light); margin-top:4px; font-style:italic; }
+        .goal-card-values { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; margin:8px 0; }
+        .goal-hint { font-size:11px; color:var(--text-light); margin-top:6px; font-style:italic; }
+
         .category-pills { display:flex; flex-wrap:wrap; gap:5px; }
         .category-pill { display:flex; align-items:center; gap:3px; padding:5px 10px; border-radius:14px; font-size:11px; border:1px solid var(--border); background:#fff; }
         .indexer-row { display:flex; align-items:center; gap:6px; padding:6px 0; border-bottom:1px solid var(--border); }
@@ -167,7 +170,7 @@
     <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
     <div id="categoryModal" class="modal-overlay"><div class="modal"><div class="modal-header"><h2>Nova Categoria</h2><button class="modal-close" onclick="closeCategoryModal()">✕</button></div><div class="form-group"><label>Nome</label><input type="text" id="catName"></div><div class="form-group"><label>Tipo</label><select id="catType"><option value="expense">Despesa</option><option value="income">Receita</option></select></div><div class="form-group"><label>Cor</label><div class="color-picker" id="colorPicker"><div class="color-option selected" style="background:#FF6B6B" data-color="#FF6B6B"></div><div class="color-option" style="background:#4ECDC4" data-color="#4ECDC4"></div><div class="color-option" style="background:#45B7D1" data-color="#45B7D1"></div><div class="color-option" style="background:#96CEB4" data-color="#96CEB4"></div><div class="color-option" style="background:#FFEAA7" data-color="#FFEAA7"></div><div class="color-option" style="background:#DDA0DD" data-color="#DDA0DD"></div><div class="color-option" style="background:#98D8C8" data-color="#98D8C8"></div><div class="color-option" style="background:#2ECC71" data-color="#2ECC71"></div><div class="color-option" style="background:#3498DB" data-color="#3498DB"></div><div class="color-option" style="background:#9B59B6" data-color="#9B59B6"></div><div class="color-option" style="background:#E67E22" data-color="#E67E22"></div><div class="color-option" style="background:#F39C12" data-color="#F39C12"></div></div></div><div class="form-group"><label>Ícone</label><div style="display:flex;gap:4px;align-items:center;"><input type="text" id="catIconInput" maxlength="4" placeholder="📦"><span style="font-size:10px;color:var(--text-light);">💡 Win+.</span></div></div><div class="form-group"><label>Sugestões:</label><div class="icon-picker" id="iconPicker"><span class="icon-option selected" data-icon="📦">📦</span><span class="icon-option" data-icon="🍽️">🍽️</span><span class="icon-option" data-icon="🏠">🏠</span><span class="icon-option" data-icon="🚗">🚗</span><span class="icon-option" data-icon="🏥">🏥</span><span class="icon-option" data-icon="📚">📚</span><span class="icon-option" data-icon="🎮">🎮</span><span class="icon-option" data-icon="🐾">🐾</span><span class="icon-option" data-icon="💳">💳</span><span class="icon-option" data-icon="🎬">🎬</span><span class="icon-option" data-icon="✈️">✈️</span><span class="icon-option" data-icon="🎁">🎁</span><span class="icon-option" data-icon="💻">💻</span><span class="icon-option" data-icon="📱">📱</span><span class="icon-option" data-icon="👕">👕</span><span class="icon-option" data-icon="💄">💄</span></div></div><button class="btn btn-primary" onclick="saveCategory()">Salvar</button></div></div>
     <div id="transactionModal" class="modal-overlay"><div class="modal"><div class="modal-header"><h2 id="transModalTitle">Nova Transação</h2><button class="modal-close" onclick="closeTransactionModal()">✕</button></div><div class="form-row"><div class="form-group"><label>Tipo</label><select id="transType" onchange="updateCategoryDropdown()"><option value="expense">Despesa</option><option value="income">Receita</option></select></div><div class="form-group"><label>Categoria</label><select id="transCategory"></select></div></div><div class="form-group"><label>Descrição</label><input type="text" id="transDescription"></div><div class="form-row"><div class="form-group"><label>Valor (R$)</label><input type="text" id="transAmount" inputmode="decimal" placeholder="0,00"></div><div class="form-group"><label>Data</label><input type="date" id="transDate"></div></div><input type="hidden" id="transEditId"><button class="btn btn-primary" onclick="saveTransaction()">Salvar</button></div></div>
-    <div id="goalModal" class="modal-overlay"><div class="modal"><div class="modal-header"><h2 id="goalModalTitle">Nova Meta</h2><button class="modal-close" onclick="closeGoalModal()">✕</button></div><div class="form-group"><label>Nome</label><input type="text" id="goalName"></div><div class="form-row"><div class="form-group"><label>Valor Total (R$)</label><input type="text" id="goalTarget" inputmode="decimal" placeholder="0,00"></div><div class="form-group"><label>Valor Atual (R$)</label><input type="text" id="goalCurrent" inputmode="decimal" placeholder="0,00"></div></div><div class="form-group"><label>Data Limite</label><input type="date" id="goalDeadline"></div><input type="hidden" id="goalEditId"><button class="btn btn-primary" onclick="saveGoal()">Salvar</button></div></div>
+    <div id="goalModal" class="modal-overlay"><div class="modal"><div class="modal-header"><h2 id="goalModalTitle">Nova Meta</h2><button class="modal-close" onclick="closeGoalModal()">✕</button></div><div class="form-group"><label>Investimento</label><select id="goalInvestment"></select></div><div class="form-row"><div class="form-group"><label>Objetivo (R$)</label><input type="text" id="goalTarget" inputmode="decimal" placeholder="0,00"></div><div class="form-group"><label>Data Alvo</label><input type="date" id="goalDeadline"></div></div><input type="hidden" id="goalEditId"><button class="btn btn-primary" onclick="saveGoal()">Salvar</button></div></div>
     <div id="investmentModal" class="modal-overlay"><div class="modal"><div class="modal-header"><h2 id="investmentModalTitle">Novo Investimento</h2><button class="modal-close" onclick="closeInvestmentModal()">✕</button></div><div class="form-row"><div class="form-group"><label>Tipo</label><select id="invType"><option>CDB</option><option>Tesouro Direto</option><option>Ações</option><option>Fundos Imobiliários</option><option>LCI/LCA</option><option>Poupança</option><option>Criptomoedas</option><option>Outros</option></select></div><div class="form-group"><label>Instituição</label><input type="text" id="invInstitution"></div></div><div class="form-row"><div class="form-group"><label>Nome/Ativo</label><input type="text" id="invName"></div><div class="form-group"><label>Valor Inicial (R$)</label><input type="text" id="invInitialValue" inputmode="decimal" placeholder="0,00"></div></div><div class="form-row"><div class="form-group"><label>Taxa</label><input type="text" id="invRate" inputmode="numeric"></div><div class="form-group"><label>Indexador</label><select id="invIndexer"><option value="cdi">% do CDI</option><option value="selic">% da Selic</option><option value="ipca">IPCA +</option><option value="pre">Pré-fixado</option></select></div></div><div class="form-row"><div class="form-group"><label>Data Início</label><input type="date" id="invStartDate"></div><div class="form-group"><label>Vencimento</label><input type="date" id="invEndDate"><span style="font-size:9px;color:var(--text-light);">vazio = +1 ano</span></div></div><input type="hidden" id="invEditId"><button class="btn btn-primary" onclick="saveInvestment()">Salvar</button></div></div>
     <div id="loginScreen" class="login-screen"><div class="login-card"><div class="login-header"><h1>💰 FinanceHub</h1><p>Controle Financeiro Familiar</p></div><div class="error-message" id="loginError">Acesso não autorizado.</div><button class="btn btn-google" onclick="loginWithGoogle()"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Entrar com Google</button></div></div>
     <div id="mainApp" class="main-app">
@@ -202,7 +205,12 @@
                 <div class="chart-container" style="margin-bottom:12px;"><h3>📈 Burnup - Evolução do Patrimônio</h3><div class="chart-wrapper large"><canvas id="investmentEvolutionChart"></canvas></div></div>
                 <h3>💼 Seus Investimentos</h3><div id="investmentCards"></div>
             </div>
-            <div id="goals" class="tab-content"><div class="section-header"><h2>🏆 Metas</h2><button class="btn btn-primary btn-sm" onclick="openGoalModal()">➕ Nova</button></div><div class="summary-cards" id="goalsSummary"></div><div class="comparison-cards" id="goalsList"></div></div>
+            <!-- METAS (NOVO FORMATO) -->
+            <div id="goals" class="tab-content">
+                <div class="section-header"><h2>🏆 Metas por Investimento</h2><button class="btn btn-primary btn-sm" onclick="openGoalModal()">➕ Nova</button></div>
+                <div class="summary-cards" id="goalsSummary"></div>
+                <div id="goalsList"></div>
+            </div>
             <div id="settings" class="tab-content"><h2>⚙️ Configurações</h2><div class="add-form"><h3>📊 Indexadores</h3><div id="indexersContainer"></div></div><div class="add-form" style="margin-top:12px;"><h3>🔄 Transações Recorrentes</h3><p style="color:var(--text-light);margin-bottom:8px;font-size:12px;">Ex: adiantamento, salário. Serão adicionadas automaticamente.</p><div id="recurringContainer"></div><div class="recurring-row" style="margin-top:6px;"><input class="rec-name" placeholder="Nome" id="recName"><input class="rec-value" placeholder="Valor" id="recValue" inputmode="decimal"><input class="rec-date" type="date" id="recDate"><select class="rec-freq" id="recFreq"><option value="1m">1 mês</option><option value="15d">15 dias</option><option value="7d">7 dias</option></select><select id="recType"><option value="income">Receita</option><option value="expense">Despesa</option></select><button class="btn-sm btn-add" onclick="addRecurring()">+</button></div></div><div class="add-form" style="margin-top:12px;"><div class="section-header"><h3>🏷️ Categorias</h3><button class="btn btn-primary btn-sm" onclick="openCategoryModal()">➕ Nova</button></div><div id="categoryPills"></div></div></div>
         </main>
         <div class="sync-indicator"><span class="sync-dot"></span>Sincronizado ☁️</div>
@@ -236,7 +244,6 @@
         }
 
         function parseCustomPeriod(str) { const match = str.match(/^(\d+)\s*(m|h|d|M|y)$/); if (!match) return null; return { qty: parseInt(match[1]), unit: match[2] }; }
-
         function toggleDropdown() { document.getElementById('periodDropdown').classList.toggle('open'); }
         function selectChip(period) {
             document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active'));
@@ -308,27 +315,18 @@
 
         function createLineChart(cid, labels, datasets) { const ctx = document.getElementById(cid); if (!ctx) return; if (charts[cid]) charts[cid].destroy(); charts[cid] = new Chart(ctx, { type: 'line', data: { labels, datasets: datasets.map(ds => ({ label: ds.label, data: ds.data, borderColor: ds.color, backgroundColor: ds.color + '20', fill: true, tension: 0.4, pointRadius: 2 })) }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true, ticks: { callback: v => 'R$ ' + v } } } } }); }
 
-        // ============ DASHBOARD (SEM CLIQUE NOS CARDS) ============
         function loadDashboard() {
             const ft = filterByPeriod(allTransactions);
             const mi = ft.filter(t => t.type === 'income').reduce((s, t) => s + (t.amount || 0), 0);
             const me = ft.filter(t => t.type === 'expense').reduce((s, t) => s + (t.amount || 0), 0);
             const bal = mi - me;
             const ti = allInvestments.reduce((s, i) => s + (i.currentValue || i.totalInvested || 0), 0);
-            document.getElementById('summaryCards').innerHTML = `
-                <div class="summary-card income"><div class="card-label">💵 Receitas</div><div class="card-value positive">R$ ${mi.toFixed(2)}</div></div>
-                <div class="summary-card expense"><div class="card-label">💸 Despesas</div><div class="card-value negative">R$ ${me.toFixed(2)}</div></div>
-                <div class="summary-card balance"><div class="card-label">💰 Saldo</div><div class="card-value ${bal >= 0 ? 'positive' : 'negative'}">R$ ${bal.toFixed(2)}</div></div>
-                <div class="summary-card investment"><div class="card-label">📈 Investimentos</div><div class="card-value">R$ ${ti.toFixed(2)}</div></div>`;
+            document.getElementById('summaryCards').innerHTML = `<div class="summary-card income"><div class="card-label">💵 Receitas</div><div class="card-value positive">R$ ${mi.toFixed(2)}</div></div><div class="summary-card expense"><div class="card-label">💸 Despesas</div><div class="card-value negative">R$ ${me.toFixed(2)}</div></div><div class="summary-card balance"><div class="card-label">💰 Saldo</div><div class="card-value ${bal >= 0 ? 'positive' : 'negative'}">R$ ${bal.toFixed(2)}</div></div><div class="summary-card investment"><div class="card-label">📈 Investimentos</div><div class="card-value">R$ ${ti.toFixed(2)}</div></div>`;
             const ec = {}; ft.filter(t => t.type === 'expense').forEach(t => { const cat = t.category || 'other'; if (!ec[cat]) ec[cat] = 0; ec[cat] += (t.amount || 0); });
             const cats = getCategories(); const cd = Object.entries(ec).map(([id, amt]) => ({ category: cats[id]?.name || id, amount: amt, color: cats[id]?.color || '#ccc' }));
             if (cd.length > 0) { const ctx = document.getElementById('categoryChart'); if (ctx) { if (charts['categoryChart']) charts['categoryChart'].destroy(); charts['categoryChart'] = new Chart(ctx, { type: 'pie', data: { labels: cd.map(d => d.category), datasets: [{ data: cd.map(d => d.amount), backgroundColor: cd.map(d => d.color), borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); } }
             const displayTrans = ft.slice(0, 20);
-            document.getElementById('transactionCards').innerHTML = displayTrans.map(t => {
-                const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
-                const cat = getCategoryById(t.category); const own = t.userId === currentUser?.id;
-                return `<div class="data-card"><div class="data-card-header"><h4>${cat.icon} ${t.description}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openTransactionModal('${t.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (t.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>${t.type === 'income' ? 'Receita' : 'Despesa'}</span><span>📅 ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span></div><div class="data-card-amount ${t.type === 'income' ? 'income' : 'expense'}" style="margin-top:6px;">${t.type === 'income' ? '+' : '-'} R$ ${(t.amount || 0).toFixed(2)}</div></div>`;
-            }).join('') || '<p style="text-align:center;padding:20px;">Nenhuma transação neste período.</p>';
+            document.getElementById('transactionCards').innerHTML = displayTrans.map(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); const cat = getCategoryById(t.category); const own = t.userId === currentUser?.id; return `<div class="data-card"><div class="data-card-header"><h4>${cat.icon} ${t.description}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openTransactionModal('${t.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (t.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>${t.type === 'income' ? 'Receita' : 'Despesa'}</span><span>📅 ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span></div><div class="data-card-amount ${t.type === 'income' ? 'income' : 'expense'}" style="margin-top:6px;">${t.type === 'income' ? '+' : '-'} R$ ${(t.amount || 0).toFixed(2)}</div></div>`; }).join('') || '<p style="text-align:center;padding:20px;">Nenhuma transação neste período.</p>';
         }
 
         window.openTransactionModal = function(tid = null) { editingTransactionId = tid; document.getElementById('transactionModal').classList.add('active'); updateCategoryDropdown(); if (tid) { const t = allTransactions.find(x => x.id === tid); if (t) { document.getElementById('transModalTitle').textContent = 'Editar Transação'; document.getElementById('transType').value = t.type; document.getElementById('transDescription').value = t.description; document.getElementById('transAmount').value = formatMoney(t.amount); document.getElementById('transDate').value = t.date || new Date(t.createdAt?.toDate ? t.createdAt.toDate() : t.createdAt).toISOString().split('T')[0]; document.getElementById('transEditId').value = tid; updateCategoryDropdown(); setTimeout(() => { document.getElementById('transCategory').value = t.category; }, 100); } } else { document.getElementById('transModalTitle').textContent = 'Nova Transação'; document.getElementById('transType').value = 'expense'; document.getElementById('transDescription').value = ''; document.getElementById('transAmount').value = ''; document.getElementById('transDate').value = new Date().toISOString().split('T')[0]; document.getElementById('transEditId').value = ''; updateCategoryDropdown(); } };
@@ -336,7 +334,7 @@
         window.saveTransaction = async function() { const type = document.getElementById('transType').value, desc = document.getElementById('transDescription').value.trim(), amt = parseMoney(document.getElementById('transAmount').value), cat = document.getElementById('transCategory').value, date = document.getElementById('transDate').value || new Date().toISOString().split('T')[0]; if (!desc || !amt || amt <= 0) { alert('Preencha'); return; } try { if (editingTransactionId) { await updateDoc(doc(db, "transactions", editingTransactionId), { type, description: desc, amount: amt, category: cat, date, updatedAt: serverTimestamp() }); } else { await addDoc(collection(db, "transactions"), { type, description: desc, amount: amt, category: cat, date, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeTransactionModal(); } catch (e) { alert('Erro'); } };
         window.deleteTransaction = async function(id) { if (!confirm('Excluir?')) return; try { await deleteDoc(doc(db, "transactions", id)); } catch (e) { } };
 
-        // ============ INVESTMENTS (BURNUP CORRIGIDO) ============
+        // ============ INVESTMENTS ============
         window.openInvestmentModal = function(invId = null) { editingInvestmentId = invId; document.getElementById('investmentModal').classList.add('active'); if (invId) { const inv = allInvestments.find(i => i.id === invId); if (inv) { document.getElementById('investmentModalTitle').textContent = 'Editar'; document.getElementById('invType').value = inv.type; document.getElementById('invInstitution').value = inv.institution || ''; document.getElementById('invName').value = inv.name; document.getElementById('invRate').value = inv.rate || ''; document.getElementById('invIndexer').value = inv.indexer || 'cdi'; document.getElementById('invStartDate').value = inv.startDate || ''; document.getElementById('invEndDate').value = inv.endDate || ''; document.getElementById('invInitialValue').value = formatMoney((inv.aportes && inv.aportes.length > 0) ? inv.aportes[0].value : 0); document.getElementById('invEditId').value = invId; } } else { document.getElementById('investmentModalTitle').textContent = 'Novo'; document.getElementById('invType').value = 'CDB'; document.getElementById('invInstitution').value = ''; document.getElementById('invName').value = ''; document.getElementById('invRate').value = ''; document.getElementById('invIndexer').value = 'cdi'; document.getElementById('invStartDate').value = new Date().toISOString().split('T')[0]; document.getElementById('invEndDate').value = ''; document.getElementById('invInitialValue').value = ''; document.getElementById('invEditId').value = ''; } };
         window.closeInvestmentModal = function() { document.getElementById('investmentModal').classList.remove('active'); };
         window.saveInvestment = async function() { const type = document.getElementById('invType').value, institution = document.getElementById('invInstitution').value.trim(), name = document.getElementById('invName').value.trim(), rate = parseFloat(document.getElementById('invRate').value) || 0, indexer = document.getElementById('invIndexer').value, startDate = document.getElementById('invStartDate').value || new Date().toISOString().split('T')[0]; let endDate = document.getElementById('invEndDate').value; if (!endDate) { const sd = new Date(startDate); sd.setFullYear(sd.getFullYear() + 1); endDate = sd.toISOString().split('T')[0]; } const initialValue = parseMoney(document.getElementById('invInitialValue').value); if (!name || !initialValue || initialValue <= 0) { alert('Preencha'); return; } const aportes = [{ value: initialValue, date: startDate }]; const currentValue = calcCurrentValue(aportes, rate, indexer), projectedValue = calcProjectedValue(aportes, rate, indexer, new Date(endDate)); const invData = { type, institution, name, rate, indexer, startDate, endDate, aportes, totalInvested: initialValue, currentValue, projectedValue, updatedAt: serverTimestamp() }; try { if (editingInvestmentId) { await updateDoc(doc(db, "investments", editingInvestmentId), invData); } else { await addDoc(collection(db, "investments"), { ...invData, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeInvestmentModal(); } catch (e) { alert('Erro'); } };
@@ -345,105 +343,131 @@
         window.removeAporteFromInvestment = async function(invId, index) { const inv = allInvestments.find(i => i.id === invId); if (!inv || inv.aportes.length <= 1) { alert('Não pode remover o aporte inicial.'); return; } const na = inv.aportes.filter((_, i) => i !== index); const ni = { ...inv, aportes: na }; recalcInvestment(ni); try { await updateDoc(doc(db, "investments", invId), { aportes: na, totalInvested: ni.totalInvested, currentValue: ni.currentValue, projectedValue: ni.projectedValue, updatedAt: serverTimestamp() }); } catch (e) { alert('Erro'); } };
 
         function loadInvestments() {
-            // Recalcular todos os investimentos para garantir valores atualizados
             allInvestments.forEach(inv => recalcInvestment(inv));
-            
-            const ti = allInvestments.reduce((s, i) => s + (i.totalInvested || 0), 0);
-            const tc = allInvestments.reduce((s, i) => s + (i.currentValue || 0), 0);
-            const rv = tc - ti, rp = ti > 0 ? (rv / ti) * 100 : 0;
-            
-            document.getElementById('investmentSummary').innerHTML = `
-                <div class="summary-card investment"><div class="card-label">💼 Total Investido</div><div class="card-value">R$ ${ti.toFixed(2)}</div></div>
-                <div class="summary-card ${rv >= 0 ? 'income' : 'expense'}"><div class="card-label">📊 Valor Atual</div><div class="card-value ${rv >= 0 ? 'positive' : 'negative'}">R$ ${tc.toFixed(2)}</div></div>
-                <div class="summary-card ${rv >= 0 ? 'income' : 'expense'}"><div class="card-label">📈 Rent. Nominal</div><div class="card-value ${rv >= 0 ? 'positive' : 'negative'}">${rp.toFixed(2)}%</div></div>
-                <div class="summary-card ${rv - (indexers.ipca || 0) >= 0 ? 'income' : 'expense'}"><div class="card-label">💎 Rent. Real</div><div class="card-value ${rv - (indexers.ipca || 0) >= 0 ? 'positive' : 'negative'}">${(rp - (indexers.ipca || 0)).toFixed(2)}%</div></div>`;
-
-            // Portfólio
-            const fixaTypes = ['CDB', 'Tesouro Direto', 'LCI/LCA', 'Poupança'];
-            let tf = 0, tv = 0;
+            const ti = allInvestments.reduce((s, i) => s + (i.totalInvested || 0), 0), tc = allInvestments.reduce((s, i) => s + (i.currentValue || 0), 0), rv = tc - ti, rp = ti > 0 ? (rv / ti) * 100 : 0;
+            document.getElementById('investmentSummary').innerHTML = `<div class="summary-card investment"><div class="card-label">💼 Total Investido</div><div class="card-value">R$ ${ti.toFixed(2)}</div></div><div class="summary-card ${rv >= 0 ? 'income' : 'expense'}"><div class="card-label">📊 Valor Atual</div><div class="card-value ${rv >= 0 ? 'positive' : 'negative'}">R$ ${tc.toFixed(2)}</div></div><div class="summary-card ${rv >= 0 ? 'income' : 'expense'}"><div class="card-label">📈 Rent. Nominal</div><div class="card-value ${rv >= 0 ? 'positive' : 'negative'}">${rp.toFixed(2)}%</div></div><div class="summary-card ${rv - (indexers.ipca || 0) >= 0 ? 'income' : 'expense'}"><div class="card-label">💎 Rent. Real</div><div class="card-value ${rv - (indexers.ipca || 0) >= 0 ? 'positive' : 'negative'}">${(rp - (indexers.ipca || 0)).toFixed(2)}%</div></div>`;
+            const fixaTypes = ['CDB', 'Tesouro Direto', 'LCI/LCA', 'Poupança']; let tf = 0, tv = 0;
             allInvestments.forEach(inv => { const v = inv.currentValue || inv.totalInvested || 0; if (fixaTypes.includes(inv.type)) tf += v; else tv += v; });
             const tp = tf + tv;
-            if (tp > 0) {
-                const fp = (tf / tp) * 100, vp = (tv / tp) * 100;
-                const ctxP = document.getElementById('portfolioTypeChart');
-                if (ctxP) { if (charts['portfolioTypeChart']) charts['portfolioTypeChart'].destroy(); charts['portfolioTypeChart'] = new Chart(ctxP, { type: 'pie', data: { labels: ['Renda Fixa', 'Renda Variável'], datasets: [{ data: [tf, tv], backgroundColor: ['#2563eb', '#ea580c'], borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); }
-                const df = fp - 60;
-                document.getElementById('portfolioTypeAnalysis').innerHTML = `<strong>Ideal 60/40:</strong> Fixa: <strong style="color:#2563eb;">${fp.toFixed(1)}%</strong> ${df > 5 ? '⚠️ Conservador' : df < -5 ? '⚠️ Arriscado' : '✅'} | Var: <strong style="color:#ea580c;">${vp.toFixed(1)}%</strong>${Math.abs(df) > 10 ? '<br>💡 Rebalancear' : ''}`;
-            }
-
-            // BURNUP CORRIGIDO - Agrupa aportes por dia, calcula valores diários
-            const allAportes = [];
-            allInvestments.forEach(inv => { (inv.aportes || []).forEach(ap => allAportes.push({ ...ap, rate: inv.rate, indexer: inv.indexer })); });
-            
+            if (tp > 0) { const fp = (tf / tp) * 100, vp = (tv / tp) * 100; const ctxP = document.getElementById('portfolioTypeChart'); if (ctxP) { if (charts['portfolioTypeChart']) charts['portfolioTypeChart'].destroy(); charts['portfolioTypeChart'] = new Chart(ctxP, { type: 'pie', data: { labels: ['Renda Fixa', 'Renda Variável'], datasets: [{ data: [tf, tv], backgroundColor: ['#2563eb', '#ea580c'], borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); } const df = fp - 60; document.getElementById('portfolioTypeAnalysis').innerHTML = `<strong>Ideal 60/40:</strong> Fixa: <strong style="color:#2563eb;">${fp.toFixed(1)}%</strong> ${df > 5 ? '⚠️ Conservador' : df < -5 ? '⚠️ Arriscado' : '✅'} | Var: <strong style="color:#ea580c;">${vp.toFixed(1)}%</strong>${Math.abs(df) > 10 ? '<br>💡 Rebalancear' : ''}`; }
+            const allAportes = []; allInvestments.forEach(inv => { (inv.aportes || []).forEach(ap => allAportes.push({ ...ap, rate: inv.rate, indexer: inv.indexer })); });
             if (allAportes.length > 0) {
-                // Agrupar por dia
-                const dailyData = {};
-                allAportes.forEach(ap => {
-                    const d = new Date(ap.date);
-                    const key = d.toISOString().split('T')[0]; // YYYY-MM-DD
-                    if (!dailyData[key]) dailyData[key] = { invested: 0, aportesDoDia: [] };
-                    dailyData[key].invested += ap.value;
-                    dailyData[key].aportesDoDia.push(ap);
-                });
-                
-                const sortedDays = Object.keys(dailyData).sort();
-                const investedLine = [];
-                const currentLine = [];
-                let cumInvested = 0;
-                
-                sortedDays.forEach(day => {
-                    cumInvested += dailyData[day].invested;
-                    investedLine.push(cumInvested);
-                    
-                    // Calcular valor atual acumulado até esta data
-                    const allAportesUntilNow = [];
-                    sortedDays.filter(d => d <= day).forEach(d => {
-                        dailyData[d].aportesDoDia.forEach(ap => allAportesUntilNow.push(ap));
-                    });
-                    
-                    const now = new Date();
-                    const curVal = allAportesUntilNow.reduce((s, ap) => {
-                        const ar = ap.rate || 0;
-                        const ai = ap.indexer || 'pre';
-                        return s + calcProjectedValue([ap], ar, ai, now);
-                    }, 0);
-                    currentLine.push(curVal);
-                });
-                
-                // Projeção: último valor atual + juros até vencimento
-                const lastDay = sortedDays[sortedDays.length - 1];
-                const projDate = new Date(lastDay);
-                projDate.setFullYear(projDate.getFullYear() + 1);
-                const projKey = projDate.toISOString().split('T')[0];
-                
-                const projVal = allAportes.reduce((s, ap) => {
-                    const ar = ap.rate || 0;
-                    const ai = ap.indexer || 'pre';
-                    return s + calcProjectedValue([ap], ar, ai, projDate);
-                }, 0);
-                
-                createLineChart('investmentEvolutionChart', [...sortedDays, projKey], [
-                    { label: 'Valor Investido', data: [...investedLine, investedLine[investedLine.length - 1]], color: '#2563eb' },
-                    { label: 'Valor Atual', data: [...currentLine, currentLine[currentLine.length - 1]], color: '#16a34a' },
-                    { label: 'Projeção (' + projDate.toLocaleDateString('pt-BR', {month:'short',year:'numeric'}) + ')', data: [...Array(sortedDays.length).fill(null), projVal], color: '#7c3aed' }
-                ]);
+                const dailyData = {}; allAportes.forEach(ap => { const d = new Date(ap.date); const key = d.toISOString().split('T')[0]; if (!dailyData[key]) dailyData[key] = { invested: 0, aportesDoDia: [] }; dailyData[key].invested += ap.value; dailyData[key].aportesDoDia.push(ap); });
+                const sortedDays = Object.keys(dailyData).sort(); const investedLine = [], currentLine = []; let cumInvested = 0;
+                sortedDays.forEach(day => { cumInvested += dailyData[day].invested; investedLine.push(cumInvested); const allUntilNow = []; sortedDays.filter(d => d <= day).forEach(d => { dailyData[d].aportesDoDia.forEach(ap => allUntilNow.push(ap)); }); const curVal = allUntilNow.reduce((s, ap) => s + calcProjectedValue([ap], ap.rate || 0, ap.indexer || 'pre', new Date()), 0); currentLine.push(curVal); });
+                const lastDay = sortedDays[sortedDays.length - 1]; const projDate = new Date(lastDay); projDate.setFullYear(projDate.getFullYear() + 1); const projKey = projDate.toISOString().split('T')[0];
+                const projVal = allAportes.reduce((s, ap) => s + calcProjectedValue([ap], ap.rate || 0, ap.indexer || 'pre', projDate), 0);
+                createLineChart('investmentEvolutionChart', [...sortedDays, projKey], [{ label: 'Valor Investido', data: [...investedLine, investedLine[investedLine.length - 1]], color: '#2563eb' }, { label: 'Valor Atual', data: [...currentLine, currentLine[currentLine.length - 1]], color: '#16a34a' }, { label: 'Projeção (' + projDate.toLocaleDateString('pt-BR', {month:'short',year:'numeric'}) + ')', data: [...Array(sortedDays.length).fill(null), projVal], color: '#7c3aed' }]);
             }
-
-            // Cards de investimentos
             const idx = { cdi: '% CDI', selic: '% Selic', ipca: 'IPCA +', pre: 'Pré' };
-            document.getElementById('investmentCards').innerHTML = allInvestments.map(inv => {
-                const ret = (inv.currentValue || 0) - (inv.totalInvested || 0), retP = inv.totalInvested > 0 ? (ret / inv.totalInvested) * 100 : 0, realRet = retP - (indexers.ipca || 0);
-                const own = inv.userId === currentUser?.id, aportes = inv.aportes || [];
-                return `<div class="data-card"><div class="data-card-header"><h4>📈 ${inv.name}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openInvestmentModal('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (inv.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>🏦 ${inv.institution || '-'}</span><span>📋 ${inv.type}</span><span>📊 ${inv.rate || 0}% ${idx[inv.indexer] || ''}</span><span>📅 ${new Date(inv.startDate).toLocaleDateString('pt-BR')}</span><span>🏁 ${new Date(inv.endDate).toLocaleDateString('pt-BR')}</span></div><div class="investment-card-values"><div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${(inv.totalInvested || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${(inv.currentValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${(inv.projectedValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Nominal</div><div class="val-number ${ret >= 0 ? 'positive' : 'negative'}">${retP.toFixed(2)}%</div></div><div class="val-item"><div class="val-label">💎 Real</div><div class="val-number ${realRet >= 0 ? 'positive' : 'negative'}">${realRet.toFixed(2)}%</div></div></div><div class="aportes-section"><h4>🏷️ Aportes (${aportes.length})</h4>${aportes.map((ap, i) => `<div class="aporte-mini-item"><span>R$ ${ap.value.toFixed(2)}</span><span class="aporte-date">${new Date(ap.date).toLocaleDateString('pt-BR')}</span>${i > 0 && own ? `<button onclick="removeAporteFromInvestment('${inv.id}',${i})">✕</button>` : (i === 0 ? '<span style="font-size:10px;">inicial</span>' : '')}</div>`).join('')}${own ? `<div class="aporte-add-mini"><input type="text" id="aporte-val-${inv.id}" placeholder="Valor" inputmode="decimal"><input type="date" id="aporte-date-${inv.id}"><button class="btn-sm btn-add" onclick="addAporteToInvestment('${inv.id}')">+</button></div>` : ''}</div></div>`;
-            }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento.</p>';
+            document.getElementById('investmentCards').innerHTML = allInvestments.map(inv => { const ret = (inv.currentValue || 0) - (inv.totalInvested || 0), retP = inv.totalInvested > 0 ? (ret / inv.totalInvested) * 100 : 0, realRet = retP - (indexers.ipca || 0); const own = inv.userId === currentUser?.id, aportes = inv.aportes || []; return `<div class="data-card"><div class="data-card-header"><h4>📈 ${inv.name}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openInvestmentModal('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (inv.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>🏦 ${inv.institution || '-'}</span><span>📋 ${inv.type}</span><span>📊 ${inv.rate || 0}% ${idx[inv.indexer] || ''}</span><span>📅 ${new Date(inv.startDate).toLocaleDateString('pt-BR')}</span><span>🏁 ${new Date(inv.endDate).toLocaleDateString('pt-BR')}</span></div><div class="investment-card-values"><div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${(inv.totalInvested || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${(inv.currentValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${(inv.projectedValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Nominal</div><div class="val-number ${ret >= 0 ? 'positive' : 'negative'}">${retP.toFixed(2)}%</div></div><div class="val-item"><div class="val-label">💎 Real</div><div class="val-number ${realRet >= 0 ? 'positive' : 'negative'}">${realRet.toFixed(2)}%</div></div></div><div class="aportes-section"><h4>🏷️ Aportes (${aportes.length})</h4>${aportes.map((ap, i) => `<div class="aporte-mini-item"><span>R$ ${ap.value.toFixed(2)}</span><span class="aporte-date">${new Date(ap.date).toLocaleDateString('pt-BR')}</span>${i > 0 && own ? `<button onclick="removeAporteFromInvestment('${inv.id}',${i})">✕</button>` : (i === 0 ? '<span style="font-size:10px;">inicial</span>' : '')}</div>`).join('')}${own ? `<div class="aporte-add-mini"><input type="text" id="aporte-val-${inv.id}" placeholder="Valor" inputmode="decimal"><input type="date" id="aporte-date-${inv.id}"><button class="btn-sm btn-add" onclick="addAporteToInvestment('${inv.id}')">+</button></div>` : ''}</div></div>`; }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento.</p>';
         }
 
-        // ============ GOALS ============
-        window.openGoalModal = function(gid = null) { editingGoalId = gid; document.getElementById('goalModal').classList.add('active'); if (gid) { const g = allGoals.find(x => x.id === gid); if (g) { document.getElementById('goalModalTitle').textContent = 'Editar'; document.getElementById('goalName').value = g.name; document.getElementById('goalTarget').value = formatMoney(g.target); document.getElementById('goalCurrent').value = formatMoney(g.current || 0); document.getElementById('goalDeadline').value = g.deadline || ''; } } else { document.getElementById('goalModalTitle').textContent = 'Nova'; document.getElementById('goalName').value = ''; document.getElementById('goalTarget').value = ''; document.getElementById('goalCurrent').value = ''; document.getElementById('goalDeadline').value = ''; } };
-        window.closeGoalModal = function() { document.getElementById('goalModal').classList.remove('active'); };
-        window.saveGoal = async function() { const n = document.getElementById('goalName').value.trim(), t = parseMoney(document.getElementById('goalTarget').value), c = parseMoney(document.getElementById('goalCurrent').value), d = document.getElementById('goalDeadline').value; if (!n || !t || t <= 0) { alert('Preencha'); return; } try { if (editingGoalId) await updateDoc(doc(db, "goals", editingGoalId), { name: n, target: t, current: c, deadline: d, updatedAt: serverTimestamp() }); else await addDoc(collection(db, "goals"), { name: n, target: t, current: c, deadline: d, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); closeGoalModal(); } catch (e) { alert('Erro'); } };
-        window.deleteGoal = async function(id) { if (!confirm('Excluir?')) return; try { await deleteDoc(doc(db, "goals", id)); } catch (e) { } };
-        function loadGoals() { const tt = allGoals.reduce((s, g) => s + (g.target || 0), 0), tc = allGoals.reduce((s, g) => s + (g.current || 0), 0), tp = tt > 0 ? (tc / tt) * 100 : 0; document.getElementById('goalsSummary').innerHTML = `<div class="summary-card investment"><div class="card-label">🎯 Total</div><div class="card-value">R$ ${tt.toFixed(2)}</div></div><div class="summary-card income"><div class="card-label">💰 Guardado</div><div class="card-value positive">R$ ${tc.toFixed(2)}</div></div><div class="summary-card balance"><div class="card-label">📊 Progresso</div><div class="card-value">${tp.toFixed(1)}%</div></div>`; document.getElementById('goalsList').innerHTML = allGoals.map(g => { const pct = g.target > 0 ? ((g.current || 0) / g.target) * 100 : 0, rem = g.target - (g.current || 0); const dl = g.deadline ? new Date(g.deadline) : null, now = new Date(); let hint = '', cls = 'green'; if (pct >= 80 && pct < 100) cls = 'yellow'; if (dl && dl > now) { const ml = (dl.getFullYear() - now.getFullYear()) * 12 + (dl.getMonth() - now.getMonth()) + 1; if (ml > 0) hint = `💡 Precisa guardar R$ ${(rem / ml).toFixed(2)}/mês`; } const own = g.userId === currentUser?.id; return `<div class="goal-card"><div class="goal-header"><h3>🎯 ${g.name}</h3><div>${own ? `<button class="btn-sm btn-edit" onclick="openGoalModal('${g.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteGoal('${g.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (g.userName || 'Outro') + '</span>'}</div></div><div class="goal-progress-bar"><div class="goal-progress-fill ${cls}" style="width:${Math.min(pct, 100)}%"></div></div><div class="goal-stats"><span>💰 R$ ${(g.current || 0).toFixed(2)} de R$ ${g.target.toFixed(2)}</span><span><strong>${pct.toFixed(1)}%</strong></span></div>${dl ? `<p style="font-size:11px;">📅 Até ${dl.toLocaleDateString('pt-BR')}</p>` : ''}${hint ? `<p class="goal-hint">${hint}</p>` : ''}</div>`; }).join('') || '<p>Nenhuma meta.</p>'; }
+        // ============ GOALS (VINCULADO A INVESTIMENTOS) ============
+        function getUniqueInvestmentNames() {
+            const names = new Set();
+            allInvestments.forEach(inv => { if (inv.name) names.add(inv.name); });
+            return [...names].sort();
+        }
+
+        function updateGoalDropdown() {
+            const select = document.getElementById('goalInvestment');
+            if (!select) return;
+            const names = getUniqueInvestmentNames();
+            select.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('') || '<option value="">Nenhum investimento disponível</option>';
+        }
+
+        window.openGoalModal = function(gid = null) {
+            editingGoalId = gid;
+            updateGoalDropdown();
+            document.getElementById('goalModal').classList.add('active');
+            if (gid) {
+                const g = allGoals.find(x => x.id === gid);
+                if (g) {
+                    document.getElementById('goalModalTitle').textContent = 'Editar Meta';
+                    document.getElementById('goalInvestment').value = g.investmentName || '';
+                    document.getElementById('goalTarget').value = formatMoney(g.target);
+                    document.getElementById('goalDeadline').value = g.deadline || '';
+                    document.getElementById('goalEditId').value = gid;
+                }
+            } else {
+                document.getElementById('goalModalTitle').textContent = 'Nova Meta';
+                document.getElementById('goalTarget').value = '';
+                document.getElementById('goalDeadline').value = '';
+                document.getElementById('goalEditId').value = '';
+            }
+        };
+        window.closeGoalModal = function() { document.getElementById('goalModal').classList.remove('active'); editingGoalId = null; };
+
+        window.saveGoal = async function() {
+            const investmentName = document.getElementById('goalInvestment').value;
+            const target = parseMoney(document.getElementById('goalTarget').value);
+            const deadline = document.getElementById('goalDeadline').value;
+            if (!investmentName || !target || target <= 0) { alert('Escolha um investimento e defina um objetivo'); return; }
+            try {
+                const goalData = { investmentName, target, deadline, updatedAt: serverTimestamp() };
+                if (editingGoalId) {
+                    await updateDoc(doc(db, "goals", editingGoalId), goalData);
+                } else {
+                    await addDoc(collection(db, "goals"), { ...goalData, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() });
+                }
+                closeGoalModal();
+            } catch (e) { alert('Erro ao salvar meta'); }
+        };
+
+        window.deleteGoal = async function(id) { if (!confirm('Excluir meta?')) return; try { await deleteDoc(doc(db, "goals", id)); } catch (e) { } };
+
+        function loadGoals() {
+            // Para cada goal, buscar o investimento correspondente e calcular valor atual
+            const goalsWithData = allGoals.map(g => {
+                const inv = allInvestments.find(i => i.name === g.investmentName);
+                const currentValue = inv ? (inv.currentValue || inv.totalInvested || 0) : 0;
+                const totalInvested = inv ? (inv.totalInvested || 0) : 0;
+                const pct = g.target > 0 ? (currentValue / g.target) * 100 : 0;
+                const remaining = g.target - currentValue;
+                const dl = g.deadline ? new Date(g.deadline) : null;
+                const now = new Date();
+                let monthlyHint = '';
+                if (dl && dl > now && remaining > 0) {
+                    const monthsLeft = (dl.getFullYear() - now.getFullYear()) * 12 + (dl.getMonth() - now.getMonth()) + 1;
+                    if (monthsLeft > 0) monthlyHint = `💡 Precisa investir + R$ ${(remaining / monthsLeft).toFixed(2)}/mês`;
+                }
+                return { ...g, currentValue, totalInvested, pct, remaining, monthlyHint, institution: inv?.institution || '', type: inv?.type || '', rate: inv?.rate || 0, indexer: inv?.indexer || '' };
+            });
+
+            const totalTarget = goalsWithData.reduce((s, g) => s + g.target, 0);
+            const totalCurrent = goalsWithData.reduce((s, g) => s + g.currentValue, 0);
+            const totalPct = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
+
+            document.getElementById('goalsSummary').innerHTML = `
+                <div class="summary-card investment"><div class="card-label">🎯 Total em Metas</div><div class="card-value">R$ ${totalTarget.toFixed(2)}</div></div>
+                <div class="summary-card income"><div class="card-label">💰 Valor Atual</div><div class="card-value positive">R$ ${totalCurrent.toFixed(2)}</div></div>
+                <div class="summary-card balance"><div class="card-label">📊 Progresso Geral</div><div class="card-value">${totalPct.toFixed(1)}%</div></div>`;
+
+            const idx = { cdi: '% CDI', selic: '% Selic', ipca: 'IPCA +', pre: 'Pré' };
+            document.getElementById('goalsList').innerHTML = goalsWithData.map(g => {
+                const own = g.userId === currentUser?.id;
+                const cls = g.pct >= 80 && g.pct < 100 ? 'yellow' : 'green';
+                return `<div class="goal-card">
+                    <div class="goal-card-header">
+                        <h3>🎯 Meta: ${g.investmentName}</h3>
+                        <div>${own ? `<button class="btn-sm btn-edit" onclick="openGoalModal('${g.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteGoal('${g.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (g.userName || 'Outro') + '</span>'}</div>
+                    </div>
+                    <div class="goal-card-meta">
+                        <span>🏦 ${g.institution || '-'}</span><span>📋 ${g.type || '-'}</span><span>📊 ${g.rate || 0}% ${idx[g.indexer] || ''}</span>
+                    </div>
+                    <div class="goal-card-values">
+                        <div class="val-item"><div class="val-label">🎯 Objetivo</div><div class="val-number">R$ ${g.target.toFixed(2)}</div></div>
+                        <div class="val-item"><div class="val-label">📊 Valor Atual</div><div class="val-number">R$ ${g.currentValue.toFixed(2)}</div></div>
+                        <div class="val-item"><div class="val-label">💰 Já investido</div><div class="val-number">R$ ${g.totalInvested.toFixed(2)}</div></div>
+                        ${g.deadline ? `<div class="val-item"><div class="val-label">📅 Data Alvo</div><div class="val-number" style="font-size:12px;">${new Date(g.deadline).toLocaleDateString('pt-BR')}</div></div>` : ''}
+                    </div>
+                    <div class="goal-progress-bar"><div class="goal-progress-fill ${cls}" style="width:${Math.min(g.pct, 100)}%"></div></div>
+                    <div class="goal-stats"><span>${g.pct.toFixed(1)}% concluído</span><span>Faltam R$ ${(g.remaining > 0 ? g.remaining : 0).toFixed(2)}</span></div>
+                    ${g.monthlyHint ? `<p class="goal-hint">${g.monthlyHint}</p>` : ''}
+                </div>`;
+            }).join('') || '<p style="text-align:center;padding:30px;">Nenhuma meta criada. Clique em ➕ Nova para vincular uma meta a um investimento.</p>';
+        }
 
         // ============ RECURRING & SETTINGS ============
         window.addRecurring = async function() { const name = document.getElementById('recName').value.trim(), value = parseMoney(document.getElementById('recValue').value), date = document.getElementById('recDate').value, frequency = document.getElementById('recFreq').value, type = document.getElementById('recType').value; if (!name || !value || value <= 0 || !date) { alert('Preencha'); return; } try { await addDoc(collection(db, "recurring"), { name, value, startDate: date, lastRun: date, frequency, type, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); document.getElementById('recName').value = ''; document.getElementById('recValue').value = ''; document.getElementById('recDate').value = ''; } catch (e) { alert('Erro'); } };
