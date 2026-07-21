@@ -61,10 +61,11 @@
         .period-dropdown .dd-chip:hover { background:var(--bg); }
         .period-dropdown .dd-chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
         .period-dropdown .dd-row { display:flex; gap:8px; align-items:center; }
-        .period-dropdown input[type=number] { width:70px; padding:6px 8px; border:1px solid var(--border); border-radius:6px; font-size:13px; }
-        .period-dropdown select { padding:6px 8px; border:1px solid var(--border); border-radius:6px; font-size:13px; }
+        .period-dropdown input[type=text] { width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px; }
+        .period-dropdown input[type=text]:focus { outline:none; border-color:var(--primary); }
         .period-dropdown input[type=date] { padding:6px 8px; border:1px solid var(--border); border-radius:6px; font-size:12px; }
         .period-dropdown .dd-apply { padding:8px 16px; background:var(--primary); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; width:100%; margin-top:8px; }
+        .period-dropdown .dd-hint { font-size:10px; color:var(--text-light); margin-top:4px; }
         .period-current { font-size:11px; color:var(--text-light); text-align:center; margin-top:6px; }
 
         .app-content { background:var(--card-bg); border-radius:var(--radius); padding:25px; box-shadow:var(--shadow-lg); min-height:600px; }
@@ -182,7 +183,7 @@
                     📅 <span id="periodLabel">Últimos 30 dias</span> <span class="arrow">▾</span>
                     <div class="period-dropdown" id="periodDropdown">
                         <div class="dd-section"><div class="dd-label">⚡ Rápidos</div><div class="dd-chips" id="quickChips"><span class="dd-chip" data-period="1h">1h</span><span class="dd-chip" data-period="6h">6h</span><span class="dd-chip" data-period="24h">24h</span><span class="dd-chip" data-period="7d">7d</span><span class="dd-chip active" data-period="30d">30d</span><span class="dd-chip" data-period="90d">90d</span><span class="dd-chip" data-period="1y">1a</span></div></div>
-                        <div class="dd-section"><div class="dd-label">📐 Personalizado</div><div class="dd-row"><span>Últimos</span><input type="number" id="customQty" value="30" min="1"><select id="customUnit"><option value="min">minutos</option><option value="h">horas</option><option value="d" selected>dias</option><option value="m">meses</option><option value="y">anos</option></select></div></div>
+                        <div class="dd-section"><div class="dd-label">📐 Personalizado</div><div class="dd-row"><input type="text" id="customPeriod" placeholder="Ex: 26d, 15h, 45m, 3m, 1y" onkeydown="if(event.key==='Enter')applyPeriod()"><span style="font-size:10px;color:var(--text-light);white-space:nowrap;">d=dias h=horas m=min M=meses y=anos</span></div></div>
                         <div class="dd-section"><div class="dd-label">📆 Datas exatas</div><div class="dd-row"><input type="date" id="customStart"><span>a</span><input type="date" id="customEnd"></div></div>
                         <button class="dd-apply" id="applyPeriodBtn">Aplicar</button>
                         <div class="period-current" id="periodCurrent">📍 Últimos 30 dias</div>
@@ -211,12 +212,12 @@
         let selectedColor = '#FF6B6B', selectedIcon = '📦', editingTransactionId = null, editingInvestmentId = null, editingGoalId = null;
         let currentPeriod = { qty: 30, unit: 'd' };
 
-        function getPeriodRange() { const now = new Date(); let start = new Date(now); const { qty, unit } = currentPeriod; switch (unit) { case 'min': start.setMinutes(now.getMinutes() - qty); break; case 'h': start.setHours(now.getHours() - qty); break; case 'd': start.setDate(now.getDate() - qty); break; case 'm': start.setMonth(now.getMonth() - qty); break; case 'y': start.setFullYear(now.getFullYear() - qty); break; case 'custom': start = currentPeriod.start || start; break; default: start.setDate(now.getDate() - 30); } const end = (unit === 'custom' && currentPeriod.end) ? new Date(currentPeriod.end) : now; if (unit !== 'custom') start.setHours(0, 0, 0, 0); return { start, end }; }
+        function getPeriodRange() { const now = new Date(); let start = new Date(now); const { qty, unit } = currentPeriod; switch (unit) { case 'm': start.setMinutes(now.getMinutes() - qty); break; case 'h': start.setHours(now.getHours() - qty); break; case 'd': start.setDate(now.getDate() - qty); break; case 'M': start.setMonth(now.getMonth() - qty); break; case 'y': start.setFullYear(now.getFullYear() - qty); break; case 'custom': start = currentPeriod.start || start; break; default: start.setDate(now.getDate() - 30); } const end = (unit === 'custom' && currentPeriod.end) ? new Date(currentPeriod.end) : now; if (unit !== 'custom') start.setHours(0, 0, 0, 0); return { start, end }; }
         function filterByPeriod(arr) { const { start, end } = getPeriodRange(); return arr.filter(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); return d >= start && d <= end; }); }
 
         function updatePeriodLabel() {
             const { qty, unit } = currentPeriod;
-            const unitNames = { min: 'minutos', h: 'horas', d: 'dias', m: 'meses', y: 'anos' };
+            const unitNames = { m: 'minutos', h: 'horas', d: 'dias', M: 'meses', y: 'anos' };
             const label = unit === 'custom' ? 'Personalizado' : `Últimos ${qty} ${unitNames[unit] || unit}`;
             document.getElementById('periodLabel').textContent = label;
             document.getElementById('periodCurrent').textContent = '📍 ' + label;
@@ -224,16 +225,18 @@
             const fmtDate = (d) => d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
             const fmtTime = (d) => d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             let startStr = fmtDate(start), endStr = fmtDate(end);
-            if (unit === 'min' || unit === 'h') { startStr += ' ' + fmtTime(start); endStr += ' ' + fmtTime(end); }
+            if (unit === 'm' || unit === 'h') { startStr += ' ' + fmtTime(start); endStr += ' ' + fmtTime(end); }
             document.querySelectorAll('.period-badge').forEach(el => el.textContent = `${startStr} - ${endStr}`);
         }
 
-        // ============ PERIOD DROPDOWN ============
-        function toggleDropdown() {
-            const dd = document.getElementById('periodDropdown');
-            dd.classList.toggle('open');
+        function parseCustomPeriod(str) {
+            const match = str.match(/^(\d+)\s*(m|h|d|M|y)$/);
+            if (!match) return null;
+            return { qty: parseInt(match[1]), unit: match[2] };
         }
 
+        function toggleDropdown() { document.getElementById('periodDropdown').classList.toggle('open'); }
+        
         function selectChip(period) {
             document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active'));
             const chip = document.querySelector(`#quickChips .dd-chip[data-period="${period}"]`);
@@ -245,30 +248,40 @@
             refreshCurrentView();
         }
 
-        function applyPeriod() {
-            const qty = parseInt(document.getElementById('customQty').value) || 30;
-            const unit = document.getElementById('customUnit').value;
+        window.applyPeriod = function() {
+            const customInput = document.getElementById('customPeriod').value.trim();
             const startDate = document.getElementById('customStart').value;
             const endDate = document.getElementById('customEnd').value;
-            if (startDate && endDate) {
+            
+            if (customInput) {
+                const parsed = parseCustomPeriod(customInput);
+                if (parsed) {
+                    currentPeriod = parsed;
+                    document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active'));
+                } else {
+                    alert('Formato inválido. Use: 26d, 15h, 45m, 3M, 1y');
+                    return;
+                }
+            } else if (startDate && endDate) {
                 currentPeriod = { qty:0, unit:'custom', start: new Date(startDate), end: new Date(endDate) };
                 document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active'));
             } else {
-                currentPeriod = { qty, unit };
-                document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active'));
+                // Manter o período atual se nada foi preenchido
             }
+            
             updatePeriodLabel();
             document.getElementById('periodDropdown').classList.remove('open');
             refreshCurrentView();
-        }
+        };
 
-        // Atribuir eventos depois que o DOM estiver pronto
         function setupPeriodEvents() {
+            // Trigger - abre/fecha dropdown
             document.getElementById('periodTrigger').addEventListener('click', function(e) {
                 e.stopPropagation();
                 toggleDropdown();
             });
             
+            // Chips rápidos
             document.getElementById('quickChips').addEventListener('click', function(e) {
                 if (e.target.classList.contains('dd-chip')) {
                     e.stopPropagation();
@@ -276,11 +289,18 @@
                 }
             });
             
+            // Botão Aplicar
             document.getElementById('applyPeriodBtn').addEventListener('click', function(e) {
                 e.stopPropagation();
                 applyPeriod();
             });
             
+            // Evitar que cliques DENTRO do dropdown fechem ele
+            document.getElementById('periodDropdown').addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            // Fechar ao clicar fora
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.period-trigger')) {
                     document.getElementById('periodDropdown').classList.remove('open');
