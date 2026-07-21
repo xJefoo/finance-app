@@ -49,7 +49,6 @@
         .nav-tab.active { background:var(--primary); color:#fff; border-color:var(--primary); }
         .nav-tab.config-tab { font-size:16px; padding:8px 12px; }
 
-        /* DATADOG-STYLE PERIOD FILTER */
         .period-trigger { position:relative; display:flex; align-items:center; gap:6px; padding:7px 14px; background:#fff; border:1px solid var(--border); border-radius:20px; cursor:pointer; font-size:13px; font-weight:500; white-space:nowrap; transition:all .2s; }
         .period-trigger:hover { border-color:var(--primary); background:#f8faff; }
         .period-trigger .arrow { font-size:10px; color:var(--text-light); }
@@ -179,7 +178,7 @@
         <header class="app-header">
             <div class="header-left"><h1>💰 FinanceHub</h1><span class="user-badge" id="userBadge"></span></div>
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                <div class="period-trigger" onclick="togglePeriodDropdown()" id="periodTrigger">
+                <div class="period-trigger" onclick="togglePeriodDropdown(event)" id="periodTrigger">
                     📅 <span id="periodLabel">Últimos 30 dias</span> <span class="arrow">▾</span>
                     <div class="period-dropdown" id="periodDropdown">
                         <div class="dd-section"><div class="dd-label">⚡ Rápidos</div><div class="dd-chips" id="quickChips"><span class="dd-chip" data-period="1h">1h</span><span class="dd-chip" data-period="6h">6h</span><span class="dd-chip" data-period="24h">24h</span><span class="dd-chip" data-period="7d">7d</span><span class="dd-chip active" data-period="30d">30d</span><span class="dd-chip" data-period="90d">90d</span><span class="dd-chip" data-period="1y">1a</span></div></div>
@@ -194,7 +193,7 @@
             </div>
         </header>
         <main class="app-content">
-            <div id="dashboard" class="tab-content active"><div id="dashboardMain"><div class="summary-cards" id="summaryCards"></div><div class="charts-grid"><div class="chart-container"><h3>📊 Gastos por Categoria <span class="period-badge"></span></h3><div class="chart-wrapper"><canvas id="categoryChart"></canvas></div></div></div><div class="section-header"><h3>💳 Transações <span class="period-badge"></span></h3><button class="btn btn-primary btn-sm" onclick="openTransactionModal()">➕ Nova</button></div><div id="transactionCards"></div></div><div id="dashboardDetail" style="display:none;"><button class="back-btn" onclick="showDashboardMain()">⬅ Voltar</button><h2 id="detailTitle"></h2><div class="summary-cards" id="detailSummaryCards"></div><div class="chart-container"><h3 id="detailChartTitle">📈</h3><div class="chart-wrapper large"><canvas id="detailChart"></canvas></div></div></div></div>
+            <div id="dashboard" class="tab-content active"><div id="dashboardMain"><div class="summary-cards" id="summaryCards"></div><div class="charts-grid"><div class="chart-container"><h3>📊 Gastos por Categoria</h3><div class="chart-wrapper"><canvas id="categoryChart"></canvas></div></div></div><div class="section-header"><h3>💳 Transações <span class="period-badge"></span></h3><button class="btn btn-primary btn-sm" onclick="openTransactionModal()">➕ Nova</button></div><div id="transactionCards"></div></div><div id="dashboardDetail" style="display:none;"><button class="back-btn" onclick="showDashboardMain()">⬅ Voltar</button><h2 id="detailTitle"></h2><div class="summary-cards" id="detailSummaryCards"></div><div class="chart-container"><h3 id="detailChartTitle">📈</h3><div class="chart-wrapper large"><canvas id="detailChart"></canvas></div></div></div></div>
             <div id="investments" class="tab-content"><div class="section-header"><h2>📈 Investimentos</h2><button class="btn btn-primary btn-sm" onclick="openInvestmentModal()">➕ Novo</button></div><div class="summary-cards" id="investmentSummary"></div><div class="charts-grid" style="margin-bottom:12px;"><div class="chart-container"><h3>📊 Distribuição por Tipo</h3><div class="chart-wrapper"><canvas id="portfolioTypeChart"></canvas></div><div id="portfolioTypeAnalysis" style="margin-top:6px;font-size:11px;color:var(--text-light);text-align:center;"></div></div></div><div class="chart-container" style="margin-bottom:12px;"><h3>📈 Burnup</h3><div class="chart-wrapper large"><canvas id="investmentEvolutionChart"></canvas></div></div><h3>💼 Seus Investimentos</h3><div id="investmentCards"></div></div>
             <div id="goals" class="tab-content"><div class="section-header"><h2>🏆 Metas</h2><button class="btn btn-primary btn-sm" onclick="openGoalModal()">➕ Nova</button></div><div class="summary-cards" id="goalsSummary"></div><div class="comparison-cards" id="goalsList"></div></div>
             <div id="settings" class="tab-content"><h2>⚙️ Configurações</h2><div class="add-form"><h3>📊 Indexadores</h3><div id="indexersContainer"></div></div><div class="add-form" style="margin-top:12px;"><h3>🔄 Transações Recorrentes</h3><p style="color:var(--text-light);margin-bottom:8px;font-size:12px;">Ex: adiantamento, salário. Serão adicionadas automaticamente.</p><div id="recurringContainer"></div><div class="recurring-row" style="margin-top:6px;"><input class="rec-name" placeholder="Nome" id="recName"><input class="rec-value" placeholder="Valor" id="recValue" inputmode="decimal"><input class="rec-date" type="date" id="recDate"><select class="rec-freq" id="recFreq"><option value="1m">1 mês</option><option value="15d">15 dias</option><option value="7d">7 dias</option></select><select id="recType"><option value="income">Receita</option><option value="expense">Despesa</option></select><button class="btn-sm btn-add" onclick="addRecurring()">+</button></div></div><div class="add-form" style="margin-top:12px;"><div class="section-header"><h3>🏷️ Categorias</h3><button class="btn btn-primary btn-sm" onclick="openCategoryModal()">➕ Nova</button></div><div id="categoryPills"></div></div></div>
@@ -213,30 +212,15 @@
         let currentPeriod = { qty: 30, unit: 'd' };
 
         function getPeriodRange() {
-            const now = new Date();
-            let start = new Date(now);
+            const now = new Date(); let start = new Date(now);
             const { qty, unit } = currentPeriod;
-            switch (unit) {
-                case 'min': start.setMinutes(now.getMinutes() - qty); break;
-                case 'h': start.setHours(now.getHours() - qty); break;
-                case 'd': start.setDate(now.getDate() - qty); break;
-                case 'm': start.setMonth(now.getMonth() - qty); break;
-                case 'y': start.setFullYear(now.getFullYear() - qty); break;
-                case 'custom': start = currentPeriod.start || start; break;
-                default: start.setDate(now.getDate() - 30);
-            }
+            switch (unit) { case 'min': start.setMinutes(now.getMinutes() - qty); break; case 'h': start.setHours(now.getHours() - qty); break; case 'd': start.setDate(now.getDate() - qty); break; case 'm': start.setMonth(now.getMonth() - qty); break; case 'y': start.setFullYear(now.getFullYear() - qty); break; case 'custom': start = currentPeriod.start || start; break; default: start.setDate(now.getDate() - 30); }
             const end = (unit === 'custom' && currentPeriod.end) ? new Date(currentPeriod.end) : now;
             if (unit !== 'custom') start.setHours(0, 0, 0, 0);
             return { start, end };
         }
 
-        function filterByPeriod(arr) {
-            const { start, end } = getPeriodRange();
-            return arr.filter(t => {
-                const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
-                return d >= start && d <= end;
-            });
-        }
+        function filterByPeriod(arr) { const { start, end } = getPeriodRange(); return arr.filter(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); return d >= start && d <= end; }); }
 
         function updatePeriodLabel() {
             const { qty, unit } = currentPeriod;
@@ -245,46 +229,17 @@
             document.getElementById('periodLabel').textContent = label;
             document.getElementById('periodCurrent').textContent = '📍 ' + label;
             const { start, end } = getPeriodRange();
-            const fmt = (d) => d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: unit==='h'||unit==='min'?'2-digit':'', minute:unit==='min'?'2-digit':'' });
-            document.querySelectorAll('.period-badge').forEach(el => el.textContent = `${fmt(start)} - ${fmt(end)}`);
+            const fmtDate = (d) => d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+            const fmtTime = (d) => d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            let startStr = fmtDate(start), endStr = fmtDate(end);
+            if (unit === 'min' || unit === 'h') { startStr += ' ' + fmtTime(start); endStr += ' ' + fmtTime(end); }
+            document.querySelectorAll('.period-badge').forEach(el => el.textContent = `${startStr} - ${endStr}`);
         }
 
-        window.togglePeriodDropdown = function(e) {
-            e.stopPropagation();
-            document.getElementById('periodDropdown').classList.toggle('open');
-        };
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.period-trigger')) document.getElementById('periodDropdown').classList.remove('open');
-        });
-
-        document.getElementById('quickChips').addEventListener('click', (e) => {
-            if (e.target.classList.contains('dd-chip')) {
-                document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active'));
-                e.target.classList.add('active');
-                const period = e.target.dataset.period;
-                const map = { '1h': { qty: 1, unit: 'h' }, '6h': { qty: 6, unit: 'h' }, '24h': { qty: 24, unit: 'h' }, '7d': { qty: 7, unit: 'd' }, '30d': { qty: 30, unit: 'd' }, '90d': { qty: 90, unit: 'd' }, '1y': { qty: 1, unit: 'y' } };
-                currentPeriod = map[period] || { qty: 30, unit: 'd' };
-            }
-        });
-
-        window.applyPeriod = function() {
-            const qty = parseInt(document.getElementById('customQty').value) || 30;
-            const unit = document.getElementById('customUnit').value;
-            const startDate = document.getElementById('customStart').value;
-            const endDate = document.getElementById('customEnd').value;
-            if (startDate && endDate) {
-                currentPeriod = { qty: 0, unit: 'custom', start: new Date(startDate), end: new Date(endDate) };
-                document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active'));
-            } else {
-                currentPeriod = { qty, unit };
-                document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active'));
-                const chip = document.querySelector(`#quickChips .dd-chip[data-period="${qty}${unit==='d'?'d':unit==='h'?'h':''}"]`);
-                if (chip) chip.classList.add('active');
-            }
-            updatePeriodLabel();
-            document.getElementById('periodDropdown').classList.remove('open');
-            refreshCurrentView();
-        };
+        window.togglePeriodDropdown = function(e) { e.stopPropagation(); document.getElementById('periodDropdown').classList.toggle('open'); };
+        document.addEventListener('click', (e) => { if (!e.target.closest('.period-trigger')) document.getElementById('periodDropdown').classList.remove('open'); });
+        document.getElementById('quickChips').addEventListener('click', (e) => { if (e.target.classList.contains('dd-chip')) { document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active')); e.target.classList.add('active'); const p = e.target.dataset.period; const map = { '1h':{qty:1,unit:'h'},'6h':{qty:6,unit:'h'},'24h':{qty:24,unit:'h'},'7d':{qty:7,unit:'d'},'30d':{qty:30,unit:'d'},'90d':{qty:90,unit:'d'},'1y':{qty:1,unit:'y'} }; currentPeriod = map[p] || {qty:30,unit:'d'}; } });
+        window.applyPeriod = function() { const qty = parseInt(document.getElementById('customQty').value) || 30; const unit = document.getElementById('customUnit').value; const startDate = document.getElementById('customStart').value; const endDate = document.getElementById('customEnd').value; if (startDate && endDate) { currentPeriod = { qty:0, unit:'custom', start: new Date(startDate), end: new Date(endDate) }; document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active')); } else { currentPeriod = { qty, unit }; document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active')); const chip = document.querySelector(`#quickChips .dd-chip[data-period="${qty}${unit==='d'?'d':unit==='h'?'h':''}"]`); if (chip) chip.classList.add('active'); } updatePeriodLabel(); document.getElementById('periodDropdown').classList.remove('open'); refreshCurrentView(); };
 
         function parseMoney(val) { if (!val) return 0; return parseFloat(val.toString().replace(/\./g, '').replace(',', '.')) || 0; }
         function formatMoney(val) { return val.toFixed(2).replace('.', ','); }
@@ -297,27 +252,7 @@
         function calcCurrentValue(aportes, rate, indexer) { return calcProjectedValue(aportes, rate, indexer, new Date()); }
         function recalcInvestment(inv) { const a = inv.aportes || []; inv.currentValue = calcCurrentValue(a, inv.rate, inv.indexer); inv.projectedValue = calcProjectedValue(a, inv.rate, inv.indexer, new Date(inv.endDate || Date.now() + 365 * 86400000)); inv.totalInvested = a.reduce((s, x) => s + x.value, 0); return inv; }
 
-        async function processRecurring() {
-            const now = new Date();
-            for (const rec of allRecurring) {
-                const lastRun = rec.lastRun ? new Date(rec.lastRun) : new Date(rec.startDate);
-                let nextRun = new Date(lastRun);
-                while (nextRun <= now) {
-                    const freqDays = rec.frequency === '7d' ? 7 : rec.frequency === '15d' ? 15 : 30;
-                    nextRun.setDate(nextRun.getDate() + freqDays);
-                    if (nextRun <= now) {
-                        const exists = allTransactions.some(t => {
-                            const td = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
-                            return t.description === rec.name && Math.abs(td - nextRun) < 86400000 && t.userId === rec.userId;
-                        });
-                        if (!exists) {
-                            await addDoc(collection(db, "transactions"), { type: rec.type, description: rec.name, amount: rec.value, category: rec.type === 'income' ? 'salary' : 'other', date: nextRun.toISOString().split('T')[0], userId: rec.userId, userName: rec.userName, createdAt: serverTimestamp() });
-                        }
-                        await updateDoc(doc(db, "recurring", rec.id), { lastRun: nextRun.toISOString() });
-                    }
-                }
-            }
-        }
+        async function processRecurring() { const now = new Date(); for (const rec of allRecurring) { const lastRun = rec.lastRun ? new Date(rec.lastRun) : new Date(rec.startDate); let nextRun = new Date(lastRun); while (nextRun <= now) { const freqDays = rec.frequency === '7d' ? 7 : rec.frequency === '15d' ? 15 : 30; nextRun.setDate(nextRun.getDate() + freqDays); if (nextRun <= now) { const exists = allTransactions.some(t => { const td = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); return t.description === rec.name && Math.abs(td - nextRun) < 86400000 && t.userId === rec.userId; }); if (!exists) { await addDoc(collection(db, "transactions"), { type: rec.type, description: rec.name, amount: rec.value, category: rec.type === 'income' ? 'salary' : 'other', date: nextRun.toISOString().split('T')[0], userId: rec.userId, userName: rec.userName, createdAt: serverTimestamp() }); } await updateDoc(doc(db, "recurring", rec.id), { lastRun: nextRun.toISOString() }); } } } }
 
         async function checkUserAuthorization(uid) { try { const s = await getDoc(doc(db, "users", uid)); return s.exists() && s.data().allowed === true; } catch (e) { return false; } }
         function startListeningToFirestore() {
@@ -338,65 +273,17 @@
         window.logout = async function() { if (confirm('Sair?')) { try { await signOut(auth); } catch (e) { } currentUser = null; allTransactions = []; allInvestments = []; allGoals = []; allCategories = {}; allRecurring = []; document.getElementById('mainApp').classList.remove('active'); document.getElementById('loginScreen').classList.remove('hidden'); } };
         window.showTab = function(tn) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active')); const te = document.getElementById(tn); if (te) te.classList.add('active'); const tm = { dashboard: 0, investments: 1, goals: 2, settings: 3 }; const bt = document.querySelectorAll('.nav-tab'); if (bt[tm[tn]]) bt[tm[tn]].classList.add('active'); if (tn === 'dashboard') showDashboardMain(); switch (tn) { case 'dashboard': loadDashboard(); break; case 'investments': loadInvestments(); break; case 'goals': loadGoals(); break; case 'settings': loadSettingsView(); break; } };
 
-        function getGranularity() {
-            const { start, end } = getPeriodRange();
-            const diffMs = end - start;
-            const diffMin = diffMs / 60000;
-            const diffH = diffMs / 3600000;
-            const diffD = diffMs / 86400000;
-            if (diffMin <= 60) return 'minute';
-            if (diffH <= 24) return 'hour';
-            if (diffD <= 90) return 'day';
-            if (diffD <= 730) return 'week';
-            return 'month';
-        }
-
-        function getGranularLabels(transactions, granularity) {
-            const formatMap = {
-                minute: (d) => d.toISOString().slice(0, 16).replace('T', ' '),
-                hour: (d) => d.toISOString().slice(0, 13) + ':00',
-                day: (d) => d.toISOString().split('T')[0],
-                week: (d) => { const start = new Date(d); start.setDate(d.getDate() - d.getDay()); return start.toISOString().split('T')[0]; },
-                month: (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-            };
-            const groups = {};
-            transactions.forEach(t => {
-                const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
-                const key = formatMap[granularity](d);
-                if (!groups[key]) groups[key] = 0;
-                groups[key] += (t.type === 'income' ? (t.amount || 0) : -(t.amount || 0));
-            });
-            const sortedKeys = Object.keys(groups).sort();
-            const cum = []; let c = 0;
-            sortedKeys.forEach(k => { c += groups[k]; cum.push(c); });
-            return { labels: sortedKeys, data: cum };
-        }
+        function getGranularity() { const { start, end } = getPeriodRange(); const diffMs = end - start; const diffMin = diffMs / 60000; const diffH = diffMs / 3600000; const diffD = diffMs / 86400000; if (diffMin <= 60) return 'minute'; if (diffH <= 24) return 'hour'; if (diffD <= 90) return 'day'; if (diffD <= 730) return 'week'; return 'month'; }
 
         window.showDashboardDetail = function(type) { document.getElementById('dashboardMain').style.display = 'none'; document.getElementById('dashboardDetail').style.display = 'block'; if (type === 'investment') { loadInvestmentDetail(); } else if (type === 'expense') { loadExpenseDetail(); } else if (type === 'income') { loadIncomeDetail(); } else if (type === 'balance') { loadBalanceDetail(); } };
         window.showDashboardMain = function() { document.getElementById('dashboardMain').style.display = 'block'; document.getElementById('dashboardDetail').style.display = 'none'; };
-        function loadInvestmentDetail() { const ti = allInvestments.reduce((s, i) => s + (i.totalInvested || 0), 0), tc = allInvestments.reduce((s, i) => s + (i.currentValue || 0), 0), rv = tc - ti, rp = ti > 0 ? (rv / ti) * 100 : 0; document.getElementById('detailTitle').textContent = '📈 Investimentos'; document.getElementById('detailSummaryCards').innerHTML = `<div class="summary-card investment"><div class="card-label">💼 Total</div><div class="card-value">R$ ${ti.toFixed(2)}</div></div><div class="summary-card ${rv >= 0 ? 'income' : 'expense'}"><div class="card-label">📊 Atual</div><div class="card-value ${rv >= 0 ? 'positive' : 'negative'}">R$ ${tc.toFixed(2)}</div></div><div class="summary-card ${rv >= 0 ? 'income' : 'expense'}"><div class="card-label">📈 Rent.</div><div class="card-value ${rv >= 0 ? 'positive' : 'negative'}">${rp.toFixed(2)}%</div></div>`; const granularity = getGranularity(); const { labels, data } = getGranularLabels(allTransactions.filter(t => t.type === 'investment'), granularity); document.getElementById('detailChartTitle').textContent = `📈 Evolução (${granularity})`; createLineChart('detailChart', labels, [{ label: 'Investimentos', data, color: '#7c3aed' }]); }
-        function loadExpenseDetail() { const ft = filterByPeriod(allTransactions); const granularity = getGranularity(); const de = {}; ft.filter(t => t.type === 'expense').forEach(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); let key; switch (granularity) { case 'minute': key = d.toISOString().slice(0, 16).replace('T', ' '); break; case 'hour': key = d.toISOString().slice(0, 13) + ':00'; break; default: key = d.toISOString().split('T')[0]; } if (!de[key]) de[key] = 0; de[key] += (t.amount || 0); }); const sk = Object.keys(de).sort(), cum = []; let c = 0; sk.forEach(k => { c += de[k]; cum.push(c); }); const me = cum.length > 0 ? cum[cum.length - 1] : 0; document.getElementById('detailTitle').textContent = `💸 Despesas (${granularity})`; document.getElementById('detailSummaryCards').innerHTML = `<div class="summary-card expense"><div class="card-label">💸 Total</div><div class="card-value negative">R$ ${me.toFixed(2)}</div></div>`; document.getElementById('detailChartTitle').textContent = '📈 Acumulado'; createLineChart('detailChart', sk, [{ label: 'Despesas', data: cum, color: '#dc2626' }]); }
-        function loadIncomeDetail() { const ft = filterByPeriod(allTransactions); const granularity = getGranularity(); const di = {}; ft.filter(t => t.type === 'income').forEach(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); let key; switch (granularity) { case 'minute': key = d.toISOString().slice(0, 16).replace('T', ' '); break; case 'hour': key = d.toISOString().slice(0, 13) + ':00'; break; default: key = d.toISOString().split('T')[0]; } if (!di[key]) di[key] = 0; di[key] += (t.amount || 0); }); const sk = Object.keys(di).sort(), cum = []; let c = 0; sk.forEach(k => { c += di[k]; cum.push(c); }); const mi = cum.length > 0 ? cum[cum.length - 1] : 0; document.getElementById('detailTitle').textContent = `💵 Receitas (${granularity})`; document.getElementById('detailSummaryCards').innerHTML = `<div class="summary-card income"><div class="card-label">💵 Total</div><div class="card-value positive">R$ ${mi.toFixed(2)}</div></div>`; document.getElementById('detailChartTitle').textContent = '📈 Acumulado'; createLineChart('detailChart', sk, [{ label: 'Receitas', data: cum, color: '#16a34a' }]); }
-        function loadBalanceDetail() { const ft = filterByPeriod(allTransactions); const granularity = getGranularity(); const db_ = {}; ft.forEach(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); let key; switch (granularity) { case 'minute': key = d.toISOString().slice(0, 16).replace('T', ' '); break; case 'hour': key = d.toISOString().slice(0, 13) + ':00'; break; default: key = d.toISOString().split('T')[0]; } if (!db_[key]) db_[key] = 0; db_[key] += t.type === 'income' ? (t.amount || 0) : -(t.amount || 0); }); const sk = Object.keys(db_).sort(), cum = []; let c = 0; sk.forEach(k => { c += db_[k]; cum.push(c); }); const fb = cum.length > 0 ? cum[cum.length - 1] : 0; document.getElementById('detailTitle').textContent = `💰 Saldo (${granularity})`; document.getElementById('detailSummaryCards').innerHTML = `<div class="summary-card ${fb >= 0 ? 'income' : 'expense'}"><div class="card-label">💰 Saldo</div><div class="card-value ${fb >= 0 ? 'positive' : 'negative'}">R$ ${fb.toFixed(2)}</div></div>`; document.getElementById('detailChartTitle').textContent = '📈 Acumulado'; createLineChart('detailChart', sk, [{ label: 'Saldo', data: cum, color: fb >= 0 ? '#16a34a' : '#dc2626' }]); }
+        function loadInvestmentDetail() { const ti = allInvestments.reduce((s, i) => s + (i.totalInvested || 0), 0), tc = allInvestments.reduce((s, i) => s + (i.currentValue || 0), 0), rv = tc - ti, rp = ti > 0 ? (rv / ti) * 100 : 0; document.getElementById('detailTitle').textContent = '📈 Investimentos'; document.getElementById('detailSummaryCards').innerHTML = `<div class="summary-card investment"><div class="card-label">💼 Total</div><div class="card-value">R$ ${ti.toFixed(2)}</div></div><div class="summary-card ${rv >= 0 ? 'income' : 'expense'}"><div class="card-label">📊 Atual</div><div class="card-value ${rv >= 0 ? 'positive' : 'negative'}">R$ ${tc.toFixed(2)}</div></div><div class="summary-card ${rv >= 0 ? 'income' : 'expense'}"><div class="card-label">📈 Rent.</div><div class="card-value ${rv >= 0 ? 'positive' : 'negative'}">${rp.toFixed(2)}%</div></div>`; }
+        function loadExpenseDetail() { const ft = filterByPeriod(allTransactions); const g = getGranularity(); const de = {}; ft.filter(t => t.type === 'expense').forEach(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); let k; if (g === 'minute') k = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; else if (g === 'hour') k = `${String(d.getHours()).padStart(2,'0')}:00`; else k = d.toISOString().split('T')[0]; if (!de[k]) de[k] = 0; de[k] += (t.amount || 0); }); const sk = Object.keys(de).sort(), cum = []; let c = 0; sk.forEach(k => { c += de[k]; cum.push(c); }); const me = cum.length > 0 ? cum[cum.length - 1] : 0; document.getElementById('detailTitle').textContent = `💸 Despesas (${g})`; document.getElementById('detailSummaryCards').innerHTML = `<div class="summary-card expense"><div class="card-label">💸 Total</div><div class="card-value negative">R$ ${me.toFixed(2)}</div></div>`; document.getElementById('detailChartTitle').textContent = '📈 Acumulado'; createLineChart('detailChart', sk, [{ label: 'Despesas', data: cum, color: '#dc2626' }]); }
+        function loadIncomeDetail() { const ft = filterByPeriod(allTransactions); const g = getGranularity(); const di = {}; ft.filter(t => t.type === 'income').forEach(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); let k; if (g === 'minute') k = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; else if (g === 'hour') k = `${String(d.getHours()).padStart(2,'0')}:00`; else k = d.toISOString().split('T')[0]; if (!di[k]) di[k] = 0; di[k] += (t.amount || 0); }); const sk = Object.keys(di).sort(), cum = []; let c = 0; sk.forEach(k => { c += di[k]; cum.push(c); }); const mi = cum.length > 0 ? cum[cum.length - 1] : 0; document.getElementById('detailTitle').textContent = `💵 Receitas (${g})`; document.getElementById('detailSummaryCards').innerHTML = `<div class="summary-card income"><div class="card-label">💵 Total</div><div class="card-value positive">R$ ${mi.toFixed(2)}</div></div>`; document.getElementById('detailChartTitle').textContent = '📈 Acumulado'; createLineChart('detailChart', sk, [{ label: 'Receitas', data: cum, color: '#16a34a' }]); }
+        function loadBalanceDetail() { const ft = filterByPeriod(allTransactions); const g = getGranularity(); const db_ = {}; ft.forEach(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); let k; if (g === 'minute') k = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; else if (g === 'hour') k = `${String(d.getHours()).padStart(2,'0')}:00`; else k = d.toISOString().split('T')[0]; if (!db_[k]) db_[k] = 0; db_[k] += t.type === 'income' ? (t.amount || 0) : -(t.amount || 0); }); const sk = Object.keys(db_).sort(), cum = []; let c = 0; sk.forEach(k => { c += db_[k]; cum.push(c); }); const fb = cum.length > 0 ? cum[cum.length - 1] : 0; document.getElementById('detailTitle').textContent = `💰 Saldo (${g})`; document.getElementById('detailSummaryCards').innerHTML = `<div class="summary-card ${fb >= 0 ? 'income' : 'expense'}"><div class="card-label">💰 Saldo</div><div class="card-value ${fb >= 0 ? 'positive' : 'negative'}">R$ ${fb.toFixed(2)}</div></div>`; document.getElementById('detailChartTitle').textContent = '📈 Acumulado'; createLineChart('detailChart', sk, [{ label: 'Saldo', data: cum, color: fb >= 0 ? '#16a34a' : '#dc2626' }]); }
         function createLineChart(cid, labels, datasets) { const ctx = document.getElementById(cid); if (!ctx) return; if (charts[cid]) charts[cid].destroy(); charts[cid] = new Chart(ctx, { type: 'line', data: { labels, datasets: datasets.map(ds => ({ label: ds.label, data: ds.data, borderColor: ds.color, backgroundColor: ds.color + '20', fill: true, tension: 0.4, pointRadius: 2 })) }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true, ticks: { callback: v => 'R$ ' + v } } } } }); }
 
-        function loadDashboard() {
-            const ft = filterByPeriod(allTransactions);
-            const mi = ft.filter(t => t.type === 'income').reduce((s, t) => s + (t.amount || 0), 0);
-            const me = ft.filter(t => t.type === 'expense').reduce((s, t) => s + (t.amount || 0), 0);
-            const bal = mi - me;
-            const ti = allInvestments.reduce((s, i) => s + (i.currentValue || i.totalInvested || 0), 0);
-            document.getElementById('summaryCards').innerHTML = `<div class="summary-card income" onclick="showDashboardDetail('income')"><div class="click-hint">🔍</div><div class="card-label">💵 Receitas</div><div class="card-value positive">R$ ${mi.toFixed(2)}</div></div><div class="summary-card expense" onclick="showDashboardDetail('expense')"><div class="click-hint">🔍</div><div class="card-label">💸 Despesas</div><div class="card-value negative">R$ ${me.toFixed(2)}</div></div><div class="summary-card balance" onclick="showDashboardDetail('balance')"><div class="click-hint">🔍</div><div class="card-label">💰 Saldo</div><div class="card-value ${bal >= 0 ? 'positive' : 'negative'}">R$ ${bal.toFixed(2)}</div></div><div class="summary-card investment" onclick="showDashboardDetail('investment')"><div class="click-hint">🔍</div><div class="card-label">📈 Investimentos</div><div class="card-value">R$ ${ti.toFixed(2)}</div></div>`;
-            const ec = {}; ft.filter(t => t.type === 'expense').forEach(t => { const cat = t.category || 'other'; if (!ec[cat]) ec[cat] = 0; ec[cat] += (t.amount || 0); });
-            const cats = getCategories(); const cd = Object.entries(ec).map(([id, amt]) => ({ category: cats[id]?.name || id, amount: amt, color: cats[id]?.color || '#ccc' }));
-            if (cd.length > 0) { const ctx = document.getElementById('categoryChart'); if (ctx) { if (charts['categoryChart']) charts['categoryChart'].destroy(); charts['categoryChart'] = new Chart(ctx, { type: 'pie', data: { labels: cd.map(d => d.category), datasets: [{ data: cd.map(d => d.amount), backgroundColor: cd.map(d => d.color), borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); } }
-            const displayTrans = ft.slice(0, 20);
-            document.getElementById('transactionCards').innerHTML = displayTrans.map(t => {
-                const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
-                const cat = getCategoryById(t.category); const own = t.userId === currentUser?.id;
-                return `<div class="data-card"><div class="data-card-header"><h4>${cat.icon} ${t.description}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openTransactionModal('${t.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (t.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>${t.type === 'income' ? 'Receita' : 'Despesa'}</span><span>📅 ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span></div><div class="data-card-amount ${t.type === 'income' ? 'income' : 'expense'}" style="margin-top:6px;">${t.type === 'income' ? '+' : '-'} R$ ${(t.amount || 0).toFixed(2)}</div></div>`;
-            }).join('') || '<p style="text-align:center;padding:20px;">Nenhuma transação neste período.</p>';
-        }
+        function loadDashboard() { const ft = filterByPeriod(allTransactions); const mi = ft.filter(t => t.type === 'income').reduce((s, t) => s + (t.amount || 0), 0); const me = ft.filter(t => t.type === 'expense').reduce((s, t) => s + (t.amount || 0), 0); const bal = mi - me; const ti = allInvestments.reduce((s, i) => s + (i.currentValue || i.totalInvested || 0), 0); document.getElementById('summaryCards').innerHTML = `<div class="summary-card income" onclick="showDashboardDetail('income')"><div class="click-hint">🔍</div><div class="card-label">💵 Receitas</div><div class="card-value positive">R$ ${mi.toFixed(2)}</div></div><div class="summary-card expense" onclick="showDashboardDetail('expense')"><div class="click-hint">🔍</div><div class="card-label">💸 Despesas</div><div class="card-value negative">R$ ${me.toFixed(2)}</div></div><div class="summary-card balance" onclick="showDashboardDetail('balance')"><div class="click-hint">🔍</div><div class="card-label">💰 Saldo</div><div class="card-value ${bal >= 0 ? 'positive' : 'negative'}">R$ ${bal.toFixed(2)}</div></div><div class="summary-card investment" onclick="showDashboardDetail('investment')"><div class="click-hint">🔍</div><div class="card-label">📈 Investimentos</div><div class="card-value">R$ ${ti.toFixed(2)}</div></div>`; const ec = {}; ft.filter(t => t.type === 'expense').forEach(t => { const cat = t.category || 'other'; if (!ec[cat]) ec[cat] = 0; ec[cat] += (t.amount || 0); }); const cats = getCategories(); const cd = Object.entries(ec).map(([id, amt]) => ({ category: cats[id]?.name || id, amount: amt, color: cats[id]?.color || '#ccc' })); if (cd.length > 0) { const ctx = document.getElementById('categoryChart'); if (ctx) { if (charts['categoryChart']) charts['categoryChart'].destroy(); charts['categoryChart'] = new Chart(ctx, { type: 'pie', data: { labels: cd.map(d => d.category), datasets: [{ data: cd.map(d => d.amount), backgroundColor: cd.map(d => d.color), borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); } } const displayTrans = ft.slice(0, 20); document.getElementById('transactionCards').innerHTML = displayTrans.map(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); const cat = getCategoryById(t.category); const own = t.userId === currentUser?.id; return `<div class="data-card"><div class="data-card-header"><h4>${cat.icon} ${t.description}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openTransactionModal('${t.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (t.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>${t.type === 'income' ? 'Receita' : 'Despesa'}</span><span>📅 ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span></div><div class="data-card-amount ${t.type === 'income' ? 'income' : 'expense'}" style="margin-top:6px;">${t.type === 'income' ? '+' : '-'} R$ ${(t.amount || 0).toFixed(2)}</div></div>`; }).join('') || '<p style="text-align:center;padding:20px;">Nenhuma transação neste período.</p>'; }
 
         window.openTransactionModal = function(tid = null) { editingTransactionId = tid; document.getElementById('transactionModal').classList.add('active'); updateCategoryDropdown(); if (tid) { const t = allTransactions.find(x => x.id === tid); if (t) { document.getElementById('transModalTitle').textContent = 'Editar Transação'; document.getElementById('transType').value = t.type; document.getElementById('transDescription').value = t.description; document.getElementById('transAmount').value = formatMoney(t.amount); document.getElementById('transDate').value = t.date || new Date(t.createdAt?.toDate ? t.createdAt.toDate() : t.createdAt).toISOString().split('T')[0]; document.getElementById('transEditId').value = tid; updateCategoryDropdown(); setTimeout(() => { document.getElementById('transCategory').value = t.category; }, 100); } } else { document.getElementById('transModalTitle').textContent = 'Nova Transação'; document.getElementById('transType').value = 'expense'; document.getElementById('transDescription').value = ''; document.getElementById('transAmount').value = ''; document.getElementById('transDate').value = new Date().toISOString().split('T')[0]; document.getElementById('transEditId').value = ''; updateCategoryDropdown(); } };
         window.closeTransactionModal = function() { document.getElementById('transactionModal').classList.remove('active'); };
