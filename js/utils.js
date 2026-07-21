@@ -1,5 +1,5 @@
 ﻿window.FH = window.FH || {};
-const FH = window.FH;
+var FH = window.FH;
 FH.defaultCategories = {
     food: { name: 'Alimentação', icon: '🍽️', color: '#FF6B6B', type: 'expense' },
     housing: { name: 'Moradia', icon: '🏠', color: '#4ECDC4', type: 'expense' },

@@ -1,5 +1,5 @@
 ﻿window.FH = window.FH || {};
-const FH = window.FH;
+var FH = window.FH;
 FH.createLineChart = (cid, labels, datasets) => {
     const ctx = document.getElementById(cid);
     if (!ctx) return;

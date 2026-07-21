@@ -1,5 +1,5 @@
 ﻿window.FH = window.FH || {};
-const FH = window.FH;
+var FH = window.FH;
 FH.getUniqueInvestmentNames = () => {
     const names = new Set();
     FH.allInvestments.forEach(inv => { if (inv.name) names.add(inv.name); });

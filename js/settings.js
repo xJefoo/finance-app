@@ -1,5 +1,5 @@
 ﻿window.FH = window.FH || {};
-const FH = window.FH;
+var FH = window.FH;
 FH.loadSettingsView = () => {
     document.getElementById('indexersContainer')?.insertAdjacentHTML('afterbegin', '');
     const indexersContainer = document.getElementById('indexersContainer');

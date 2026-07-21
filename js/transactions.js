@@ -1,5 +1,5 @@
 ﻿window.FH = window.FH || {};
-const FH = window.FH;
+var FH = window.FH;
 FH.updateCategoryDropdown = () => {
     const select = document.getElementById('transCategory');
     if (!select) return;

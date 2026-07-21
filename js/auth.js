@@ -1,5 +1,5 @@
 ﻿window.FH = window.FH || {};
-const FH = window.FH;
+var FH = window.FH;
 
 FH.checkUserAuthorization = async uid => {
     try {

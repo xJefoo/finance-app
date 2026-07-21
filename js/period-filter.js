@@ -1,5 +1,5 @@
 ﻿window.FH = window.FH || {};
-const FH = window.FH;
+var FH = window.FH;
 FH.getPeriodRange = () => {
     const now = new Date();
     let start = new Date(now);

@@ -1,5 +1,5 @@
 ﻿window.FH = window.FH || {};
-const FH = window.FH;
+var FH = window.FH;
 FH.openTransactionModal = tid => {
     FH.state.editingTransactionId = tid;
     document.getElementById('transactionModal')?.classList.add('active');

@@ -1,5 +1,5 @@
 ﻿window.FH = window.FH || {};
-const FH = window.FH;
+var FH = window.FH;
 FH.openInvestmentModal = invId => {
     FH.state.editingInvestmentId = invId;
     document.getElementById('investmentModal')?.classList.add('active');
