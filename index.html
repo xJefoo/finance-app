@@ -118,8 +118,6 @@
         .form-group input, .form-group select { padding:9px; border:1px solid var(--border); border-radius:6px; font-size:14px; }
         .form-group input:focus, .form-group select:focus { outline:none; border-color:var(--primary); }
         .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-
-        /* Goal card (novo estilo) */
         .goal-card { background:#fff; border-radius:var(--radius); padding:20px; border:1px solid var(--border); margin-bottom:12px; }
         .goal-card-header { display:flex; justify-content:space-between; align-items:start; margin-bottom:12px; flex-wrap:wrap; gap:8px; }
         .goal-card-header h3 { font-size:16px; display:flex; align-items:center; gap:6px; }
@@ -130,18 +128,17 @@
         .goal-progress-fill.yellow { background:var(--warning); }
         .goal-card-values { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; margin:8px 0; }
         .goal-hint { font-size:11px; color:var(--text-light); margin-top:6px; font-style:italic; }
-
         .category-pills { display:flex; flex-wrap:wrap; gap:5px; }
         .category-pill { display:flex; align-items:center; gap:3px; padding:5px 10px; border-radius:14px; font-size:11px; border:1px solid var(--border); background:#fff; }
         .indexer-row { display:flex; align-items:center; gap:6px; padding:6px 0; border-bottom:1px solid var(--border); }
         .indexer-row label { width:45px; font-weight:600; font-size:12px; }
         .indexer-row input { width:80px; padding:5px; border:1px solid var(--border); border-radius:4px; font-size:12px; }
-        .recurring-row { display:flex; align-items:center; gap:6px; padding:6px 0; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+        .recurring-row { display:flex; align-items:center; gap:6px; padding:6px 0; border-bottom:1px solid var(--border); flex-wrap:wrap; font-size:11px; }
         .recurring-row input, .recurring-row select { padding:5px 6px; border:1px solid var(--border); border-radius:4px; font-size:11px; }
-        .recurring-row .rec-name { width:130px; }
-        .recurring-row .rec-value { width:90px; }
+        .recurring-row .rec-name { width:110px; }
+        .recurring-row .rec-value { width:80px; }
         .recurring-row .rec-date { width:105px; }
-        .recurring-row .rec-freq { width:70px; }
+        .recurring-row .rec-freq { width:65px; }
         .sync-indicator { position:fixed; bottom:12px; right:12px; background:#fff; padding:6px 12px; border-radius:14px; box-shadow:var(--shadow-lg); font-size:10px; color:var(--text-light); z-index:1000; display:flex; align-items:center; gap:5px; }
         .sync-dot { width:6px; height:6px; background:var(--success); border-radius:50%; animation:pulse 2s infinite; }
         @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.5;} }
@@ -205,13 +202,12 @@
                 <div class="chart-container" style="margin-bottom:12px;"><h3>📈 Burnup - Evolução do Patrimônio</h3><div class="chart-wrapper large"><canvas id="investmentEvolutionChart"></canvas></div></div>
                 <h3>💼 Seus Investimentos</h3><div id="investmentCards"></div>
             </div>
-            <!-- METAS (NOVO FORMATO) -->
             <div id="goals" class="tab-content">
                 <div class="section-header"><h2>🏆 Metas por Investimento</h2><button class="btn btn-primary btn-sm" onclick="openGoalModal()">➕ Nova</button></div>
                 <div class="summary-cards" id="goalsSummary"></div>
                 <div id="goalsList"></div>
             </div>
-            <div id="settings" class="tab-content"><h2>⚙️ Configurações</h2><div class="add-form"><h3>📊 Indexadores</h3><div id="indexersContainer"></div></div><div class="add-form" style="margin-top:12px;"><h3>🔄 Transações Recorrentes</h3><p style="color:var(--text-light);margin-bottom:8px;font-size:12px;">Ex: adiantamento, salário. Serão adicionadas automaticamente.</p><div id="recurringContainer"></div><div class="recurring-row" style="margin-top:6px;"><input class="rec-name" placeholder="Nome" id="recName"><input class="rec-value" placeholder="Valor" id="recValue" inputmode="decimal"><input class="rec-date" type="date" id="recDate"><select class="rec-freq" id="recFreq"><option value="1m">1 mês</option><option value="15d">15 dias</option><option value="7d">7 dias</option></select><select id="recType"><option value="income">Receita</option><option value="expense">Despesa</option></select><button class="btn-sm btn-add" onclick="addRecurring()">+</button></div></div><div class="add-form" style="margin-top:12px;"><div class="section-header"><h3>🏷️ Categorias</h3><button class="btn btn-primary btn-sm" onclick="openCategoryModal()">➕ Nova</button></div><div id="categoryPills"></div></div></div>
+            <div id="settings" class="tab-content"><h2>⚙️ Configurações</h2><div class="add-form"><h3>📊 Indexadores</h3><div id="indexersContainer"></div></div><div class="add-form" style="margin-top:12px;"><h3>🔄 Transações Recorrentes</h3><p style="color:var(--text-light);margin-bottom:8px;font-size:12px;">Ex: adiantamento, salário. Serão adicionadas automaticamente na data correta.</p><div id="recurringContainer"></div><div class="recurring-row" style="margin-top:6px;"><input class="rec-name" placeholder="Nome" id="recName"><input class="rec-value" placeholder="Valor" id="recValue" inputmode="decimal"><input class="rec-date" type="date" id="recDate"><select class="rec-freq" id="recFreq"><option value="1m">1 mês</option><option value="15d">15 dias</option><option value="7d">7 dias</option></select><select id="recType"><option value="income">Receita</option><option value="expense">Despesa</option></select><button class="btn-sm btn-add" id="recAddBtn">+</button><button class="btn-sm btn-save" id="recSaveBtn" style="display:none;">💾</button><button class="btn-sm btn-cancel" id="recCancelBtn" style="display:none;">✕</button></div></div><div class="add-form" style="margin-top:12px;"><div class="section-header"><h3>🏷️ Categorias</h3><button class="btn btn-primary btn-sm" onclick="openCategoryModal()">➕ Nova</button></div><div id="categoryPills"></div></div></div>
         </main>
         <div class="sync-indicator"><span class="sync-dot"></span>Sincronizado ☁️</div>
     </div>
@@ -223,7 +219,7 @@
         const firebaseConfig = { apiKey: "AIzaSyCm4N4NK18X-ok3Pi7R1f-4tTWdZf7kzec", authDomain: "app-damins.firebaseapp.com", projectId: "app-damins", storageBucket: "app-damins.firebasestorage.app", messagingSenderId: "704942561066", appId: "1:704942561066:web:55bda959851be7ea917053" };
         const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getFirestore(app), provider = new GoogleAuthProvider();
         let currentUser = null, charts = {}, allTransactions = [], allInvestments = [], allGoals = [], allCategories = {}, allRecurring = [], indexers = { cdi: 13.65, selic: 13.75, ipca: 4.20 };
-        let selectedColor = '#FF6B6B', selectedIcon = '📦', editingTransactionId = null, editingInvestmentId = null, editingGoalId = null;
+        let selectedColor = '#FF6B6B', selectedIcon = '📦', editingTransactionId = null, editingInvestmentId = null, editingGoalId = null, editingRecurringId = null;
         let currentPeriod = { qty: 30, unit: 'd' };
 
         function getPeriodRange() { const now = new Date(); let start = new Date(now); const { qty, unit } = currentPeriod; switch (unit) { case 'm': start.setMinutes(now.getMinutes() - qty); break; case 'h': start.setHours(now.getHours() - qty); break; case 'd': start.setDate(now.getDate() - qty); break; case 'M': start.setMonth(now.getMonth() - qty); break; case 'y': start.setFullYear(now.getFullYear() - qty); break; case 'custom': start = currentPeriod.start || start; break; default: start.setDate(now.getDate() - 30); } const end = (unit === 'custom' && currentPeriod.end) ? new Date(currentPeriod.end) : now; if (unit !== 'custom') start.setHours(0, 0, 0, 0); return { start, end }; }
@@ -260,17 +256,9 @@
             const customInput = document.getElementById('customPeriod').value.trim();
             const startDate = document.getElementById('customStart').value;
             const endDate = document.getElementById('customEnd').value;
-            if (customInput) {
-                const parsed = parseCustomPeriod(customInput);
-                if (parsed) { currentPeriod = parsed; document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active')); }
-                else { alert('Formato inválido. Use: 26d, 15h, 45m, 3M, 1y'); return; }
-            } else if (startDate && endDate) {
-                currentPeriod = { qty:0, unit:'custom', start: new Date(startDate), end: new Date(endDate) };
-                document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active'));
-            }
-            updatePeriodLabel();
-            document.getElementById('periodDropdown').classList.remove('open');
-            refreshCurrentView();
+            if (customInput) { const parsed = parseCustomPeriod(customInput); if (parsed) { currentPeriod = parsed; document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active')); } else { alert('Formato inválido. Use: 26d, 15h, 45m, 3M, 1y'); return; } }
+            else if (startDate && endDate) { currentPeriod = { qty:0, unit:'custom', start: new Date(startDate), end: new Date(endDate) }; document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active')); }
+            updatePeriodLabel(); document.getElementById('periodDropdown').classList.remove('open'); refreshCurrentView();
         };
 
         function setupPeriodEvents() {
@@ -283,6 +271,7 @@
 
         function parseMoney(val) { if (!val) return 0; return parseFloat(val.toString().replace(/\./g, '').replace(',', '.')) || 0; }
         function formatMoney(val) { return val.toFixed(2).replace('.', ','); }
+        function toLocalDateStr(date) { const d = new Date(date); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 
         const defaultCategories = { food: { name: 'Alimentação', icon: '🍽️', color: '#FF6B6B', type: 'expense' }, housing: { name: 'Moradia', icon: '🏠', color: '#4ECDC4', type: 'expense' }, transport: { name: 'Transporte', icon: '🚗', color: '#45B7D1', type: 'expense' }, health: { name: 'Saúde', icon: '🏥', color: '#96CEB4', type: 'expense' }, leisure: { name: 'Lazer', icon: '🎮', color: '#DDA0DD', type: 'expense' }, other: { name: 'Outros', icon: '📦', color: '#98D8C8', type: 'expense' }, salary: { name: 'Salário', icon: '💰', color: '#2ECC71', type: 'income' }, freelance: { name: 'Freelance', icon: '💻', color: '#3498DB', type: 'income' } };
         function getCategories() { return Object.keys(allCategories).length > 0 ? { ...defaultCategories, ...allCategories } : defaultCategories; }
@@ -292,8 +281,76 @@
         function calcCurrentValue(aportes, rate, indexer) { return calcProjectedValue(aportes, rate, indexer, new Date()); }
         function recalcInvestment(inv) { const a = inv.aportes || []; inv.currentValue = calcCurrentValue(a, inv.rate, inv.indexer); inv.projectedValue = calcProjectedValue(a, inv.rate, inv.indexer, new Date(inv.endDate || Date.now() + 365 * 86400000)); inv.totalInvested = a.reduce((s, x) => s + x.value, 0); return inv; }
 
-        async function processRecurring() { const now = new Date(); for (const rec of allRecurring) { const lastRun = rec.lastRun ? new Date(rec.lastRun) : new Date(rec.startDate); let nextRun = new Date(lastRun); while (nextRun <= now) { const freqDays = rec.frequency === '7d' ? 7 : rec.frequency === '15d' ? 15 : 30; nextRun.setDate(nextRun.getDate() + freqDays); if (nextRun <= now) { const exists = allTransactions.some(t => { const td = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); return t.description === rec.name && Math.abs(td - nextRun) < 86400000 && t.userId === rec.userId; }); if (!exists) { await addDoc(collection(db, "transactions"), { type: rec.type, description: rec.name, amount: rec.value, category: rec.type === 'income' ? 'salary' : 'other', date: nextRun.toISOString().split('T')[0], userId: rec.userId, userName: rec.userName, createdAt: serverTimestamp() }); } await updateDoc(doc(db, "recurring", rec.id), { lastRun: nextRun.toISOString() }); } } } }
+        // ============ RECURRING (com edição e correção de data) ============
+        async function processRecurring() {
+            const now = new Date();
+            for (const rec of allRecurring) {
+                const lastRun = rec.lastRun ? new Date(rec.lastRun + 'T12:00:00') : new Date(rec.startDate + 'T12:00:00');
+                let nextRun = new Date(lastRun);
+                while (nextRun <= now) {
+                    const freqDays = rec.frequency === '7d' ? 7 : rec.frequency === '15d' ? 15 : 30;
+                    nextRun.setDate(nextRun.getDate() + freqDays);
+                    const nextRunStr = toLocalDateStr(nextRun);
+                    if (nextRun <= now) {
+                        const exists = allTransactions.some(t => {
+                            const td = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
+                            return t.description === rec.name && toLocalDateStr(td) === nextRunStr && t.userId === rec.userId;
+                        });
+                        if (!exists) {
+                            await addDoc(collection(db, "transactions"), { type: rec.type, description: rec.name, amount: rec.value, category: rec.type === 'income' ? 'salary' : 'other', date: nextRunStr, userId: rec.userId, userName: rec.userName, createdAt: serverTimestamp() });
+                        }
+                        await updateDoc(doc(db, "recurring", rec.id), { lastRun: nextRunStr });
+                    }
+                }
+            }
+        }
 
+        window.startEditRecurring = function(rid) {
+            const rec = allRecurring.find(r => r.id === rid);
+            if (!rec) return;
+            editingRecurringId = rid;
+            document.getElementById('recName').value = rec.name;
+            document.getElementById('recValue').value = formatMoney(rec.value);
+            document.getElementById('recDate').value = rec.startDate;
+            document.getElementById('recFreq').value = rec.frequency;
+            document.getElementById('recType').value = rec.type;
+            document.getElementById('recAddBtn').style.display = 'none';
+            document.getElementById('recSaveBtn').style.display = 'inline';
+            document.getElementById('recCancelBtn').style.display = 'inline';
+        };
+
+        window.cancelEditRecurring = function() {
+            editingRecurringId = null;
+            document.getElementById('recName').value = '';
+            document.getElementById('recValue').value = '';
+            document.getElementById('recDate').value = '';
+            document.getElementById('recFreq').value = '1m';
+            document.getElementById('recType').value = 'income';
+            document.getElementById('recAddBtn').style.display = 'inline';
+            document.getElementById('recSaveBtn').style.display = 'none';
+            document.getElementById('recCancelBtn').style.display = 'none';
+        };
+
+        window.saveRecurring = async function() {
+            const name = document.getElementById('recName').value.trim();
+            const value = parseMoney(document.getElementById('recValue').value);
+            const date = document.getElementById('recDate').value;
+            const frequency = document.getElementById('recFreq').value;
+            const type = document.getElementById('recType').value;
+            if (!name || !value || value <= 0 || !date) { alert('Preencha'); return; }
+            try {
+                if (editingRecurringId) {
+                    await updateDoc(doc(db, "recurring", editingRecurringId), { name, value, startDate: date, lastRun: date, frequency, type, updatedAt: serverTimestamp() });
+                } else {
+                    await addDoc(collection(db, "recurring"), { name, value, startDate: date, lastRun: date, frequency, type, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() });
+                }
+                cancelEditRecurring();
+            } catch (e) { alert('Erro'); }
+        };
+
+        window.deleteRecurring = async function(id) { if (!confirm('Excluir?')) return; try { await deleteDoc(doc(db, "recurring", id)); } catch (e) { } };
+
+        // ============ AUTH ============
         async function checkUserAuthorization(uid) { try { const s = await getDoc(doc(db, "users", uid)); return s.exists() && s.data().allowed === true; } catch (e) { return false; } }
         function startListeningToFirestore() {
             onSnapshot(query(collection(db, "transactions"), orderBy("createdAt", "desc")), snap => { allTransactions = []; snap.forEach(d => allTransactions.push({ id: d.id, ...d.data() })); refreshCurrentView(); });
@@ -329,15 +386,15 @@
             document.getElementById('transactionCards').innerHTML = displayTrans.map(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); const cat = getCategoryById(t.category); const own = t.userId === currentUser?.id; return `<div class="data-card"><div class="data-card-header"><h4>${cat.icon} ${t.description}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openTransactionModal('${t.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (t.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>${t.type === 'income' ? 'Receita' : 'Despesa'}</span><span>📅 ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span></div><div class="data-card-amount ${t.type === 'income' ? 'income' : 'expense'}" style="margin-top:6px;">${t.type === 'income' ? '+' : '-'} R$ ${(t.amount || 0).toFixed(2)}</div></div>`; }).join('') || '<p style="text-align:center;padding:20px;">Nenhuma transação neste período.</p>';
         }
 
-        window.openTransactionModal = function(tid = null) { editingTransactionId = tid; document.getElementById('transactionModal').classList.add('active'); updateCategoryDropdown(); if (tid) { const t = allTransactions.find(x => x.id === tid); if (t) { document.getElementById('transModalTitle').textContent = 'Editar Transação'; document.getElementById('transType').value = t.type; document.getElementById('transDescription').value = t.description; document.getElementById('transAmount').value = formatMoney(t.amount); document.getElementById('transDate').value = t.date || new Date(t.createdAt?.toDate ? t.createdAt.toDate() : t.createdAt).toISOString().split('T')[0]; document.getElementById('transEditId').value = tid; updateCategoryDropdown(); setTimeout(() => { document.getElementById('transCategory').value = t.category; }, 100); } } else { document.getElementById('transModalTitle').textContent = 'Nova Transação'; document.getElementById('transType').value = 'expense'; document.getElementById('transDescription').value = ''; document.getElementById('transAmount').value = ''; document.getElementById('transDate').value = new Date().toISOString().split('T')[0]; document.getElementById('transEditId').value = ''; updateCategoryDropdown(); } };
+        window.openTransactionModal = function(tid = null) { editingTransactionId = tid; document.getElementById('transactionModal').classList.add('active'); updateCategoryDropdown(); if (tid) { const t = allTransactions.find(x => x.id === tid); if (t) { document.getElementById('transModalTitle').textContent = 'Editar Transação'; document.getElementById('transType').value = t.type; document.getElementById('transDescription').value = t.description; document.getElementById('transAmount').value = formatMoney(t.amount); document.getElementById('transDate').value = t.date || toLocalDateStr(new Date(t.createdAt?.toDate ? t.createdAt.toDate() : t.createdAt)); document.getElementById('transEditId').value = tid; updateCategoryDropdown(); setTimeout(() => { document.getElementById('transCategory').value = t.category; }, 100); } } else { document.getElementById('transModalTitle').textContent = 'Nova Transação'; document.getElementById('transType').value = 'expense'; document.getElementById('transDescription').value = ''; document.getElementById('transAmount').value = ''; document.getElementById('transDate').value = toLocalDateStr(new Date()); document.getElementById('transEditId').value = ''; updateCategoryDropdown(); } };
         window.closeTransactionModal = function() { document.getElementById('transactionModal').classList.remove('active'); };
-        window.saveTransaction = async function() { const type = document.getElementById('transType').value, desc = document.getElementById('transDescription').value.trim(), amt = parseMoney(document.getElementById('transAmount').value), cat = document.getElementById('transCategory').value, date = document.getElementById('transDate').value || new Date().toISOString().split('T')[0]; if (!desc || !amt || amt <= 0) { alert('Preencha'); return; } try { if (editingTransactionId) { await updateDoc(doc(db, "transactions", editingTransactionId), { type, description: desc, amount: amt, category: cat, date, updatedAt: serverTimestamp() }); } else { await addDoc(collection(db, "transactions"), { type, description: desc, amount: amt, category: cat, date, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeTransactionModal(); } catch (e) { alert('Erro'); } };
+        window.saveTransaction = async function() { const type = document.getElementById('transType').value, desc = document.getElementById('transDescription').value.trim(), amt = parseMoney(document.getElementById('transAmount').value), cat = document.getElementById('transCategory').value, date = document.getElementById('transDate').value || toLocalDateStr(new Date()); if (!desc || !amt || amt <= 0) { alert('Preencha'); return; } try { if (editingTransactionId) { await updateDoc(doc(db, "transactions", editingTransactionId), { type, description: desc, amount: amt, category: cat, date, updatedAt: serverTimestamp() }); } else { await addDoc(collection(db, "transactions"), { type, description: desc, amount: amt, category: cat, date, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeTransactionModal(); } catch (e) { alert('Erro'); } };
         window.deleteTransaction = async function(id) { if (!confirm('Excluir?')) return; try { await deleteDoc(doc(db, "transactions", id)); } catch (e) { } };
 
-        // ============ INVESTMENTS ============
-        window.openInvestmentModal = function(invId = null) { editingInvestmentId = invId; document.getElementById('investmentModal').classList.add('active'); if (invId) { const inv = allInvestments.find(i => i.id === invId); if (inv) { document.getElementById('investmentModalTitle').textContent = 'Editar'; document.getElementById('invType').value = inv.type; document.getElementById('invInstitution').value = inv.institution || ''; document.getElementById('invName').value = inv.name; document.getElementById('invRate').value = inv.rate || ''; document.getElementById('invIndexer').value = inv.indexer || 'cdi'; document.getElementById('invStartDate').value = inv.startDate || ''; document.getElementById('invEndDate').value = inv.endDate || ''; document.getElementById('invInitialValue').value = formatMoney((inv.aportes && inv.aportes.length > 0) ? inv.aportes[0].value : 0); document.getElementById('invEditId').value = invId; } } else { document.getElementById('investmentModalTitle').textContent = 'Novo'; document.getElementById('invType').value = 'CDB'; document.getElementById('invInstitution').value = ''; document.getElementById('invName').value = ''; document.getElementById('invRate').value = ''; document.getElementById('invIndexer').value = 'cdi'; document.getElementById('invStartDate').value = new Date().toISOString().split('T')[0]; document.getElementById('invEndDate').value = ''; document.getElementById('invInitialValue').value = ''; document.getElementById('invEditId').value = ''; } };
+        // ============ INVESTMENTS (com projeção visível como linha completa) ============
+        window.openInvestmentModal = function(invId = null) { editingInvestmentId = invId; document.getElementById('investmentModal').classList.add('active'); if (invId) { const inv = allInvestments.find(i => i.id === invId); if (inv) { document.getElementById('investmentModalTitle').textContent = 'Editar'; document.getElementById('invType').value = inv.type; document.getElementById('invInstitution').value = inv.institution || ''; document.getElementById('invName').value = inv.name; document.getElementById('invRate').value = inv.rate || ''; document.getElementById('invIndexer').value = inv.indexer || 'cdi'; document.getElementById('invStartDate').value = inv.startDate || ''; document.getElementById('invEndDate').value = inv.endDate || ''; document.getElementById('invInitialValue').value = formatMoney((inv.aportes && inv.aportes.length > 0) ? inv.aportes[0].value : 0); document.getElementById('invEditId').value = invId; } } else { document.getElementById('investmentModalTitle').textContent = 'Novo'; document.getElementById('invType').value = 'CDB'; document.getElementById('invInstitution').value = ''; document.getElementById('invName').value = ''; document.getElementById('invRate').value = ''; document.getElementById('invIndexer').value = 'cdi'; document.getElementById('invStartDate').value = toLocalDateStr(new Date()); document.getElementById('invEndDate').value = ''; document.getElementById('invInitialValue').value = ''; document.getElementById('invEditId').value = ''; } };
         window.closeInvestmentModal = function() { document.getElementById('investmentModal').classList.remove('active'); };
-        window.saveInvestment = async function() { const type = document.getElementById('invType').value, institution = document.getElementById('invInstitution').value.trim(), name = document.getElementById('invName').value.trim(), rate = parseFloat(document.getElementById('invRate').value) || 0, indexer = document.getElementById('invIndexer').value, startDate = document.getElementById('invStartDate').value || new Date().toISOString().split('T')[0]; let endDate = document.getElementById('invEndDate').value; if (!endDate) { const sd = new Date(startDate); sd.setFullYear(sd.getFullYear() + 1); endDate = sd.toISOString().split('T')[0]; } const initialValue = parseMoney(document.getElementById('invInitialValue').value); if (!name || !initialValue || initialValue <= 0) { alert('Preencha'); return; } const aportes = [{ value: initialValue, date: startDate }]; const currentValue = calcCurrentValue(aportes, rate, indexer), projectedValue = calcProjectedValue(aportes, rate, indexer, new Date(endDate)); const invData = { type, institution, name, rate, indexer, startDate, endDate, aportes, totalInvested: initialValue, currentValue, projectedValue, updatedAt: serverTimestamp() }; try { if (editingInvestmentId) { await updateDoc(doc(db, "investments", editingInvestmentId), invData); } else { await addDoc(collection(db, "investments"), { ...invData, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeInvestmentModal(); } catch (e) { alert('Erro'); } };
+        window.saveInvestment = async function() { const type = document.getElementById('invType').value, institution = document.getElementById('invInstitution').value.trim(), name = document.getElementById('invName').value.trim(), rate = parseFloat(document.getElementById('invRate').value) || 0, indexer = document.getElementById('invIndexer').value, startDate = document.getElementById('invStartDate').value || toLocalDateStr(new Date()); let endDate = document.getElementById('invEndDate').value; if (!endDate) { const sd = new Date(startDate + 'T12:00:00'); sd.setFullYear(sd.getFullYear() + 1); endDate = toLocalDateStr(sd); } const initialValue = parseMoney(document.getElementById('invInitialValue').value); if (!name || !initialValue || initialValue <= 0) { alert('Preencha'); return; } const aportes = [{ value: initialValue, date: startDate }]; const currentValue = calcCurrentValue(aportes, rate, indexer), projectedValue = calcProjectedValue(aportes, rate, indexer, new Date(endDate + 'T12:00:00')); const invData = { type, institution, name, rate, indexer, startDate, endDate, aportes, totalInvested: initialValue, currentValue, projectedValue, updatedAt: serverTimestamp() }; try { if (editingInvestmentId) { await updateDoc(doc(db, "investments", editingInvestmentId), invData); } else { await addDoc(collection(db, "investments"), { ...invData, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeInvestmentModal(); } catch (e) { alert('Erro'); } };
         window.deleteInvestment = async function(id) { if (!confirm('Excluir?')) return; try { await deleteDoc(doc(db, "investments", id)); } catch (e) { } };
         window.addAporteToInvestment = async function(invId) { const vi = document.getElementById(`aporte-val-${invId}`), di = document.getElementById(`aporte-date-${invId}`); const v = parseMoney(vi?.value), d = di?.value; if (!v || v <= 0 || !d) { alert('Preencha'); return; } const inv = allInvestments.find(i => i.id === invId); if (!inv) return; const na = [...(inv.aportes || []), { value: v, date: d }]; const ni = { ...inv, aportes: na }; recalcInvestment(ni); try { await updateDoc(doc(db, "investments", invId), { aportes: na, totalInvested: ni.totalInvested, currentValue: ni.currentValue, projectedValue: ni.projectedValue, updatedAt: serverTimestamp() }); vi.value = ''; di.value = ''; } catch (e) { alert('Erro'); } };
         window.removeAporteFromInvestment = async function(invId, index) { const inv = allInvestments.find(i => i.id === invId); if (!inv || inv.aportes.length <= 1) { alert('Não pode remover o aporte inicial.'); return; } const na = inv.aportes.filter((_, i) => i !== index); const ni = { ...inv, aportes: na }; recalcInvestment(ni); try { await updateDoc(doc(db, "investments", invId), { aportes: na, totalInvested: ni.totalInvested, currentValue: ni.currentValue, projectedValue: ni.projectedValue, updatedAt: serverTimestamp() }); } catch (e) { alert('Erro'); } };
@@ -346,135 +403,88 @@
             allInvestments.forEach(inv => recalcInvestment(inv));
             const ti = allInvestments.reduce((s, i) => s + (i.totalInvested || 0), 0), tc = allInvestments.reduce((s, i) => s + (i.currentValue || 0), 0), rv = tc - ti, rp = ti > 0 ? (rv / ti) * 100 : 0;
             document.getElementById('investmentSummary').innerHTML = `<div class="summary-card investment"><div class="card-label">💼 Total Investido</div><div class="card-value">R$ ${ti.toFixed(2)}</div></div><div class="summary-card ${rv >= 0 ? 'income' : 'expense'}"><div class="card-label">📊 Valor Atual</div><div class="card-value ${rv >= 0 ? 'positive' : 'negative'}">R$ ${tc.toFixed(2)}</div></div><div class="summary-card ${rv >= 0 ? 'income' : 'expense'}"><div class="card-label">📈 Rent. Nominal</div><div class="card-value ${rv >= 0 ? 'positive' : 'negative'}">${rp.toFixed(2)}%</div></div><div class="summary-card ${rv - (indexers.ipca || 0) >= 0 ? 'income' : 'expense'}"><div class="card-label">💎 Rent. Real</div><div class="card-value ${rv - (indexers.ipca || 0) >= 0 ? 'positive' : 'negative'}">${(rp - (indexers.ipca || 0)).toFixed(2)}%</div></div>`;
+            
             const fixaTypes = ['CDB', 'Tesouro Direto', 'LCI/LCA', 'Poupança']; let tf = 0, tv = 0;
             allInvestments.forEach(inv => { const v = inv.currentValue || inv.totalInvested || 0; if (fixaTypes.includes(inv.type)) tf += v; else tv += v; });
             const tp = tf + tv;
             if (tp > 0) { const fp = (tf / tp) * 100, vp = (tv / tp) * 100; const ctxP = document.getElementById('portfolioTypeChart'); if (ctxP) { if (charts['portfolioTypeChart']) charts['portfolioTypeChart'].destroy(); charts['portfolioTypeChart'] = new Chart(ctxP, { type: 'pie', data: { labels: ['Renda Fixa', 'Renda Variável'], datasets: [{ data: [tf, tv], backgroundColor: ['#2563eb', '#ea580c'], borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); } const df = fp - 60; document.getElementById('portfolioTypeAnalysis').innerHTML = `<strong>Ideal 60/40:</strong> Fixa: <strong style="color:#2563eb;">${fp.toFixed(1)}%</strong> ${df > 5 ? '⚠️ Conservador' : df < -5 ? '⚠️ Arriscado' : '✅'} | Var: <strong style="color:#ea580c;">${vp.toFixed(1)}%</strong>${Math.abs(df) > 10 ? '<br>💡 Rebalancear' : ''}`; }
-            const allAportes = []; allInvestments.forEach(inv => { (inv.aportes || []).forEach(ap => allAportes.push({ ...ap, rate: inv.rate, indexer: inv.indexer })); });
+
+            // BURNUP com projeção como linha completa (não só ponto final)
+            const allAportes = []; allInvestments.forEach(inv => { (inv.aportes || []).forEach(ap => allAportes.push({ ...ap, rate: inv.rate, indexer: inv.indexer, endDate: inv.endDate })); });
             if (allAportes.length > 0) {
-                const dailyData = {}; allAportes.forEach(ap => { const d = new Date(ap.date); const key = d.toISOString().split('T')[0]; if (!dailyData[key]) dailyData[key] = { invested: 0, aportesDoDia: [] }; dailyData[key].invested += ap.value; dailyData[key].aportesDoDia.push(ap); });
-                const sortedDays = Object.keys(dailyData).sort(); const investedLine = [], currentLine = []; let cumInvested = 0;
-                sortedDays.forEach(day => { cumInvested += dailyData[day].invested; investedLine.push(cumInvested); const allUntilNow = []; sortedDays.filter(d => d <= day).forEach(d => { dailyData[d].aportesDoDia.forEach(ap => allUntilNow.push(ap)); }); const curVal = allUntilNow.reduce((s, ap) => s + calcProjectedValue([ap], ap.rate || 0, ap.indexer || 'pre', new Date()), 0); currentLine.push(curVal); });
-                const lastDay = sortedDays[sortedDays.length - 1]; const projDate = new Date(lastDay); projDate.setFullYear(projDate.getFullYear() + 1); const projKey = projDate.toISOString().split('T')[0];
-                const projVal = allAportes.reduce((s, ap) => s + calcProjectedValue([ap], ap.rate || 0, ap.indexer || 'pre', projDate), 0);
-                createLineChart('investmentEvolutionChart', [...sortedDays, projKey], [{ label: 'Valor Investido', data: [...investedLine, investedLine[investedLine.length - 1]], color: '#2563eb' }, { label: 'Valor Atual', data: [...currentLine, currentLine[currentLine.length - 1]], color: '#16a34a' }, { label: 'Projeção (' + projDate.toLocaleDateString('pt-BR', {month:'short',year:'numeric'}) + ')', data: [...Array(sortedDays.length).fill(null), projVal], color: '#7c3aed' }]);
-            }
-            const idx = { cdi: '% CDI', selic: '% Selic', ipca: 'IPCA +', pre: 'Pré' };
-            document.getElementById('investmentCards').innerHTML = allInvestments.map(inv => { const ret = (inv.currentValue || 0) - (inv.totalInvested || 0), retP = inv.totalInvested > 0 ? (ret / inv.totalInvested) * 100 : 0, realRet = retP - (indexers.ipca || 0); const own = inv.userId === currentUser?.id, aportes = inv.aportes || []; return `<div class="data-card"><div class="data-card-header"><h4>📈 ${inv.name}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openInvestmentModal('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (inv.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>🏦 ${inv.institution || '-'}</span><span>📋 ${inv.type}</span><span>📊 ${inv.rate || 0}% ${idx[inv.indexer] || ''}</span><span>📅 ${new Date(inv.startDate).toLocaleDateString('pt-BR')}</span><span>🏁 ${new Date(inv.endDate).toLocaleDateString('pt-BR')}</span></div><div class="investment-card-values"><div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${(inv.totalInvested || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${(inv.currentValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${(inv.projectedValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Nominal</div><div class="val-number ${ret >= 0 ? 'positive' : 'negative'}">${retP.toFixed(2)}%</div></div><div class="val-item"><div class="val-label">💎 Real</div><div class="val-number ${realRet >= 0 ? 'positive' : 'negative'}">${realRet.toFixed(2)}%</div></div></div><div class="aportes-section"><h4>🏷️ Aportes (${aportes.length})</h4>${aportes.map((ap, i) => `<div class="aporte-mini-item"><span>R$ ${ap.value.toFixed(2)}</span><span class="aporte-date">${new Date(ap.date).toLocaleDateString('pt-BR')}</span>${i > 0 && own ? `<button onclick="removeAporteFromInvestment('${inv.id}',${i})">✕</button>` : (i === 0 ? '<span style="font-size:10px;">inicial</span>' : '')}</div>`).join('')}${own ? `<div class="aporte-add-mini"><input type="text" id="aporte-val-${inv.id}" placeholder="Valor" inputmode="decimal"><input type="date" id="aporte-date-${inv.id}"><button class="btn-sm btn-add" onclick="addAporteToInvestment('${inv.id}')">+</button></div>` : ''}</div></div>`; }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento.</p>';
-        }
-
-        // ============ GOALS (VINCULADO A INVESTIMENTOS) ============
-        function getUniqueInvestmentNames() {
-            const names = new Set();
-            allInvestments.forEach(inv => { if (inv.name) names.add(inv.name); });
-            return [...names].sort();
-        }
-
-        function updateGoalDropdown() {
-            const select = document.getElementById('goalInvestment');
-            if (!select) return;
-            const names = getUniqueInvestmentNames();
-            select.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('') || '<option value="">Nenhum investimento disponível</option>';
-        }
-
-        window.openGoalModal = function(gid = null) {
-            editingGoalId = gid;
-            updateGoalDropdown();
-            document.getElementById('goalModal').classList.add('active');
-            if (gid) {
-                const g = allGoals.find(x => x.id === gid);
-                if (g) {
-                    document.getElementById('goalModalTitle').textContent = 'Editar Meta';
-                    document.getElementById('goalInvestment').value = g.investmentName || '';
-                    document.getElementById('goalTarget').value = formatMoney(g.target);
-                    document.getElementById('goalDeadline').value = g.deadline || '';
-                    document.getElementById('goalEditId').value = gid;
+                const dailyData = {}; allAportes.forEach(ap => { const d = new Date(ap.date + 'T12:00:00'); const key = toLocalDateStr(d); if (!dailyData[key]) dailyData[key] = { invested: 0, aportesDoDia: [] }; dailyData[key].invested += ap.value; dailyData[key].aportesDoDia.push(ap); });
+                const sortedDays = Object.keys(dailyData).sort();
+                const investedLine = [], currentLine = [], projLine = [];
+                let cumInvested = 0;
+                
+                // Encontrar a data de projeção mais distante
+                let maxProjDate = new Date();
+                allInvestments.forEach(inv => {
+                    const ed = new Date((inv.endDate || toLocalDateStr(new Date(new Date().setFullYear(new Date().getFullYear()+1)))) + 'T12:00:00');
+                    if (ed > maxProjDate) maxProjDate = ed;
+                });
+                
+                sortedDays.forEach(day => {
+                    cumInvested += dailyData[day].invested;
+                    investedLine.push(cumInvested);
+                    const allUntilNow = []; sortedDays.filter(d => d <= day).forEach(d => { dailyData[d].aportesDoDia.forEach(ap => allUntilNow.push(ap)); });
+                    const curVal = allUntilNow.reduce((s, ap) => s + calcProjectedValue([ap], ap.rate || 0, ap.indexer || 'pre', new Date()), 0);
+                    currentLine.push(curVal);
+                    
+                    // Projeção: valor de cada aporte até a data máxima de vencimento
+                    const projVal = allUntilNow.reduce((s, ap) => s + calcProjectedValue([ap], ap.rate || 0, ap.indexer || 'pre', maxProjDate), 0);
+                    projLine.push(projVal);
+                });
+                
+                // Adicionar datas futuras até a projeção máxima
+                const projDays = [];
+                const lastDay = new Date(sortedDays[sortedDays.length-1] + 'T12:00:00');
+                const current = new Date(lastDay);
+                while (current <= maxProjDate) {
+                    current.setDate(current.getDate() + 30);
+                    if (current <= maxProjDate) {
+                        projDays.push(toLocalDateStr(current));
+                    }
                 }
-            } else {
-                document.getElementById('goalModalTitle').textContent = 'Nova Meta';
-                document.getElementById('goalTarget').value = '';
-                document.getElementById('goalDeadline').value = '';
-                document.getElementById('goalEditId').value = '';
+                if (projDays.length === 0 || projDays[projDays.length-1] !== toLocalDateStr(maxProjDate)) {
+                    projDays.push(toLocalDateStr(maxProjDate));
+                }
+                
+                const allLabels = [...sortedDays, ...projDays];
+                const fullInvestedLine = [...investedLine, ...projDays.map(() => investedLine[investedLine.length-1])];
+                const fullCurrentLine = [...currentLine, ...projDays.map(() => currentLine[currentLine.length-1])];
+                const fullProjLine = [...projLine, ...projDays.map(() => projLine[projLine.length-1])];
+                
+                createLineChart('investmentEvolutionChart', allLabels, [
+                    { label: 'Valor Investido', data: fullInvestedLine, color: '#2563eb' },
+                    { label: 'Valor Atual', data: fullCurrentLine, color: '#16a34a' },
+                    { label: 'Projeção (até ' + maxProjDate.toLocaleDateString('pt-BR',{month:'short',year:'numeric'}) + ')', data: fullProjLine, color: '#7c3aed' }
+                ]);
             }
-        };
+
+            const idx = { cdi: '% CDI', selic: '% Selic', ipca: 'IPCA +', pre: 'Pré' };
+            document.getElementById('investmentCards').innerHTML = allInvestments.map(inv => { const ret = (inv.currentValue || 0) - (inv.totalInvested || 0), retP = inv.totalInvested > 0 ? (ret / inv.totalInvested) * 100 : 0, realRet = retP - (indexers.ipca || 0); const own = inv.userId === currentUser?.id, aportes = inv.aportes || []; return `<div class="data-card"><div class="data-card-header"><h4>📈 ${inv.name}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openInvestmentModal('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (inv.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>🏦 ${inv.institution || '-'}</span><span>📋 ${inv.type}</span><span>📊 ${inv.rate || 0}% ${idx[inv.indexer] || ''}</span><span>📅 ${new Date(inv.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span><span>🏁 ${new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span></div><div class="investment-card-values"><div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${(inv.totalInvested || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${(inv.currentValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${(inv.projectedValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Nominal</div><div class="val-number ${ret >= 0 ? 'positive' : 'negative'}">${retP.toFixed(2)}%</div></div><div class="val-item"><div class="val-label">💎 Real</div><div class="val-number ${realRet >= 0 ? 'positive' : 'negative'}">${realRet.toFixed(2)}%</div></div></div><div class="aportes-section"><h4>🏷️ Aportes (${aportes.length})</h4>${aportes.map((ap, i) => `<div class="aporte-mini-item"><span>R$ ${ap.value.toFixed(2)}</span><span class="aporte-date">${new Date(ap.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>${i > 0 && own ? `<button onclick="removeAporteFromInvestment('${inv.id}',${i})">✕</button>` : (i === 0 ? '<span style="font-size:10px;">inicial</span>' : '')}</div>`).join('')}${own ? `<div class="aporte-add-mini"><input type="text" id="aporte-val-${inv.id}" placeholder="Valor" inputmode="decimal"><input type="date" id="aporte-date-${inv.id}"><button class="btn-sm btn-add" onclick="addAporteToInvestment('${inv.id}')">+</button></div>` : ''}</div></div>`; }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento.</p>';
+        }
+
+        // ============ GOALS ============
+        function getUniqueInvestmentNames() { const names = new Set(); allInvestments.forEach(inv => { if (inv.name) names.add(inv.name); }); return [...names].sort(); }
+        function updateGoalDropdown() { const select = document.getElementById('goalInvestment'); if (!select) return; const names = getUniqueInvestmentNames(); select.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('') || '<option value="">Nenhum investimento disponível</option>'; }
+        window.openGoalModal = function(gid = null) { editingGoalId = gid; updateGoalDropdown(); document.getElementById('goalModal').classList.add('active'); if (gid) { const g = allGoals.find(x => x.id === gid); if (g) { document.getElementById('goalModalTitle').textContent = 'Editar Meta'; document.getElementById('goalInvestment').value = g.investmentName || ''; document.getElementById('goalTarget').value = formatMoney(g.target); document.getElementById('goalDeadline').value = g.deadline || ''; document.getElementById('goalEditId').value = gid; } } else { document.getElementById('goalModalTitle').textContent = 'Nova Meta'; document.getElementById('goalTarget').value = ''; document.getElementById('goalDeadline').value = ''; document.getElementById('goalEditId').value = ''; } };
         window.closeGoalModal = function() { document.getElementById('goalModal').classList.remove('active'); editingGoalId = null; };
-
-        window.saveGoal = async function() {
-            const investmentName = document.getElementById('goalInvestment').value;
-            const target = parseMoney(document.getElementById('goalTarget').value);
-            const deadline = document.getElementById('goalDeadline').value;
-            if (!investmentName || !target || target <= 0) { alert('Escolha um investimento e defina um objetivo'); return; }
-            try {
-                const goalData = { investmentName, target, deadline, updatedAt: serverTimestamp() };
-                if (editingGoalId) {
-                    await updateDoc(doc(db, "goals", editingGoalId), goalData);
-                } else {
-                    await addDoc(collection(db, "goals"), { ...goalData, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() });
-                }
-                closeGoalModal();
-            } catch (e) { alert('Erro ao salvar meta'); }
-        };
-
+        window.saveGoal = async function() { const investmentName = document.getElementById('goalInvestment').value; const target = parseMoney(document.getElementById('goalTarget').value); const deadline = document.getElementById('goalDeadline').value; if (!investmentName || !target || target <= 0) { alert('Escolha um investimento e defina um objetivo'); return; } try { const goalData = { investmentName, target, deadline, updatedAt: serverTimestamp() }; if (editingGoalId) { await updateDoc(doc(db, "goals", editingGoalId), goalData); } else { await addDoc(collection(db, "goals"), { ...goalData, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeGoalModal(); } catch (e) { alert('Erro ao salvar meta'); } };
         window.deleteGoal = async function(id) { if (!confirm('Excluir meta?')) return; try { await deleteDoc(doc(db, "goals", id)); } catch (e) { } };
-
         function loadGoals() {
-            // Para cada goal, buscar o investimento correspondente e calcular valor atual
-            const goalsWithData = allGoals.map(g => {
-                const inv = allInvestments.find(i => i.name === g.investmentName);
-                const currentValue = inv ? (inv.currentValue || inv.totalInvested || 0) : 0;
-                const totalInvested = inv ? (inv.totalInvested || 0) : 0;
-                const pct = g.target > 0 ? (currentValue / g.target) * 100 : 0;
-                const remaining = g.target - currentValue;
-                const dl = g.deadline ? new Date(g.deadline) : null;
-                const now = new Date();
-                let monthlyHint = '';
-                if (dl && dl > now && remaining > 0) {
-                    const monthsLeft = (dl.getFullYear() - now.getFullYear()) * 12 + (dl.getMonth() - now.getMonth()) + 1;
-                    if (monthsLeft > 0) monthlyHint = `💡 Precisa investir + R$ ${(remaining / monthsLeft).toFixed(2)}/mês`;
-                }
-                return { ...g, currentValue, totalInvested, pct, remaining, monthlyHint, institution: inv?.institution || '', type: inv?.type || '', rate: inv?.rate || 0, indexer: inv?.indexer || '' };
-            });
-
-            const totalTarget = goalsWithData.reduce((s, g) => s + g.target, 0);
-            const totalCurrent = goalsWithData.reduce((s, g) => s + g.currentValue, 0);
-            const totalPct = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
-
-            document.getElementById('goalsSummary').innerHTML = `
-                <div class="summary-card investment"><div class="card-label">🎯 Total em Metas</div><div class="card-value">R$ ${totalTarget.toFixed(2)}</div></div>
-                <div class="summary-card income"><div class="card-label">💰 Valor Atual</div><div class="card-value positive">R$ ${totalCurrent.toFixed(2)}</div></div>
-                <div class="summary-card balance"><div class="card-label">📊 Progresso Geral</div><div class="card-value">${totalPct.toFixed(1)}%</div></div>`;
-
+            const goalsWithData = allGoals.map(g => { const inv = allInvestments.find(i => i.name === g.investmentName); const currentValue = inv ? (inv.currentValue || inv.totalInvested || 0) : 0; const totalInvested = inv ? (inv.totalInvested || 0) : 0; const pct = g.target > 0 ? (currentValue / g.target) * 100 : 0; const remaining = g.target - currentValue; const dl = g.deadline ? new Date(g.deadline + 'T12:00:00') : null; const now = new Date(); let monthlyHint = ''; if (dl && dl > now && remaining > 0) { const monthsLeft = (dl.getFullYear() - now.getFullYear()) * 12 + (dl.getMonth() - now.getMonth()) + 1; if (monthsLeft > 0) monthlyHint = `💡 Precisa investir + R$ ${(remaining / monthsLeft).toFixed(2)}/mês`; } return { ...g, currentValue, totalInvested, pct, remaining, monthlyHint, institution: inv?.institution || '', type: inv?.type || '', rate: inv?.rate || 0, indexer: inv?.indexer || '' }; });
+            const totalTarget = goalsWithData.reduce((s, g) => s + g.target, 0); const totalCurrent = goalsWithData.reduce((s, g) => s + g.currentValue, 0); const totalPct = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
+            document.getElementById('goalsSummary').innerHTML = `<div class="summary-card investment"><div class="card-label">🎯 Total em Metas</div><div class="card-value">R$ ${totalTarget.toFixed(2)}</div></div><div class="summary-card income"><div class="card-label">💰 Valor Atual</div><div class="card-value positive">R$ ${totalCurrent.toFixed(2)}</div></div><div class="summary-card balance"><div class="card-label">📊 Progresso Geral</div><div class="card-value">${totalPct.toFixed(1)}%</div></div>`;
             const idx = { cdi: '% CDI', selic: '% Selic', ipca: 'IPCA +', pre: 'Pré' };
-            document.getElementById('goalsList').innerHTML = goalsWithData.map(g => {
-                const own = g.userId === currentUser?.id;
-                const cls = g.pct >= 80 && g.pct < 100 ? 'yellow' : 'green';
-                return `<div class="goal-card">
-                    <div class="goal-card-header">
-                        <h3>🎯 Meta: ${g.investmentName}</h3>
-                        <div>${own ? `<button class="btn-sm btn-edit" onclick="openGoalModal('${g.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteGoal('${g.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (g.userName || 'Outro') + '</span>'}</div>
-                    </div>
-                    <div class="goal-card-meta">
-                        <span>🏦 ${g.institution || '-'}</span><span>📋 ${g.type || '-'}</span><span>📊 ${g.rate || 0}% ${idx[g.indexer] || ''}</span>
-                    </div>
-                    <div class="goal-card-values">
-                        <div class="val-item"><div class="val-label">🎯 Objetivo</div><div class="val-number">R$ ${g.target.toFixed(2)}</div></div>
-                        <div class="val-item"><div class="val-label">📊 Valor Atual</div><div class="val-number">R$ ${g.currentValue.toFixed(2)}</div></div>
-                        <div class="val-item"><div class="val-label">💰 Já investido</div><div class="val-number">R$ ${g.totalInvested.toFixed(2)}</div></div>
-                        ${g.deadline ? `<div class="val-item"><div class="val-label">📅 Data Alvo</div><div class="val-number" style="font-size:12px;">${new Date(g.deadline).toLocaleDateString('pt-BR')}</div></div>` : ''}
-                    </div>
-                    <div class="goal-progress-bar"><div class="goal-progress-fill ${cls}" style="width:${Math.min(g.pct, 100)}%"></div></div>
-                    <div class="goal-stats"><span>${g.pct.toFixed(1)}% concluído</span><span>Faltam R$ ${(g.remaining > 0 ? g.remaining : 0).toFixed(2)}</span></div>
-                    ${g.monthlyHint ? `<p class="goal-hint">${g.monthlyHint}</p>` : ''}
-                </div>`;
-            }).join('') || '<p style="text-align:center;padding:30px;">Nenhuma meta criada. Clique em ➕ Nova para vincular uma meta a um investimento.</p>';
+            document.getElementById('goalsList').innerHTML = goalsWithData.map(g => { const own = g.userId === currentUser?.id; const cls = g.pct >= 80 && g.pct < 100 ? 'yellow' : 'green'; return `<div class="goal-card"><div class="goal-card-header"><h3>🎯 Meta: ${g.investmentName}</h3><div>${own ? `<button class="btn-sm btn-edit" onclick="openGoalModal('${g.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteGoal('${g.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (g.userName || 'Outro') + '</span>'}</div></div><div class="goal-card-meta"><span>🏦 ${g.institution || '-'}</span><span>📋 ${g.type || '-'}</span><span>📊 ${g.rate || 0}% ${idx[g.indexer] || ''}</span></div><div class="goal-card-values"><div class="val-item"><div class="val-label">🎯 Objetivo</div><div class="val-number">R$ ${g.target.toFixed(2)}</div></div><div class="val-item"><div class="val-label">📊 Valor Atual</div><div class="val-number">R$ ${g.currentValue.toFixed(2)}</div></div><div class="val-item"><div class="val-label">💰 Já investido</div><div class="val-number">R$ ${g.totalInvested.toFixed(2)}</div></div>${g.deadline ? `<div class="val-item"><div class="val-label">📅 Data Alvo</div><div class="val-number" style="font-size:12px;">${new Date(g.deadline + 'T12:00:00').toLocaleDateString('pt-BR')}</div></div>` : ''}</div><div class="goal-progress-bar"><div class="goal-progress-fill ${cls}" style="width:${Math.min(g.pct, 100)}%"></div></div><div class="goal-stats"><span>${g.pct.toFixed(1)}% concluído</span><span>Faltam R$ ${(g.remaining > 0 ? g.remaining : 0).toFixed(2)}</span></div>${g.monthlyHint ? `<p class="goal-hint">${g.monthlyHint}</p>` : ''}</div>`; }).join('') || '<p style="text-align:center;padding:30px;">Nenhuma meta criada.</p>';
         }
 
-        // ============ RECURRING & SETTINGS ============
-        window.addRecurring = async function() { const name = document.getElementById('recName').value.trim(), value = parseMoney(document.getElementById('recValue').value), date = document.getElementById('recDate').value, frequency = document.getElementById('recFreq').value, type = document.getElementById('recType').value; if (!name || !value || value <= 0 || !date) { alert('Preencha'); return; } try { await addDoc(collection(db, "recurring"), { name, value, startDate: date, lastRun: date, frequency, type, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); document.getElementById('recName').value = ''; document.getElementById('recValue').value = ''; document.getElementById('recDate').value = ''; } catch (e) { alert('Erro'); } };
-        window.deleteRecurring = async function(id) { if (!confirm('Excluir?')) return; try { await deleteDoc(doc(db, "recurring", id)); } catch (e) { } };
+        // ============ SETTINGS ============
         function loadSettingsView() {
             document.getElementById('indexersContainer').innerHTML = `<div class="indexer-row"><label>CDI</label><input type="number" id="idxCdi" value="${indexers.cdi || 13.65}" step="0.01"> <span>% a.a.</span> <button class="btn-sm btn-save" onclick="saveIndexer('cdi')">💾</button></div><div class="indexer-row"><label>Selic</label><input type="number" id="idxSelic" value="${indexers.selic || 13.75}" step="0.01"> <span>% a.a.</span> <button class="btn-sm btn-save" onclick="saveIndexer('selic')">💾</button></div><div class="indexer-row"><label>IPCA</label><input type="number" id="idxIpca" value="${indexers.ipca || 4.20}" step="0.01"> <span>% a.a.</span> <button class="btn-sm btn-save" onclick="saveIndexer('ipca')">💾</button></div>`;
-            document.getElementById('recurringContainer').innerHTML = allRecurring.map(r => { const own = r.userId === currentUser?.id; return `<div class="recurring-row"><span style="flex:1;font-size:11px;"><strong>${r.name}</strong> - R$ ${r.value.toFixed(2)} - ${r.type==='income'?'Receita':'Despesa'} - a cada ${r.frequency==='7d'?'7 dias':r.frequency==='15d'?'15 dias':'1 mês'} - desde ${new Date(r.startDate).toLocaleDateString('pt-BR')}</span>${own?`<button class="btn-sm btn-delete" onclick="deleteRecurring('${r.id}')">🗑️</button>`:'<span class="user-tag">👤 '+(r.userName||'Outro')+'</span>'}</div>`; }).join('') || '<p style="font-size:11px;color:var(--text-light);">Nenhuma recorrência.</p>';
+            document.getElementById('recurringContainer').innerHTML = allRecurring.map(r => { const own = r.userId === currentUser?.id; return `<div class="recurring-row"><span style="flex:1;font-size:11px;"><strong>${r.name}</strong> - R$ ${r.value.toFixed(2)} - ${r.type==='income'?'Receita':'Despesa'} - a cada ${r.frequency==='7d'?'7 dias':r.frequency==='15d'?'15 dias':'1 mês'} - desde ${new Date(r.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span>${own?`<button class="btn-sm btn-edit" onclick="startEditRecurring('${r.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteRecurring('${r.id}')">🗑️</button>`:'<span class="user-tag">👤 '+(r.userName||'Outro')+'</span>'}</div>`; }).join('') || '<p style="font-size:11px;color:var(--text-light);">Nenhuma recorrência.</p>';
             const cats = getCategories(), defIds = Object.keys(defaultCategories); let html = ''; const custom = Object.entries(cats).filter(([id]) => !defIds.includes(id)); const def = Object.entries(cats).filter(([id]) => defIds.includes(id)); if (custom.length > 0) { html += '<h4 style="margin-bottom:4px;">✨ Personalizadas</h4><div class="category-pills" style="margin-bottom:10px;">'; custom.forEach(([id, cat]) => html += `<div class="category-pill"><span class="color-dot" style="background:${cat.color}"></span>${cat.icon} ${cat.name} <button onclick="deleteCategory('${id}')" style="background:none;border:none;font-size:10px;">🗑️</button></div>`); html += '</div>'; } html += '<h4 style="margin-bottom:4px;">📋 Padrão</h4><div class="category-pills">'; def.forEach(([id, cat]) => html += `<div class="category-pill"><span class="color-dot" style="background:${cat.color}"></span>${cat.icon} ${cat.name}</div>`); html += '</div>'; document.getElementById('categoryPills').innerHTML = html;
         }
         window.saveIndexer = async function(type) { const val = parseFloat(document.getElementById(`idx${type.charAt(0).toUpperCase() + type.slice(1)}`).value); if (!val || val <= 0) return; indexers[type] = val; try { await setDoc(doc(db, "settings", "indexers"), indexers); } catch (e) { alert('Erro'); } };
@@ -487,6 +497,11 @@
         document.getElementById('iconPicker').addEventListener('click', e => { if (e.target.classList.contains('icon-option')) { selectedIcon = e.target.dataset.icon; document.getElementById('catIconInput').value = selectedIcon; updateIconPicker(); } });
         document.getElementById('catIconInput').addEventListener('input', e => { selectedIcon = e.target.value || '📦'; updateIconPicker(); });
         function updateIconPicker() { document.querySelectorAll('#iconPicker .icon-option').forEach(el => el.classList.toggle('selected', el.dataset.icon === selectedIcon)); }
+
+        // Setup recurring button events
+        document.getElementById('recAddBtn').addEventListener('click', () => saveRecurring());
+        document.getElementById('recSaveBtn').addEventListener('click', () => saveRecurring());
+        document.getElementById('recCancelBtn').addEventListener('click', () => cancelEditRecurring());
     </script>
 </body>
 </html>
