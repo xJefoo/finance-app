@@ -117,6 +117,9 @@
         .icon-picker { display: flex; gap: 8px; flex-wrap: wrap; max-height: 150px; overflow-y: auto; }
         .icon-option { font-size: 24px; padding: 6px; cursor: pointer; border-radius: 8px; border: 2px solid transparent; transition: all 0.2s; }
         .icon-option.selected { border-color: var(--primary); background: #eff6ff; }
+        #catIconInput { width: 60px; text-align: center; font-size: 24px; padding: 8px; border: 2px solid var(--border); border-radius: 8px; transition: border-color 0.3s; }
+        #catIconInput:focus { outline: none; border-color: var(--primary); }
+        .icon-input-row { display: flex; gap: 8px; align-items: center; }
         .aportes-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
         .aporte-item { display: flex; gap: 8px; align-items: center; }
         .aporte-item input { flex: 1; padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
@@ -152,13 +155,22 @@
 
     <!-- Modal Categoria -->
     <div id="categoryModal" class="modal-overlay">
-        <div class="modal"><div class="modal-header"><h2 id="categoryModalTitle">Nova Categoria</h2><button class="modal-close" onclick="closeCategoryModal()">✕</button></div>
-            <div class="form-group"><label>Nome</label><input type="text" id="catName"></div>
+        <div class="modal">
+            <div class="modal-header"><h2 id="categoryModalTitle">Nova Categoria</h2><button class="modal-close" onclick="closeCategoryModal()">✕</button></div>
+            <div class="form-group"><label>Nome</label><input type="text" id="catName" placeholder="Ex: Pets, Assinaturas..."></div>
             <div class="form-group"><label>Tipo</label><select id="catType"><option value="expense">Despesa</option><option value="income">Receita</option></select></div>
             <div class="form-group"><label>Cor</label><div class="color-picker" id="colorPicker"><div class="color-option selected" style="background:#FF6B6B" data-color="#FF6B6B"></div><div class="color-option" style="background:#4ECDC4" data-color="#4ECDC4"></div><div class="color-option" style="background:#45B7D1" data-color="#45B7D1"></div><div class="color-option" style="background:#96CEB4" data-color="#96CEB4"></div><div class="color-option" style="background:#FFEAA7" data-color="#FFEAA7"></div><div class="color-option" style="background:#DDA0DD" data-color="#DDA0DD"></div><div class="color-option" style="background:#98D8C8" data-color="#98D8C8"></div><div class="color-option" style="background:#2ECC71" data-color="#2ECC71"></div><div class="color-option" style="background:#3498DB" data-color="#3498DB"></div><div class="color-option" style="background:#9B59B6" data-color="#9B59B6"></div><div class="color-option" style="background:#E67E22" data-color="#E67E22"></div><div class="color-option" style="background:#F39C12" data-color="#F39C12"></div></div></div>
-            <div class="form-group"><label>Ícone</label><div class="icon-picker" id="iconPicker"><span class="icon-option selected" data-icon="📦">📦</span><span class="icon-option" data-icon="🍽️">🍽️</span><span class="icon-option" data-icon="🏠">🏠</span><span class="icon-option" data-icon="🚗">🚗</span><span class="icon-option" data-icon="🏥">🏥</span><span class="icon-option" data-icon="📚">📚</span><span class="icon-option" data-icon="🎮">🎮</span><span class="icon-option" data-icon="🐾">🐾</span><span class="icon-option" data-icon="💳">💳</span><span class="icon-option" data-icon="🎬">🎬</span><span class="icon-option" data-icon="✈️">✈️</span><span class="icon-option" data-icon="🎁">🎁</span><span class="icon-option" data-icon="💻">💻</span><span class="icon-option" data-icon="📱">📱</span><span class="icon-option" data-icon="👕">👕</span><span class="icon-option" data-icon="💄">💄</span></div></div>
+            <div class="form-group">
+                <label>Ícone (emoji)</label>
+                <div class="icon-input-row">
+                    <input type="text" id="catIconInput" maxlength="4" placeholder="📦">
+                    <span style="font-size:12px;color:var(--text-light);">💡 Win+. ou Ctrl+Cmd+Espaço</span>
+                </div>
+            </div>
+            <div class="form-group"><label>Sugestões:</label><div class="icon-picker" id="iconPicker"><span class="icon-option selected" data-icon="📦">📦</span><span class="icon-option" data-icon="🍽️">🍽️</span><span class="icon-option" data-icon="🏠">🏠</span><span class="icon-option" data-icon="🚗">🚗</span><span class="icon-option" data-icon="🏥">🏥</span><span class="icon-option" data-icon="📚">📚</span><span class="icon-option" data-icon="🎮">🎮</span><span class="icon-option" data-icon="🐾">🐾</span><span class="icon-option" data-icon="💳">💳</span><span class="icon-option" data-icon="🎬">🎬</span><span class="icon-option" data-icon="✈️">✈️</span><span class="icon-option" data-icon="🎁">🎁</span><span class="icon-option" data-icon="💻">💻</span><span class="icon-option" data-icon="📱">📱</span><span class="icon-option" data-icon="👕">👕</span><span class="icon-option" data-icon="💄">💄</span><span class="icon-option" data-icon="🏦">🏦</span><span class="icon-option" data-icon="🎓">🎓</span><span class="icon-option" data-icon="🎸">🎸</span><span class="icon-option" data-icon="⚽">⚽</span></div></div>
             <button class="btn btn-primary" onclick="saveCategory()" style="width:auto;">Salvar</button>
-            <button class="btn" onclick="closeCategoryModal()" style="width:auto;margin-top:8px;background:#e5e7eb;">Cancelar</button></div>
+            <button class="btn" onclick="closeCategoryModal()" style="width:auto;margin-top:8px;background:#e5e7eb;">Cancelar</button>
+        </div>
     </div>
 
     <!-- Modal Meta -->
@@ -189,26 +201,11 @@
             <button class="btn btn-danger btn-sm" onclick="logout()" style="width:auto;">🚪 Sair</button>
         </header>
         <main class="app-content">
-            <!-- Dashboard -->
             <div id="dashboard" class="tab-content active"><div id="dashboardMain"><div class="summary-cards" id="summaryCards"></div><div class="charts-grid"><div class="chart-container"><h3>📊 Gastos por Categoria <span class="period-badge"></span></h3><div class="chart-wrapper"><canvas id="categoryChart"></canvas></div></div></div><div id="recentTransactions"></div></div><div id="dashboardDetail" style="display:none;"><button class="back-btn" onclick="showDashboardMain()">⬅ Voltar</button><h2 id="detailTitle"></h2><div class="summary-cards" id="detailSummaryCards"></div><div class="chart-container"><h3 id="detailChartTitle">📈</h3><div class="chart-wrapper large"><canvas id="detailChart"></canvas></div></div></div></div>
-            <!-- Transações -->
             <div id="transactions" class="tab-content"><div class="add-form"><h3>➕ Nova Transação</h3><div class="form-row"><div class="form-group"><label>Tipo</label><select id="transType" onchange="updateCategoryDropdown()"><option value="expense">Despesa</option><option value="income">Receita</option></select></div><div class="form-group"><label>Descrição</label><input type="text" id="transDescription"></div><div class="form-group"><label>Valor (R$)</label><input type="number" id="transAmount" step="0.01" min="0.01"></div><div class="form-group"><label>Categoria</label><select id="transCategory"></select></div><div class="form-group"><label>Data</label><input type="date" id="transDate"></div></div><button class="btn btn-primary" onclick="addTransaction()" style="width:auto;">Adicionar</button></div><h3>📋 Transações <span class="period-badge"></span></h3><div class="table-container"><table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Tipo</th><th>Usuário</th><th>Ações</th></tr></thead><tbody id="transactionsTable"></tbody></table></div></div>
-            <!-- Investimentos -->
-            <div id="investments" class="tab-content"><div class="add-form"><h3>➕ Novo Investimento</h3><div class="form-row"><div class="form-group"><label>Tipo</label><select id="invType"><option>CDB</option><option>Tesouro Direto</option><option>Ações</option><option>Fundos Imobiliários</option><option>LCI/LCA</option><option>Poupança</option><option>Criptomoedas</option><option>Outros</option></select></div><div class="form-group"><label>Nome/Ativo</label><input type="text" id="invName"></div><div class="form-group"><label>Taxa (%)</label><input type="number" id="invRate" step="0.01" min="0" placeholder="Ex: 120"></div><div class="form-group"><label>Indexador</label><select id="invIndexer"><option value="cdi">% do CDI</option><option value="selic">% da Selic</option><option value="ipca">IPCA +</option><option value="pre">Pré-fixado</option></select></div><div class="form-group"><label>Data Início</label><input type="date" id="invStartDate"></div><div class="form-group"><label>Vencimento (padrão +1 ano)</label><input type="date" id="invEndDate"></div></div>
-                <div class="form-group" style="margin-bottom:10px;"><label>🏷️ Aportes</label><div class="aportes-list" id="aportesList"><div class="aporte-item"><input type="number" placeholder="Valor (R$)" class="aporte-valor" step="0.01" min="0.01"><input type="date" class="aporte-data"><button onclick="removeAporteItem(this)">✕</button></div></div><button class="aporte-add-btn" onclick="addAporteItem()">➕ Adicionar Aporte</button></div>
-                <button class="btn btn-primary" onclick="addInvestment()" style="width:auto;">Adicionar Investimento</button></div>
-                <div class="summary-cards" id="investmentSummary"></div>
-                <div class="chart-container" style="margin-bottom:20px;"><h3>📈 Burnup - Evolução do Patrimônio</h3><div class="chart-wrapper large"><canvas id="investmentEvolutionChart"></canvas></div></div>
-                <div class="table-container"><table><thead><tr><th>Tipo</th><th>Nome</th><th>Taxa</th><th>Investido</th><th>Atual</th><th>Projeção 12m</th><th>Rent.</th><th>Ações</th></tr></thead><tbody id="investmentsTable"></tbody></table></div>
-            </div>
-            <!-- Metas -->
+            <div id="investments" class="tab-content"><div class="add-form"><h3>➕ Novo Investimento</h3><div class="form-row"><div class="form-group"><label>Tipo</label><select id="invType"><option>CDB</option><option>Tesouro Direto</option><option>Ações</option><option>Fundos Imobiliários</option><option>LCI/LCA</option><option>Poupança</option><option>Criptomoedas</option><option>Outros</option></select></div><div class="form-group"><label>Nome/Ativo</label><input type="text" id="invName"></div><div class="form-group"><label>Taxa (%)</label><input type="number" id="invRate" step="0.01" min="0" placeholder="Ex: 120"></div><div class="form-group"><label>Indexador</label><select id="invIndexer"><option value="cdi">% do CDI</option><option value="selic">% da Selic</option><option value="ipca">IPCA +</option><option value="pre">Pré-fixado</option></select></div><div class="form-group"><label>Data Início</label><input type="date" id="invStartDate"></div><div class="form-group"><label>Vencimento (padrão +1 ano)</label><input type="date" id="invEndDate"></div></div><div class="form-group" style="margin-bottom:10px;"><label>🏷️ Aportes</label><div class="aportes-list" id="aportesList"><div class="aporte-item"><input type="number" placeholder="Valor (R$)" class="aporte-valor" step="0.01" min="0.01"><input type="date" class="aporte-data"><button onclick="removeAporteItem(this)">✕</button></div></div><button class="aporte-add-btn" onclick="addAporteItem()">➕ Adicionar Aporte</button></div><button class="btn btn-primary" onclick="addInvestment()" style="width:auto;">Adicionar Investimento</button></div><div class="summary-cards" id="investmentSummary"></div><div class="chart-container" style="margin-bottom:20px;"><h3>📈 Burnup - Evolução do Patrimônio</h3><div class="chart-wrapper large"><canvas id="investmentEvolutionChart"></canvas></div></div><div class="table-container"><table><thead><tr><th>Tipo</th><th>Nome</th><th>Taxa</th><th>Investido</th><th>Atual</th><th>Projeção 12m</th><th>Rent.</th><th>Ações</th></tr></thead><tbody id="investmentsTable"></tbody></table></div></div>
             <div id="goals" class="tab-content"><div class="section-header"><h2>🏆 Metas</h2><button class="btn btn-primary btn-sm" onclick="openGoalModal()" style="width:auto;">➕ Nova</button></div><div class="summary-cards" id="goalsSummary"></div><div class="comparison-cards" id="goalsList"></div></div>
-            <!-- Config -->
-            <div id="settings" class="tab-content"><h2>⚙️ Configurações</h2>
-                <div class="add-form"><h3>📊 Indexadores (taxas de referência)</h3><p style="color:var(--text-light);margin-bottom:15px;">Atualize quando as taxas mudarem. Todos os investimentos recalculam automaticamente.</p>
-                    <div id="indexersContainer"></div></div>
-                <div class="add-form" style="margin-top:20px;"><div class="section-header"><h3>🏷️ Categorias</h3><button class="btn btn-primary btn-sm" onclick="openCategoryModal()" style="width:auto;">➕ Nova</button></div><div id="categoryPills"></div></div>
-            </div>
+            <div id="settings" class="tab-content"><h2>⚙️ Configurações</h2><div class="add-form"><h3>📊 Indexadores</h3><p style="color:var(--text-light);margin-bottom:15px;">Atualize quando as taxas mudarem.</p><div id="indexersContainer"></div></div><div class="add-form" style="margin-top:20px;"><div class="section-header"><h3>🏷️ Categorias</h3><button class="btn btn-primary btn-sm" onclick="openCategoryModal()" style="width:auto;">➕ Nova</button></div><div id="categoryPills"></div></div></div>
         </main>
         <div class="sync-indicator"><span class="sync-dot"></span>Sincronizado ☁️</div>
     </div>
@@ -233,37 +230,14 @@
         function getCategoryById(catId) { const cats = getCategories(); return cats[catId] || { name: catId, icon: '📦', color: '#ccc', type: 'expense' }; }
         function filterByPeriod(transactions) { return transactions.filter(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); return d.getMonth() === globalPeriod.month && d.getFullYear() === globalPeriod.year; }); }
 
-        // Indexer calculation
-        function getAnnualRate(rate, indexer) {
-            const base = indexers[indexer] || 0;
-            if (indexer === 'pre') return rate;
-            return (rate / 100) * base;
-        }
+        function getAnnualRate(rate, indexer) { const base = indexers[indexer] || 0; if (indexer === 'pre') return rate; return (rate / 100) * base; }
+        function calcProjectedValue(aportes, rate, indexer, endDate) { const annualRate = getAnnualRate(rate, indexer) / 100; const dailyRate = Math.pow(1 + annualRate, 1 / 365) - 1; let total = 0; const end = endDate || new Date(); aportes.forEach(ap => { const apDate = new Date(ap.date); const days = Math.max(0, Math.floor((end - apDate) / (1000 * 60 * 60 * 24))); total += ap.value * Math.pow(1 + dailyRate, days); }); return total; }
+        function calcCurrentValue(aportes, rate, indexer) { return calcProjectedValue(aportes, rate, indexer, new Date()); }
 
-        function calcProjectedValue(aportes, rate, indexer, endDate) {
-            const annualRate = getAnnualRate(rate, indexer) / 100;
-            const dailyRate = Math.pow(1 + annualRate, 1 / 365) - 1;
-            let total = 0;
-            const now = new Date();
-            const end = endDate || new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
-            aportes.forEach(ap => {
-                const apDate = new Date(ap.date);
-                const days = Math.max(0, Math.floor((end - apDate) / (1000 * 60 * 60 * 24)));
-                total += ap.value * Math.pow(1 + dailyRate, days);
-            });
-            return total;
-        }
-
-        function calcCurrentValue(aportes, rate, indexer) {
-            return calcProjectedValue(aportes, rate, indexer, new Date());
-        }
-
-        // Period
         window.onGlobalPeriodChange = function() { globalPeriod.month = parseInt(document.getElementById('globalMonth').value); globalPeriod.year = parseInt(document.getElementById('globalYear').value); updatePeriodBadges(); refreshCurrentView(); };
         function updatePeriodBadges() { const m = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']; const b = `${m[globalPeriod.month]} ${globalPeriod.year}`; document.querySelectorAll('.period-badge').forEach(el => el.textContent = b); }
         function setupGlobalFilter() { const n = new Date(); document.getElementById('globalMonth').value = n.getMonth(); const ys = document.getElementById('globalYear'); ys.innerHTML = ''; for (let y = n.getFullYear()-3; y <= n.getFullYear()+1; y++) ys.innerHTML += `<option value="${y}" ${y===n.getFullYear()?'selected':''}>${y}</option>`; globalPeriod = { month: n.getMonth(), year: n.getFullYear() }; updatePeriodBadges(); }
 
-        // Auth
         async function checkUserAuthorization(uid) { try { const s = await getDoc(doc(db, "users", uid)); return s.exists() && s.data().allowed === true; } catch(e) { return false; } }
         function startListeningToFirestore() {
             onSnapshot(query(collection(db, "transactions"), orderBy("createdAt", "desc")), snap => { allTransactions = []; snap.forEach(d => allTransactions.push({ id: d.id, ...d.data() })); refreshCurrentView(); });
@@ -282,7 +256,6 @@
         window.logout = async function() { if(confirm('Sair?')) { try{await signOut(auth);}catch(e){} currentUser=null; allTransactions=[]; allInvestments=[]; allGoals=[]; allCategories={}; document.getElementById('mainApp').classList.remove('active'); document.getElementById('loginScreen').classList.remove('hidden'); } };
         window.showTab = function(tn) { document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active')); const te = document.getElementById(tn); if(te) te.classList.add('active'); const tm = {dashboard:0,transactions:1,investments:2,goals:3,settings:4}; const bt = document.querySelectorAll('.nav-tab'); if(bt[tm[tn]]) bt[tm[tn]].classList.add('active'); if(tn==='dashboard') showDashboardMain(); switch(tn){case'dashboard':loadDashboard();break;case'transactions':updateCategoryDropdown();loadTransactions();break;case'investments':loadInvestments();break;case'goals':loadGoals();break;case'settings':loadSettingsView();break;} };
 
-        // Dashboard Detail
         window.showDashboardDetail = function(type) { document.getElementById('dashboardMain').style.display='none'; document.getElementById('dashboardDetail').style.display='block'; if(type==='investment'){document.getElementById('detailTitle').textContent='📈 Detalhes dos Investimentos';loadInvestmentDetail();} else if(type==='expense'){document.getElementById('detailTitle').textContent='💸 Detalhes das Despesas';loadExpenseDetail();} else if(type==='income'){document.getElementById('detailTitle').textContent='💵 Detalhes das Receitas';loadIncomeDetail();} else if(type==='balance'){document.getElementById('detailTitle').textContent='💰 Detalhes do Saldo';loadBalanceDetail();} };
         window.showDashboardMain = function() { document.getElementById('dashboardMain').style.display='block'; document.getElementById('dashboardDetail').style.display='none'; };
         function loadInvestmentDetail() { const ti=allInvestments.reduce((s,i)=>s+(i.amount||0),0), tc=allInvestments.reduce((s,i)=>s+(i.currentValue||i.amount||0),0), rv=tc-ti, rp=ti>0?(rv/ti)*100:0; document.getElementById('detailSummaryCards').innerHTML=`<div class="summary-card investment"><div class="card-label">💼 Total</div><div class="card-value">R$ ${ti.toFixed(2)}</div></div><div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">📊 Atual</div><div class="card-value ${rv>=0?'positive':'negative'}">R$ ${tc.toFixed(2)}</div></div><div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">📈 Rent.</div><div class="card-value ${rv>=0?'positive':'negative'}">${rp.toFixed(2)}%</div></div>`; const md={}; allInvestments.forEach(inv=>{const d=inv.createdAt?.toDate?inv.createdAt.toDate():new Date(inv.createdAt||inv.date);const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;if(!md[k])md[k]={inv:0,cur:0};md[k].inv+=(inv.amount||0);md[k].cur+=(inv.currentValue||inv.amount||0);});const sk=Object.keys(md).sort(),ci=[],cc=[];let a=0,b=0;sk.forEach(k=>{a+=md[k].inv;b+=md[k].cur;ci.push(a);cc.push(b);});createLineChart('detailChart',sk,[{label:'Investido',data:ci,color:'#2563eb'},{label:'Atual',data:cc,color:'#16a34a'}]); }
@@ -291,11 +264,9 @@
         function loadBalanceDetail() { const ft=filterByPeriod(allTransactions); const db_={}; ft.forEach(t=>{const d=t.createdAt?.toDate?t.createdAt.toDate():new Date(t.createdAt||t.date);const k=d.toISOString().split('T')[0];if(!db_[k])db_[k]=0;db_[k]+=t.type==='income'?(t.amount||0):-(t.amount||0);});const sk=Object.keys(db_).sort(),cum=[];let c=0;sk.forEach(k=>{c+=db_[k];cum.push(c);});const fb=cum.length>0?cum[cum.length-1]:0; document.getElementById('detailSummaryCards').innerHTML=`<div class="summary-card ${fb>=0?'income':'expense'}"><div class="card-label">💰 Saldo</div><div class="card-value ${fb>=0?'positive':'negative'}">R$ ${fb.toFixed(2)}</div></div>`; createLineChart('detailChart',sk,[{label:'Saldo',data:cum,color:fb>=0?'#16a34a':'#dc2626'}]); }
         function createLineChart(cid, labels, datasets) { const ctx=document.getElementById(cid); if(!ctx) return; if(charts[cid]) charts[cid].destroy(); charts[cid]=new Chart(ctx,{type:'line',data:{labels,datasets:datasets.map(ds=>({label:ds.label,data:ds.data,borderColor:ds.color,backgroundColor:ds.color+'20',fill:true,tension:0.4,pointRadius:3}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'R$ '+v}}}}}); }
 
-        // Dashboard
         function loadDashboard() { const ft=filterByPeriod(allTransactions); const mi=ft.filter(t=>t.type==='income').reduce((s,t)=>s+(t.amount||0),0), me=ft.filter(t=>t.type==='expense').reduce((s,t)=>s+(t.amount||0),0), bal=mi-me, ti=allInvestments.reduce((s,i)=>s+(i.currentValue||i.amount||0),0); document.getElementById('summaryCards').innerHTML=`<div class="summary-card income" onclick="showDashboardDetail('income')"><div class="click-hint">🔍</div><div class="card-label">💵 Receitas</div><div class="card-value positive">R$ ${mi.toFixed(2)}</div></div><div class="summary-card expense" onclick="showDashboardDetail('expense')"><div class="click-hint">🔍</div><div class="card-label">💸 Despesas</div><div class="card-value negative">R$ ${me.toFixed(2)}</div></div><div class="summary-card balance" onclick="showDashboardDetail('balance')"><div class="click-hint">🔍</div><div class="card-label">💰 Saldo</div><div class="card-value ${bal>=0?'positive':'negative'}">R$ ${bal.toFixed(2)}</div></div><div class="summary-card investment" onclick="showDashboardDetail('investment')"><div class="click-hint">🔍</div><div class="card-label">📈 Investimentos</div><div class="card-value">R$ ${ti.toFixed(2)}</div></div>`; const ec={}; ft.filter(t=>t.type==='expense').forEach(t=>{const cat=t.category||'other';if(!ec[cat])ec[cat]=0;ec[cat]+=(t.amount||0);});const cats=getCategories();const cd=Object.entries(ec).map(([id,amt])=>({category:cats[id]?.name||id,amount:amt,color:cats[id]?.color||'#ccc'}));if(cd.length>0)createPieChart('categoryChart',cd);const recent=allTransactions.slice(0,5);document.getElementById('recentTransactions').innerHTML=`<h3>📋 Últimas</h3><div class="table-container"><table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Usuário</th></tr></thead><tbody>${recent.map(t=>{const d=t.createdAt?.toDate?t.createdAt.toDate():new Date(t.createdAt||t.date);const cat=getCategoryById(t.category);return`<tr><td>${d.toLocaleDateString('pt-BR')}</td><td>${t.description}</td><td>${cat.icon} ${cat.name}</td><td style="color:${t.type==='income'?'var(--success)':'var(--danger)'};">${t.type==='income'?'+':'-'}R$ ${(t.amount||0).toFixed(2)}</td><td>${t.userName||'Anônimo'}</td></tr>`;}).join('')||'<tr><td colspan="5">Nenhuma</td></tr>'}</tbody></table></div>`; }
         function createPieChart(cid, data) { const ctx=document.getElementById(cid); if(!ctx) return; if(charts[cid]) charts[cid].destroy(); charts[cid]=new Chart(ctx,{type:'pie',data:{labels:data.map(d=>d.category),datasets:[{data:data.map(d=>d.amount),backgroundColor:data.map(d=>d.color),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}}); }
 
-        // Transactions
         window.addTransaction = async function() { const type=document.getElementById('transType').value, desc=document.getElementById('transDescription').value, amt=parseFloat(document.getElementById('transAmount').value), cat=document.getElementById('transCategory').value, date=document.getElementById('transDate').value||new Date().toISOString().split('T')[0]; if(!desc||!amt||amt<=0){alert('Preencha');return;} try{await addDoc(collection(db,"transactions"),{type,description:desc,amount:amt,category:cat,date,userId:currentUser.id,userName:currentUser.name,createdAt:serverTimestamp()});document.getElementById('transDescription').value='';document.getElementById('transAmount').value='';}catch(e){alert('Erro');} };
         window.deleteTransaction = async function(id) { if(!confirm('Excluir?'))return; try{await deleteDoc(doc(db,"transactions",id));}catch(e){} };
         window.startEditTransaction = function(id) { editingTransactionId=id; loadTransactions(); };
@@ -303,7 +274,6 @@
         window.saveEditTransaction = async function(id) { const desc=document.getElementById(`edit-desc-${id}`)?.value, amt=parseFloat(document.getElementById(`edit-amount-${id}`)?.value), cat=document.getElementById(`edit-cat-${id}`)?.value, date=document.getElementById(`edit-date-${id}`)?.value; if(!desc||!amt){alert('Preencha');return;} try{await updateDoc(doc(db,"transactions",id),{description:desc,amount:amt,category:cat,date,updatedAt:serverTimestamp()});editingTransactionId=null;}catch(e){} };
         function loadTransactions() { const ft=filterByPeriod(allTransactions); const cats=getCategories(); document.getElementById('transactionsTable').innerHTML=ft.map(t=>{const d=t.createdAt?.toDate?t.createdAt.toDate():new Date(t.createdAt||t.date);const cat=getCategoryById(t.category);const ed=editingTransactionId===t.id,own=t.userId===currentUser.id;if(ed)return`<tr><td><input type="date" id="edit-date-${t.id}" class="edit-input" value="${t.date||d.toISOString().split('T')[0]}"></td><td><input type="text" id="edit-desc-${t.id}" class="edit-input" value="${t.description}"></td><td><select id="edit-cat-${t.id}" class="edit-select">${Object.entries(cats).map(([id,c])=>`<option value="${id}" ${id===t.category?'selected':''}>${c.icon} ${c.name}</option>`).join('')}</select></td><td><input type="number" id="edit-amount-${t.id}" class="edit-input" value="${t.amount}" step="0.01"></td><td><span style="padding:4px 8px;border-radius:12px;font-size:12px;background:${t.type==='income'?'#dcfce7':'#fee2e2'};color:${t.type==='income'?'var(--success)':'var(--danger)'};">${t.type==='income'?'Receita':'Despesa'}</span></td><td>${t.userName||'Anônimo'}</td><td><button class="btn-sm btn-save" onclick="saveEditTransaction('${t.id}')">💾</button><button class="btn-sm btn-cancel" onclick="cancelEditTransaction()">✕</button></td></tr>`;return`<tr><td>${d.toLocaleDateString('pt-BR')}</td><td>${t.description}</td><td>${cat.icon} ${cat.name}</td><td style="color:${t.type==='income'?'var(--success)':'var(--danger)'};">${t.type==='income'?'+':'-'}R$ ${(t.amount||0).toFixed(2)}</td><td><span style="padding:4px 8px;border-radius:12px;font-size:12px;background:${t.type==='income'?'#dcfce7':'#fee2e2'};color:${t.type==='income'?'var(--success)':'var(--danger)'};">${t.type==='income'?'Receita':'Despesa'}</span></td><td>${t.userName||'Anônimo'}</td><td>${own?`<button class="btn-sm btn-edit" onclick="startEditTransaction('${t.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>`:'<span style="font-size:12px;color:var(--text-light);">Outro</span>'}</td></tr>`;}).join('')||'<tr><td colspan="7">Nenhuma transação neste período</td></tr>'; }
 
-        // Investments
         window.addAporteItem = function() { const list=document.getElementById('aportesList'); const div=document.createElement('div'); div.className='aporte-item'; div.innerHTML='<input type="number" placeholder="Valor (R$)" class="aporte-valor" step="0.01" min="0.01"><input type="date" class="aporte-data"><button onclick="removeAporteItem(this)">✕</button>'; list.appendChild(div); };
         window.removeAporteItem = function(btn) { const items=document.querySelectorAll('#aportesList .aporte-item'); if(items.length>1) btn.parentElement.remove(); };
         function getAportesFromForm() { const items=document.querySelectorAll('#aportesList .aporte-item'); const aportes=[]; items.forEach(item=>{const v=parseFloat(item.querySelector('.aporte-valor').value), d=item.querySelector('.aporte-data').value; if(v&&v>0&&d) aportes.push({value:v,date:d});}); return aportes; }
@@ -319,68 +289,82 @@
             const totalInvested=aportes.reduce((s,a)=>s+a.value,0);
             const currentValue=calcCurrentValue(aportes,rate,indexer);
             const projectedValue=calcProjectedValue(aportes,rate,indexer,new Date(endDate));
-            try{
-                await addDoc(collection(db,"investments"),{type,name,rate,indexer,startDate,endDate,aportes,totalInvested,currentValue,projectedValue,userId:currentUser.id,userName:currentUser.name,createdAt:serverTimestamp()});
-                document.getElementById('invName').value='';document.getElementById('invRate').value='';document.getElementById('aportesList').innerHTML='<div class="aporte-item"><input type="number" placeholder="Valor (R$)" class="aporte-valor" step="0.01" min="0.01"><input type="date" class="aporte-data"><button onclick="removeAporteItem(this)">✕</button></div>';
-            }catch(e){alert('Erro ao salvar');}
+            try{await addDoc(collection(db,"investments"),{type,name,rate,indexer,startDate,endDate,aportes,totalInvested,currentValue,projectedValue,userId:currentUser.id,userName:currentUser.name,createdAt:serverTimestamp()});document.getElementById('invName').value='';document.getElementById('invRate').value='';document.getElementById('aportesList').innerHTML='<div class="aporte-item"><input type="number" placeholder="Valor (R$)" class="aporte-valor" step="0.01" min="0.01"><input type="date" class="aporte-data"><button onclick="removeAporteItem(this)">✕</button></div>';}catch(e){alert('Erro ao salvar');}
         };
         window.deleteInvestment = async function(id) { if(!confirm('Excluir?'))return; try{await deleteDoc(doc(db,"investments",id));}catch(e){} };
         function loadInvestments() {
             const ti=allInvestments.reduce((s,i)=>s+(i.totalInvested||0),0), tc=allInvestments.reduce((s,i)=>s+(i.currentValue||0),0), rv=tc-ti, rp=ti>0?(rv/ti)*100:0;
             document.getElementById('investmentSummary').innerHTML=`<div class="summary-card investment"><div class="card-label">💼 Total Investido</div><div class="card-value">R$ ${ti.toFixed(2)}</div></div><div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">📊 Valor Atual</div><div class="card-value ${rv>=0?'positive':'negative'}">R$ ${tc.toFixed(2)}</div></div><div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">📈 Rentabilidade</div><div class="card-value ${rv>=0?'positive':'negative'}">${rp.toFixed(2)}%</div></div>`;
-
-            // Burnup chart
             const allAportes=[]; allInvestments.forEach(inv=>{(inv.aportes||[]).forEach(ap=>allAportes.push({...ap,rate:inv.rate,indexer:inv.indexer}));});
             if(allAportes.length>0){
                 const dailyData={}; allAportes.forEach(ap=>{const d=new Date(ap.date);const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;if(!dailyData[k])dailyData[k]={inv:0,cur:0,proj:0};dailyData[k].inv+=ap.value;});
                 const sortedKeys=Object.keys(dailyData).sort();const ci=[],cc=[],cp=[];let cumInv=0;
-                sortedKeys.forEach(k=>{
-                    cumInv+=dailyData[k].inv;
-                    const aportesAteAqui=allAportes.filter(ap=>new Date(ap.date)<=new Date(k+"-01"));
-                    const curVal=aportesAteAqui.reduce((s,ap)=>{const ar=ap.rate||0,ai=ap.indexer||'pre';return s+calcProjectedValue([ap],ar,ai,new Date());},0);
-                    ci.push(cumInv);cc.push(curVal);
-                });
-                // Projeção
+                sortedKeys.forEach(k=>{cumInv+=dailyData[k].inv;const aportesAteAqui=allAportes.filter(ap=>new Date(ap.date)<=new Date(k+"-01"));const curVal=aportesAteAqui.reduce((s,ap)=>{const ar=ap.rate||0,ai=ap.indexer||'pre';return s+calcProjectedValue([ap],ar,ai,new Date());},0);ci.push(cumInv);cc.push(curVal);});
                 const lastKey=sortedKeys[sortedKeys.length-1]||`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
                 const projEnd=new Date(lastKey+"-01");projEnd.setFullYear(projEnd.getFullYear()+1);
                 const projVal=allAportes.reduce((s,ap)=>{const ar=ap.rate||0,ai=ap.indexer||'pre';return s+calcProjectedValue([ap],ar,ai,projEnd);},0);
                 const projKey=`${projEnd.getFullYear()}-${String(projEnd.getMonth()+1).padStart(2,'0')}`;
-                createLineChart('investmentEvolutionChart',[...sortedKeys,projKey],[{label:'Investido',data:[...ci,ci[ci.length-1]],color:'#2563eb'},{label:'Atual',data:[...cc,cc[cc.length-1]],color:'#16a34a'},{label:'Projeção',data:[...Array(sortedKeys.length).fill(null),projVal],color:'#7c3aed',borderDash:[5,5]}]);
+                createLineChart('investmentEvolutionChart',[...sortedKeys,projKey],[{label:'Investido',data:[...ci,ci[ci.length-1]],color:'#2563eb'},{label:'Atual',data:[...cc,cc[cc.length-1]],color:'#16a34a'},{label:'Projeção',data:[...Array(sortedKeys.length).fill(null),projVal],color:'#7c3aed'}]);
             }
-
-            document.getElementById('investmentsTable').innerHTML=allInvestments.map(inv=>{
-                const ret=(inv.currentValue||0)-(inv.totalInvested||0),retP=inv.totalInvested>0?(ret/inv.totalInvested)*100:0;
-                const own=inv.userId===currentUser.id;
-                const idxNames={cdi:'% CDI',selic:'% Selic',ipca:'IPCA +',pre:'Pré'};
-                return`<tr><td>${inv.type}</td><td>${inv.name}</td><td>${inv.rate||0}% ${idxNames[inv.indexer]||''}</td><td>R$ ${(inv.totalInvested||0).toFixed(2)}</td><td>R$ ${(inv.currentValue||0).toFixed(2)}</td><td>R$ ${(inv.projectedValue||0).toFixed(2)}</td><td style="color:${ret>=0?'var(--success)':'var(--danger)'};">${retP.toFixed(2)}%</td><td>${own?`<button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>`:'<span style="font-size:12px;">Outro</span>'}</td></tr>`;
-            }).join('')||'<tr><td colspan="8">Nenhum investimento</td></tr>';
+            const idxNames={cdi:'% CDI',selic:'% Selic',ipca:'IPCA +',pre:'Pré'};
+            document.getElementById('investmentsTable').innerHTML=allInvestments.map(inv=>{const ret=(inv.currentValue||0)-(inv.totalInvested||0),retP=inv.totalInvested>0?(ret/inv.totalInvested)*100:0;const own=inv.userId===currentUser.id;return`<tr><td>${inv.type}</td><td>${inv.name}</td><td>${inv.rate||0}% ${idxNames[inv.indexer]||''}</td><td>R$ ${(inv.totalInvested||0).toFixed(2)}</td><td>R$ ${(inv.currentValue||0).toFixed(2)}</td><td>R$ ${(inv.projectedValue||0).toFixed(2)}</td><td style="color:${ret>=0?'var(--success)':'var(--danger)'};">${retP.toFixed(2)}%</td><td>${own?`<button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>`:'<span style="font-size:12px;">Outro</span>'}</td></tr>`;}).join('')||'<tr><td colspan="8">Nenhum investimento</td></tr>';
         }
 
-        // Goals
         window.openGoalModal=function(gid=null){editingGoalId=gid;document.getElementById('goalModal').classList.add('active');if(gid){const g=allGoals.find(x=>x.id===gid);if(g){document.getElementById('goalModalTitle').textContent='Editar Meta';document.getElementById('goalName').value=g.name;document.getElementById('goalTarget').value=g.target;document.getElementById('goalCurrent').value=g.current||0;document.getElementById('goalDeadline').value=g.deadline||'';document.getElementById('goalEditId').value=gid;}}else{document.getElementById('goalModalTitle').textContent='Nova Meta';document.getElementById('goalName').value='';document.getElementById('goalTarget').value='';document.getElementById('goalCurrent').value='';document.getElementById('goalDeadline').value='';document.getElementById('goalEditId').value='';}};
         window.closeGoalModal=function(){document.getElementById('goalModal').classList.remove('active');editingGoalId=null;};
         window.saveGoal=async function(){const name=document.getElementById('goalName').value.trim(),target=parseFloat(document.getElementById('goalTarget').value),current=parseFloat(document.getElementById('goalCurrent').value)||0,deadline=document.getElementById('goalDeadline').value;if(!name||!target||target<=0){alert('Preencha');return;}try{if(editingGoalId)await updateDoc(doc(db,"goals",editingGoalId),{name,target,current,deadline,updatedAt:serverTimestamp()});else await addDoc(collection(db,"goals"),{name,target,current,deadline,userId:currentUser.id,userName:currentUser.name,createdAt:serverTimestamp()});closeGoalModal();}catch(e){alert('Erro');}};
         window.deleteGoal=async function(id){if(!confirm('Excluir?'))return;try{await deleteDoc(doc(db,"goals",id));}catch(e){}};
         function loadGoals(){const tt=allGoals.reduce((s,g)=>s+(g.target||0),0),tc=allGoals.reduce((s,g)=>s+(g.current||0),0),tp=tt>0?(tc/tt)*100:0;document.getElementById('goalsSummary').innerHTML=`<div class="summary-card investment"><div class="card-label">🎯 Total</div><div class="card-value">R$ ${tt.toFixed(2)}</div></div><div class="summary-card income"><div class="card-label">💰 Guardado</div><div class="card-value positive">R$ ${tc.toFixed(2)}</div></div><div class="summary-card balance"><div class="card-label">📊 Progresso</div><div class="card-value">${tp.toFixed(1)}%</div></div>`;document.getElementById('goalsList').innerHTML=allGoals.map(g=>{const pct=g.target>0?((g.current||0)/g.target)*100:0,rem=g.target-(g.current||0);const dl=g.deadline?new Date(g.deadline):null,now=new Date();let hint='',cls='green';if(pct>=80&&pct<100)cls='yellow';if(dl&&dl>now){const ml=(dl.getFullYear()-now.getFullYear())*12+(dl.getMonth()-now.getMonth())+1;if(ml>0)hint=`💡 Precisa guardar R$ ${(rem/ml).toFixed(2)}/mês`;}return`<div class="goal-card"><div class="goal-header"><h3>🎯 ${g.name}</h3><div>${g.userId===currentUser?.id?`<button class="btn-sm btn-edit" onclick="openGoalModal('${g.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteGoal('${g.id}')">🗑️</button>`:''}</div></div><div class="goal-progress-bar"><div class="goal-progress-fill ${cls}" style="width:${Math.min(pct,100)}%"></div></div><div class="goal-stats"><span>💰 R$ ${(g.current||0).toFixed(2)} de R$ ${g.target.toFixed(2)}</span><span><strong>${pct.toFixed(1)}%</strong></span></div>${dl?`<p style="font-size:12px;">📅 Até ${dl.toLocaleDateString('pt-BR')}</p>`:''}${hint?`<p class="goal-hint">${hint}</p>`:''}</div>`;}).join('')||'<p>Nenhuma meta.</p>';}
 
-        // Settings
         function loadSettingsView(){
-            // Indexers
-            document.getElementById('indexersContainer').innerHTML=`
-                <div class="indexer-row"><label>CDI</label><input type="number" id="idxCdi" value="${indexers.cdi||13.65}" step="0.01"> <span>% ao ano</span> <button class="btn-sm btn-save" onclick="saveIndexer('cdi')">💾</button></div>
-                <div class="indexer-row"><label>Selic</label><input type="number" id="idxSelic" value="${indexers.selic||13.75}" step="0.01"> <span>% ao ano</span> <button class="btn-sm btn-save" onclick="saveIndexer('selic')">💾</button></div>
-                <div class="indexer-row"><label>IPCA</label><input type="number" id="idxIpca" value="${indexers.ipca||4.20}" step="0.01"> <span>% ao ano</span> <button class="btn-sm btn-save" onclick="saveIndexer('ipca')">💾</button></div>`;
-            // Categories
+            document.getElementById('indexersContainer').innerHTML=`<div class="indexer-row"><label>CDI</label><input type="number" id="idxCdi" value="${indexers.cdi||13.65}" step="0.01"> <span>% ao ano</span> <button class="btn-sm btn-save" onclick="saveIndexer('cdi')">💾</button></div><div class="indexer-row"><label>Selic</label><input type="number" id="idxSelic" value="${indexers.selic||13.75}" step="0.01"> <span>% ao ano</span> <button class="btn-sm btn-save" onclick="saveIndexer('selic')">💾</button></div><div class="indexer-row"><label>IPCA</label><input type="number" id="idxIpca" value="${indexers.ipca||4.20}" step="0.01"> <span>% ao ano</span> <button class="btn-sm btn-save" onclick="saveIndexer('ipca')">💾</button></div>`;
             const cats=getCategories(),defIds=Object.keys(defaultCategories);let html='';const custom=Object.entries(cats).filter(([id])=>!defIds.includes(id));const def=Object.entries(cats).filter(([id])=>defIds.includes(id));if(custom.length>0){html+='<h4>✨ Personalizadas</h4><div class="category-pills" style="margin-bottom:15px;">';custom.forEach(([id,cat])=>html+=`<div class="category-pill"><span class="color-dot" style="background:${cat.color}"></span>${cat.icon} ${cat.name} <button onclick="deleteCategory('${id}')" style="background:none;border:none;font-size:12px;">🗑️</button></div>`);html+='</div>';}html+='<h4>📋 Padrão</h4><div class="category-pills">';def.forEach(([id,cat])=>html+=`<div class="category-pill"><span class="color-dot" style="background:${cat.color}"></span>${cat.icon} ${cat.name}</div>`);html+='</div>';document.getElementById('categoryPills').innerHTML=html;}
         window.saveIndexer=async function(type){const val=parseFloat(document.getElementById(`idx${type.charAt(0).toUpperCase()+type.slice(1)}`).value);if(!val||val<=0)return;indexers[type]=val;try{await setDoc(doc(db,"settings","indexers"),indexers);}catch(e){alert('Erro');}};
-        window.openCategoryModal=function(){document.getElementById('categoryModal').classList.add('active');document.getElementById('categoryModalTitle').textContent='Nova Categoria';document.getElementById('catName').value='';document.getElementById('catType').value='expense';selectedColor='#FF6B6B';selectedIcon='📦';updateColorPicker();updateIconPicker();};
-        window.closeCategoryModal=function(){document.getElementById('categoryModal').classList.remove('active');};
-        window.saveCategory=async function(){const name=document.getElementById('catName').value.trim(),type=document.getElementById('catType').value;if(!name){alert('Digite um nome');return;}const catId=name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');try{await addDoc(collection(db,"categories"),{id:catId,name,type,color:selectedColor,icon:selectedIcon,createdBy:currentUser.id,createdAt:serverTimestamp()});closeCategoryModal();}catch(e){alert('Erro');}};
-        window.deleteCategory=async function(catId){if(!confirm('Excluir?'))return;try{const snap=await getDocs(query(collection(db,"categories")));snap.forEach(async(d)=>{if(d.data().id===catId)await deleteDoc(doc(db,"categories",d.id));});}catch(e){}};
-        document.getElementById('colorPicker').addEventListener('click',e=>{if(e.target.classList.contains('color-option')){selectedColor=e.target.dataset.color;updateColorPicker();}});
-        function updateColorPicker(){document.querySelectorAll('#colorPicker .color-option').forEach(el=>el.classList.toggle('selected',el.dataset.color===selectedColor));}
-        document.getElementById('iconPicker').addEventListener('click',e=>{if(e.target.classList.contains('icon-option')){selectedIcon=e.target.dataset.icon;updateIconPicker();}});
-        function updateIconPicker(){document.querySelectorAll('#iconPicker .icon-option').forEach(el=>el.classList.toggle('selected',el.dataset.icon===selectedIcon));}
+
+        // Category Modal with custom icon input
+        window.openCategoryModal = function() {
+            document.getElementById('categoryModal').classList.add('active');
+            document.getElementById('categoryModalTitle').textContent = 'Nova Categoria';
+            document.getElementById('catName').value = '';
+            document.getElementById('catType').value = 'expense';
+            selectedColor = '#FF6B6B';
+            selectedIcon = '📦';
+            document.getElementById('catIconInput').value = '📦';
+            updateColorPicker();
+            updateIconPicker();
+        };
+        window.closeCategoryModal = function() { document.getElementById('categoryModal').classList.remove('active'); };
+        window.saveCategory = async function() {
+            const name = document.getElementById('catName').value.trim();
+            const type = document.getElementById('catType').value;
+            const icon = document.getElementById('catIconInput').value || '📦';
+            if (!name) { alert('Digite um nome'); return; }
+            const catId = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+            try {
+                await addDoc(collection(db, "categories"), { id: catId, name, type, color: selectedColor, icon, createdBy: currentUser.id, createdAt: serverTimestamp() });
+                closeCategoryModal();
+            } catch (e) { alert('Erro'); }
+        };
+        window.deleteCategory = async function(catId) { if (!confirm('Excluir?')) return; try { const snap = await getDocs(query(collection(db, "categories"))); snap.forEach(async (d) => { if (d.data().id === catId) await deleteDoc(doc(db, "categories", d.id)); }); } catch (e) {} };
+
+        // Color picker
+        document.getElementById('colorPicker').addEventListener('click', e => { if (e.target.classList.contains('color-option')) { selectedColor = e.target.dataset.color; updateColorPicker(); } });
+        function updateColorPicker() { document.querySelectorAll('#colorPicker .color-option').forEach(el => el.classList.toggle('selected', el.dataset.color === selectedColor)); }
+
+        // Icon picker - clique nas sugestões
+        document.getElementById('iconPicker').addEventListener('click', e => {
+            if (e.target.classList.contains('icon-option')) {
+                selectedIcon = e.target.dataset.icon;
+                document.getElementById('catIconInput').value = selectedIcon;
+                updateIconPicker();
+            }
+        });
+        // Input manual de ícone
+        document.getElementById('catIconInput').addEventListener('input', e => {
+            selectedIcon = e.target.value || '📦';
+            updateIconPicker();
+        });
+        function updateIconPicker() { document.querySelectorAll('#iconPicker .icon-option').forEach(el => el.classList.toggle('selected', el.dataset.icon === selectedIcon)); }
     </script>
 </body>
 </html>
