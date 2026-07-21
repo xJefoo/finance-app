@@ -64,6 +64,21 @@
         .user-filter-chip { padding:5px 12px; border-radius:14px; font-size:12px; cursor:pointer; border:1px solid var(--border); background:#fff; transition:all .2s; }
         .user-filter-chip:hover { background:var(--bg); }
         .user-filter-chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+        /* Estilos para os modos de filtro de investimentos */
+        .filter-mode-selector { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+        .filter-mode-btn { padding:6px 16px; border-radius:20px; font-size:12px; cursor:pointer; border:2px solid var(--border); background:#fff; transition:all .2s; font-weight:500; }
+        .filter-mode-btn:hover { background:var(--bg); }
+        .filter-mode-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+        .filter-mode-btn.all-mode { border-color:var(--success); }
+        .filter-mode-btn.all-mode.active { background:var(--success); border-color:var(--success); }
+        .filter-mode-btn.type-mode { border-color:var(--secondary); }
+        .filter-mode-btn.type-mode.active { background:var(--secondary); border-color:var(--secondary); }
+        .filter-mode-btn.institution-mode { border-color:var(--warning); }
+        .filter-mode-btn.institution-mode.active { background:var(--warning); border-color:var(--warning); }
+        .filter-chips-container { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; padding:8px 12px; background:#f8fafc; border-radius:8px; border:1px dashed var(--border); }
+        .filter-chips-container .filter-chip { padding:4px 12px; border-radius:14px; font-size:11px; cursor:pointer; border:1px solid var(--border); background:#fff; transition:all .2s; }
+        .filter-chips-container .filter-chip:hover { background:var(--bg); }
+        .filter-chips-container .filter-chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
         .period-dropdown input[type=text] { width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px; }
         .period-dropdown input[type=text]:focus { outline:none; border-color:var(--primary); }
         .period-dropdown input[type=date] { padding:6px 8px; border:1px solid var(--border); border-radius:6px; font-size:12px; }
@@ -209,8 +224,19 @@
             <div id="investments" class="tab-content">
                 <div class="section-header"><h2>📈 Investimentos</h2><button class="btn btn-primary btn-sm" onclick="openInvestmentModal()">➕ Novo</button></div>
                 <div class="summary-cards" id="investmentSummary"></div>
-                <!-- Filtro por instituição/tipo -->
-                <div class="user-filter-tabs" id="investmentTypeFilter" style="margin-bottom:12px;"></div>
+                
+                <!-- Seletor de modo de filtro -->
+                <div class="filter-mode-selector" id="filterModeSelector">
+                    <button class="filter-mode-btn all-mode active" data-mode="all" onclick="setInvestmentFilterMode('all')">📊 Todos</button>
+                    <button class="filter-mode-btn type-mode" data-mode="type" onclick="setInvestmentFilterMode('type')">🏷️ Filtrar por Tipo</button>
+                    <button class="filter-mode-btn institution-mode" data-mode="institution" onclick="setInvestmentFilterMode('institution')">🏦 Filtrar por Instituição</button>
+                </div>
+                
+                <!-- Container para os chips de filtro (dinâmico) -->
+                <div class="filter-chips-container" id="investmentFilterChips">
+                    <span style="font-size:11px;color:var(--text-light);">🔍 Mostrando todos os investimentos</span>
+                </div>
+                
                 <div class="charts-grid" style="margin-bottom:12px;">
                     <div class="chart-container"><h3>📊 Distribuição por Tipo</h3><div class="chart-wrapper"><canvas id="portfolioTypeChart"></canvas></div><div id="portfolioTypeAnalysis" style="margin-top:6px;font-size:11px;color:var(--text-light);text-align:center;"></div></div>
                 </div>
@@ -237,7 +263,10 @@
         const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getFirestore(app), provider = new GoogleAuthProvider();
         let currentUser = null, charts = {}, allTransactions = [], allInvestments = [], allGoals = [], allCategories = {}, allRecurring = [], indexers = { cdi: 13.65, selic: 13.75, ipca: 4.20 };
         const idx = { cdi: '% CDI', selic: '% Selic', ipca: 'IPCA +', pre: 'Pré' };
-        let transactionUserFilter = 'all', investmentUserFilter = 'all', goalUserFilter = 'all', investmentTypeFilter = 'all';
+        let transactionUserFilter = 'all', investmentUserFilter = 'all', goalUserFilter = 'all';
+        // variáveis para controle do filtro de investimentos
+        let investmentFilterMode = 'all'; // 'all' | 'type' | 'institution'
+        let investmentFilterValue = null; // valor selecionado (tipo ou instituição)
         let selectedColor = '#FF6B6B', selectedIcon = '📦', editingTransactionId = null, editingInvestmentId = null, editingGoalId = null, editingRecurringId = null;
         let currentPeriod = { qty: 30, unit: 'd' };
 
@@ -298,6 +327,61 @@
         function getUniqueUsers(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.userName) s.add(x.userName); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
         function getUniqueInstitutions(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.institution) s.add(x.institution); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
         function getUniqueTypes(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.type) s.add(x.type); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
+
+        // Função para definir o modo de filtro
+        window.setInvestmentFilterMode = function(mode) {
+            investmentFilterMode = mode;
+            investmentFilterValue = null;
+            
+            // Atualizar botões
+            document.querySelectorAll('.filter-mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.mode === mode) btn.classList.add('active');
+            });
+            
+            // Renderizar os chips apropriados
+            renderFilterChips();
+            
+            // Recarregar a view
+            loadInvestments();
+        };
+
+        // Renderizar os chips de filtro
+        function renderFilterChips() {
+            const container = document.getElementById('investmentFilterChips');
+            if (!container) return;
+            
+            let html = '';
+            
+            if (investmentFilterMode === 'all') {
+                html = `<span style="font-size:11px;color:var(--text-light);">🔍 Mostrando todos os investimentos</span>`;
+            } else {
+                const items = investmentFilterMode === 'type' 
+                    ? getUniqueTypes(allInvestments) 
+                    : getUniqueInstitutions(allInvestments);
+                
+                const label = investmentFilterMode === 'type' ? 'Tipo' : 'Instituição';
+                html = `<span style="font-size:11px;color:var(--text-light);font-weight:500;">Filtrar por ${label}:</span>`;
+                
+                // Opção "Todos"
+                const isAllSelected = investmentFilterValue === null;
+                html += `<span class="filter-chip ${isAllSelected ? 'active' : ''}" data-value="__all__" onclick="selectInvestmentFilter(null)">📋 Todos</span>`;
+                
+                items.forEach(item => {
+                    const isSelected = investmentFilterValue === item;
+                    html += `<span class="filter-chip ${isSelected ? 'active' : ''}" data-value="${escapeHtml(item)}" onclick="selectInvestmentFilter('${escapeHtml(item)}')">${escapeHtml(item)}</span>`;
+                });
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Selecionar um valor de filtro
+        window.selectInvestmentFilter = function(value) {
+            investmentFilterValue = value;
+            renderFilterChips();
+            loadInvestments();
+        };
 
         function renderUserFilterTabs(containerId, currentFilter, users, onChangeCallback, labelFn) {
             const container = document.getElementById(containerId);
@@ -378,7 +462,6 @@
             const ctx = document.getElementById(cid);
             if (!ctx) return;
             if (charts[cid]) charts[cid].destroy();
-            // Reduzir número de labels mostrados
             const maxLabels = 8;
             const step = labels.length > maxLabels ? Math.ceil(labels.length / maxLabels) : 1;
             const displayLabels = labels.map((l, i) => (i % step === 0 || i === labels.length - 1) ? l : '');
@@ -458,21 +541,24 @@
         function loadInvestments() {
             allInvestments.forEach(inv => recalcInvestment(inv));
             let investments = allInvestments.slice();
-            if (investmentUserFilter && investmentUserFilter !== 'all') investments = investments.filter(i => (i.userName || 'Outro') === investmentUserFilter);
             
-            // Filtro por tipo/instituição
-            if (investmentTypeFilter && investmentTypeFilter !== 'all') {
-                investments = investments.filter(i => i.type === investmentTypeFilter || i.institution === investmentTypeFilter);
+            // Filtro por usuário
+            if (investmentUserFilter && investmentUserFilter !== 'all') {
+                investments = investments.filter(i => (i.userName || 'Outro') === investmentUserFilter);
             }
+            
+            // Filtro por modo (tipo ou instituição)
+            if (investmentFilterMode === 'type' && investmentFilterValue !== null) {
+                investments = investments.filter(i => i.type === investmentFilterValue);
+            } else if (investmentFilterMode === 'institution' && investmentFilterValue !== null) {
+                investments = investments.filter(i => i.institution === investmentFilterValue);
+            }
+            // Se investmentFilterMode === 'all', não filtra
             
             const ti = investments.reduce((s, i) => s + (i.totalInvested || 0), 0), tc = investments.reduce((s, i) => s + (i.currentValue || 0), 0), rv = tc - ti, rp = ti > 0 ? (rv / ti) * 100 : 0;
             document.getElementById('investmentSummary').innerHTML = `<div class="summary-card investment"><div class="card-label">💼 Total Investido</div><div class="card-value">R$ ${fmt(ti)}</div></div><div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">📊 Valor Atual</div><div class="card-value ${rv>=0?'positive':'negative'}">R$ ${fmt(tc)}</div></div><div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">📈 Rent. Nominal</div><div class="card-value ${rv>=0?'positive':'negative'}">${rp.toFixed(2)}%</div></div><div class="summary-card ${rv-(indexers.ipca||0)>=0?'income':'expense'}"><div class="card-label">💎 Rent. Real</div><div class="card-value ${rv-(indexers.ipca||0)>=0?'positive':'negative'}">${(rp-(indexers.ipca||0)).toFixed(2)}%</div></div>`;
             
-            // Filtro por tipo/instituição - chips
-            const instTypes = [...new Set([...getUniqueTypes(allInvestments), ...getUniqueInstitutions(allInvestments)])];
-            try { renderUserFilterTabs('investmentTypeFilter', investmentTypeFilter, instTypes, function(u){ investmentTypeFilter = u; loadInvestments(); }, u => '🏷️ ' + u); } catch(e) {}
-
-            // Portfólio (usar TODOS os investimentos, não filtrados)
+            // Portfólio (usar TODOS os investimentos para análise de alocação)
             const fixaTypes = ['CDB', 'Tesouro Direto', 'LCI/LCA', 'Poupança']; let tf = 0, tv = 0;
             allInvestments.forEach(inv => { const v = inv.currentValue || inv.totalInvested || 0; if (fixaTypes.includes(inv.type)) tf += v; else tv += v; });
             const tp = tf + tv;
@@ -504,7 +590,6 @@
             
             try { renderUserFilterTabs('investmentUserFilter', investmentUserFilter, getUniqueUsers(allInvestments), function(u){ investmentUserFilter = u; loadInvestments(); }); } catch(e) {}
             
-            // Cards com instituição ao lado do nome
             document.getElementById('investmentCards').innerHTML = investments.map(inv => { const ret = (inv.currentValue || 0) - (inv.totalInvested || 0), retP = inv.totalInvested > 0 ? (ret / inv.totalInvested) * 100 : 0, realRet = retP - (indexers.ipca || 0); const own = inv.userId === currentUser?.id, aportes = inv.aportes || []; return `<div class="data-card"><div class="data-card-header"><h4><span class="investment-name-institution">📈 ${inv.name} ${inv.institution ? `<span class="inst-badge">🏦 ${inv.institution}</span>` : ''}</span></h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openInvestmentModal('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (inv.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>📋 ${inv.type}</span><span>📊 ${inv.rate || 0}% ${idx[inv.indexer] || ''}</span><span>📅 ${new Date(inv.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span><span>🏁 ${new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span></div><div class="investment-card-values"><div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${fmt(inv.totalInvested || 0)}</div></div><div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${fmt(inv.currentValue || 0)}</div></div><div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${fmt(inv.projectedValue || 0)}</div></div><div class="val-item"><div class="val-label">📈 Nominal</div><div class="val-number ${ret>=0?'positive':'negative'}">${retP.toFixed(2)}%</div></div><div class="val-item"><div class="val-label">💎 Real</div><div class="val-number ${realRet>=0?'positive':'negative'}">${realRet.toFixed(2)}%</div></div></div><div class="aportes-section"><h4>🏷️ Aportes (${aportes.length})</h4>${aportes.map((ap, i) => `<div class="aporte-mini-item"><span>R$ ${fmt(ap.value)}</span><span class="aporte-date">${new Date(ap.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>${i > 0 && own ? `<button onclick="removeAporteFromInvestment('${inv.id}',${i})">✕</button>` : (i === 0 ? '<span style="font-size:10px;">inicial</span>' : '')}</div>`).join('')}${own ? `<div class="aporte-add-mini"><input type="text" id="aporte-val-${inv.id}" placeholder="Valor" inputmode="decimal"><input type="date" id="aporte-date-${inv.id}"><button class="btn-sm btn-add" onclick="addAporteToInvestment('${inv.id}')">+</button></div>` : ''}</div></div>`; }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento.</p>';
         }
 
@@ -578,6 +663,7 @@
         document.getElementById('recAddBtn').addEventListener('click', () => window.saveRecurring());
         document.getElementById('recSaveBtn').addEventListener('click', () => window.saveRecurring());
         document.getElementById('recCancelBtn').addEventListener('click', () => window.cancelEditRecurring());
+        
     </script>
 </body>
 </html>
