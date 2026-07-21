@@ -282,7 +282,11 @@
         }
         function formatMoney(val) {
             const number = Number(val) || 0;
-            return `R$ ${number.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            // Formatar manualmente para garantir padrão brasileiro
+            const parts = number.toFixed(2).split('.');
+            const integer = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            const decimal = parts[1];
+            return `R$ ${integer},${decimal}`;
         }
         function toLocalDateStr(date) { const d = new Date(date); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
         function getDateWithFallback(value, fallback = new Date()) {
