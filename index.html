@@ -15,8 +15,19 @@
             --text-light:#6b7280; --border:#e5e7eb; --shadow:0 1px 3px rgba(0,0,0,.1);
             --shadow-lg:0 4px 6px rgba(0,0,0,.1); --radius:12px;
         }
-        body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; color:var(--text); }
-        .login-screen { display:flex; justify-content:center; align-items:center; min-height:100vh; padding:20px; }
+        body {
+            font-family: Arial, sans-serif;
+            background:var(--bg);
+            color:var(--text);
+        }
+        .login-screen {
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+            background:linear-gradient(135deg,var(--bg),#e0f2fe);
+        }
         .login-screen.hidden { display:none; }
         .login-card { background:#fff; border-radius:20px; padding:40px; box-shadow:0 20px 60px rgba(0,0,0,.3); max-width:450px; width:100%; }
         .login-header { text-align:center; margin-bottom:30px; }
@@ -206,11 +217,12 @@
                 <div class="summary-cards" id="investmentSummary"></div>
                 <div class="charts-grid" style="margin-bottom:12px;"><div class="chart-container"><h3>📊 Distribuição por Tipo</h3><div class="chart-wrapper"><canvas id="portfolioTypeChart"></canvas></div><div id="portfolioTypeAnalysis" style="margin-top:6px;font-size:11px;color:var(--text-light);text-align:center;"></div></div></div>
                 <div class="chart-container" style="margin-bottom:12px;"><h3>📈 Burnup - Evolução do Patrimônio</h3><div class="chart-wrapper large"><canvas id="investmentEvolutionChart"></canvas></div></div>
-                <h3>💼 Seus Investimentos</h3><div id="investmentCards"></div>
+                <h3>💼 Seus Investimentos</h3><div id="investmentUserFilter"></div><div id="investmentCards"></div>
             </div>
             <div id="goals" class="tab-content">
                 <div class="section-header"><h2>🏆 Metas por Investimento</h2><button class="btn btn-primary btn-sm" onclick="openGoalModal()">➕ Nova</button></div>
                 <div class="summary-cards" id="goalsSummary"></div>
+                <div id="goalsUserFilter"></div>
                 <div id="goalsList"></div>
             </div>
             <div id="settings" class="tab-content"><h2>⚙️ Configurações</h2><div class="add-form"><h3>📊 Indexadores</h3><div id="indexersContainer"></div></div><div class="add-form" style="margin-top:12px;"><h3>🔄 Transações Recorrentes</h3><p style="color:var(--text-light);margin-bottom:8px;font-size:12px;">Ex: adiantamento, salário. Serão adicionadas automaticamente na data correta.</p><div id="recurringContainer"></div><div class="recurring-row" style="margin-top:6px;"><input class="rec-name" placeholder="Nome" id="recName"><input class="rec-value" placeholder="Valor" id="recValue" inputmode="decimal"><input class="rec-date" type="date" id="recDate"><select class="rec-freq" id="recFreq"><option value="1m">1 mês</option><option value="15d">15 dias</option><option value="7d">7 dias</option></select><select id="recType"><option value="income">Receita</option><option value="expense">Despesa</option></select><button class="btn-sm btn-add" id="recAddBtn">+</button><button class="btn-sm btn-save" id="recSaveBtn" style="display:none;">💾</button><button class="btn-sm btn-cancel" id="recCancelBtn" style="display:none;">✕</button></div></div><div class="add-form" style="margin-top:12px;"><div class="section-header"><h3>🏷️ Categorias</h3><button class="btn btn-primary btn-sm" onclick="openCategoryModal()">➕ Nova</button></div><div id="categoryPills"></div></div></div>
@@ -225,7 +237,8 @@
         const firebaseConfig = { apiKey: "AIzaSyCm4N4NK18X-ok3Pi7R1f-4tTWdZf7kzec", authDomain: "app-damins.firebaseapp.com", projectId: "app-damins", storageBucket: "app-damins.firebasestorage.app", messagingSenderId: "704942561066", appId: "1:704942561066:web:55bda959851be7ea917053" };
         const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getFirestore(app), provider = new GoogleAuthProvider();
         let currentUser = null, charts = {}, allTransactions = [], allInvestments = [], allGoals = [], allCategories = {}, allRecurring = [], indexers = { cdi: 13.65, selic: 13.75, ipca: 4.20 };
-        let transactionUserFilter = 'all', investmentUserFilter = 'all';
+        const idx = { cdi: '% CDI', selic: '% Selic', ipca: 'IPCA +', pre: 'Pré' };
+        let transactionUserFilter = 'all', investmentUserFilter = 'all', goalUserFilter = 'all';
         let selectedColor = '#FF6B6B', selectedIcon = '📦', editingTransactionId = null, editingInvestmentId = null, editingGoalId = null, editingRecurringId = null;
         let currentPeriod = { qty: 30, unit: 'd' };
 
@@ -276,9 +289,20 @@
             document.addEventListener('click', function(e) { if (!e.target.closest('.period-trigger')) { document.getElementById('periodDropdown').classList.remove('open'); } });
         }
 
-        function parseMoney(val) { if (!val) return 0; return parseFloat(val.toString().replace(/\./g, '').replace(',', '.')) || 0; }
-        function formatMoney(val) { return val.toFixed(2).replace('.', ','); }
+        function parseMoney(val) {
+            if (val === null || val === undefined || val === '') return 0;
+            const normalized = String(val).replace(/R\$|\s/g, '').replace(/\./g, '').replace(',', '.');
+            return parseFloat(normalized) || 0;
+        }
+        function formatMoney(val) {
+            const number = Number(val) || 0;
+            return `R$ ${number.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
         function toLocalDateStr(date) { const d = new Date(date); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+        function getDateWithFallback(value, fallback = new Date()) {
+            const base = String(value || '').split('T')[0] || toLocalDateStr(fallback);
+            return new Date(base + 'T12:00:00');
+        }
 
         // Extract unique user names from a source array (transactions or investments)
         function getUniqueUsers(source) {
@@ -453,14 +477,14 @@
             document.getElementById('investmentSummary').innerHTML = `<div class="summary-card investment"><div class="card-label">💼 Total Investido</div><div class="card-value">R$ ${ti.toFixed(2)}</div></div><div class="summary-card ${rv >= 0 ? 'income' : 'expense'}"><div class="card-label">📊 Valor Atual</div><div class="card-value ${rv >= 0 ? 'positive' : 'negative'}">R$ ${tc.toFixed(2)}</div></div><div class="summary-card ${rv >= 0 ? 'income' : 'expense'}"><div class="card-label">📈 Rent. Nominal</div><div class="card-value ${rv >= 0 ? 'positive' : 'negative'}">${rp.toFixed(2)}%</div></div><div class="summary-card ${rv - (indexers.ipca || 0) >= 0 ? 'income' : 'expense'}"><div class="card-label">💎 Rent. Real</div><div class="card-value ${rv - (indexers.ipca || 0) >= 0 ? 'positive' : 'negative'}">${(rp - (indexers.ipca || 0)).toFixed(2)}%</div></div>`;
             
             const fixaTypes = ['CDB', 'Tesouro Direto', 'LCI/LCA', 'Poupança']; let tf = 0, tv = 0;
-            investments.forEach(inv => { const v = inv.currentValue || inv.totalInvested || 0; if (fixaTypes.includes(inv.type)) tf += v; else tv += v; });
+            allInvestments.forEach(inv => { const v = inv.currentValue || inv.totalInvested || 0; if (fixaTypes.includes(inv.type)) tf += v; else tv += v; });
             const tp = tf + tv;
             if (tp > 0) { const fp = (tf / tp) * 100, vp = (tv / tp) * 100; const ctxP = document.getElementById('portfolioTypeChart'); if (ctxP) { if (charts['portfolioTypeChart']) charts['portfolioTypeChart'].destroy(); charts['portfolioTypeChart'] = new Chart(ctxP, { type: 'pie', data: { labels: ['Renda Fixa', 'Renda Variável'], datasets: [{ data: [tf, tv], backgroundColor: ['#2563eb', '#ea580c'], borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); } const df = fp - 60; document.getElementById('portfolioTypeAnalysis').innerHTML = `<strong>Ideal 60/40:</strong> Fixa: <strong style="color:#2563eb;">${fp.toFixed(1)}%</strong> ${df > 5 ? '⚠️ Conservador' : df < -5 ? '⚠️ Arriscado' : '✅'} | Var: <strong style="color:#ea580c;">${vp.toFixed(1)}%</strong>${Math.abs(df) > 10 ? '<br>💡 Rebalancear' : ''}`; }
 
             // BURNUP com projeção como linha completa (não só ponto final)
             const allAportes = []; investments.forEach(inv => { (inv.aportes || []).forEach(ap => allAportes.push({ ...ap, rate: inv.rate, indexer: inv.indexer, endDate: inv.endDate })); });
             if (allAportes.length > 0) {
-                const dailyData = {}; allAportes.forEach(ap => { const d = new Date(ap.date + 'T12:00:00'); const key = toLocalDateStr(d); if (!dailyData[key]) dailyData[key] = { invested: 0, aportesDoDia: [] }; dailyData[key].invested += ap.value; dailyData[key].aportesDoDia.push(ap); });
+                const dailyData = {}; allAportes.forEach(ap => { const d = getDateWithFallback(ap.date); const key = toLocalDateStr(d); if (!dailyData[key]) dailyData[key] = { invested: 0, aportesDoDia: [] }; dailyData[key].invested += ap.value; dailyData[key].aportesDoDia.push(ap); });
                 const sortedDays = Object.keys(dailyData).sort();
                 const investedLine = [], currentLine = [], projLine = [];
                 let cumInvested = 0;
@@ -514,9 +538,7 @@
             
             document.getElementById('investmentCards').innerHTML = investments.map(inv => { const ret = (inv.currentValue || 0) - (inv.totalInvested || 0), retP = inv.totalInvested > 0 ? (ret / inv.totalInvested) * 100 : 0, realRet = retP - (indexers.ipca || 0); const own = inv.userId === currentUser?.id, aportes = inv.aportes || []; return `<div class="data-card"><div class="data-card-header"><h4>📈 ${inv.name}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openInvestmentModal('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (inv.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>🏦 ${inv.institution || '-'}</span><span>📋 ${inv.type}</span><span>📊 ${inv.rate || 0}% ${idx[inv.indexer] || ''}</span><span>📅 ${new Date(inv.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span><span>🏁 ${new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span></div><div class="investment-card-values"><div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${(inv.totalInvested || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${(inv.currentValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${(inv.projectedValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Nominal</div><div class="val-number ${ret >= 0 ? 'positive' : 'negative'}">${retP.toFixed(2)}%</div></div><div class="val-item"><div class="val-label">💎 Real</div><div class="val-number ${realRet >= 0 ? 'positive' : 'negative'}">${realRet.toFixed(2)}</div></div></div><div class="aportes-section"><h4>🏷️ Aportes (${aportes.length})</h4>${aportes.map((ap, i) => `<div class="aporte-mini-item"><span>R$ ${ap.value.toFixed(2)}</span><span class="aporte-date">${new Date(ap.date +  'T12:00:00').toLocaleDateString('pt-BR')}</span>${own?`<button class="btn-sm btn-delete" onclick="removeAporteFromInvestment('${inv.id}',${i})">✖</button>`:''}</div>`).join('')}<div class="aporte-add-mini"><input id="aporte-val-${inv.id}" placeholder="R$ 0,00"><input id="aporte-date-${inv.id}" type="date"><button class="btn-sm btn-add" onclick="addAporteToInvestment('${inv.id}')">➕</button></div></div></div>`; }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento cadastrado.</p>';
 
-            const idx = { cdi: '% CDI', selic: '% Selic', ipca: 'IPCA +', pre: 'Pré' };
-            document.getElementById('investmentCards').innerHTML = allInvestments.map(inv => { const ret = (inv.currentValue || 0) - (inv.totalInvested || 0), retP = inv.totalInvested > 0 ? (ret / inv.totalInvested) * 100 : 0, realRet = retP - (indexers.ipca || 0); const own = inv.userId === currentUser?.id, aportes = inv.aportes || []; return `<div class="data-card"><div class="data-card-header"><h4>📈 ${inv.name}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openInvestmentModal('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (inv.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>🏦 ${inv.institution || '-'}</span><span>📋 ${inv.type}</span><span>📊 ${inv.rate || 0}% ${idx[inv.indexer] || ''}</span><span>📅 ${new Date(inv.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span><span>🏁 ${new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span></div><div class="investment-card-values"><div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${(inv.totalInvested || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${(inv.currentValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${(inv.projectedValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Nominal</div><div class="val-number ${ret >= 0 ? 'positive' : 'negative'}">${retP.toFixed(2)}%</div></div><div class="val-item"><div class="val-label">💎 Real</div><div class="val-number ${realRet >= 0 ? 'positive' : 'negative'}">${realRet.toFixed(2)}%</div></div></div><div class="aportes-section"><h4>🏷️ Aportes (${aportes.length})</h4>${aportes.map((ap, i) => `<div class="aporte-mini-item"><span>R$ ${ap.value.toFixed(2)}</span><span class="aporte-date">${new Date(ap.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>${i > 0 && own ? `<button onclick="removeAporteFromInvestment('${inv.id}',${i})">✕</button>` : (i === 0 ? '<span style="font-size:10px;">inicial</span>' : '')}</div>`).join('')}${own ? `<div class="aporte-add-mini"><input type="text" id="aporte-val-${inv.id}" placeholder="Valor" inputmode="decimal"><input type="date" id="aporte-date-${inv.id}"><button class="btn-sm btn-add" onclick="addAporteToInvestment('${inv.id}')">+</button></div>` : ''}</div></div>`; }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento.</p>';
-        }
+            
 
         // ============ GOALS ============
         function getUniqueInvestmentNames() { const names = new Set(); allInvestments.forEach(inv => { if (inv.name) names.add(inv.name); }); return [...names].sort(); }
@@ -526,7 +548,14 @@
         window.saveGoal = async function() { const investmentName = document.getElementById('goalInvestment').value; const target = parseMoney(document.getElementById('goalTarget').value); const deadline = document.getElementById('goalDeadline').value; if (!investmentName || !target || target <= 0) { alert('Escolha um investimento e defina um objetivo'); return; } try { const goalData = { investmentName, target, deadline, updatedAt: serverTimestamp() }; if (editingGoalId) { await updateDoc(doc(db, "goals", editingGoalId), goalData); } else { await addDoc(collection(db, "goals"), { ...goalData, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeGoalModal(); } catch (e) { alert('Erro ao salvar meta'); } };
         window.deleteGoal = async function(id) { if (!confirm('Excluir meta?')) return; try { await deleteDoc(doc(db, "goals", id)); } catch (e) { } };
         function loadGoals() {
-        const goalsWithData = allGoals.map(g => {
+            // render user filter tabs for goals
+            try { renderUserFilterTabs('goalsUserFilter', goalUserFilter, getUniqueUsers(allGoals), function(u){ goalUserFilter = u; loadGoals(); }); } catch(e) { }
+
+            // apply user filter for goals
+            let goalsSource = allGoals.slice();
+            if (goalUserFilter && goalUserFilter !== 'all') goalsSource = goalsSource.filter(g => (g.userName || 'Outro') === goalUserFilter);
+
+        const goalsWithData = goalsSource.map(g => {
         // Buscar TODOS os investimentos com o mesmo nome e SOMAR
         const matchingInvestments = allInvestments.filter(i => i.name === g.investmentName);
         const currentValue = matchingInvestments.reduce((sum, inv) => sum + (inv.currentValue || inv.totalInvested || 0), 0);
@@ -557,7 +586,7 @@
         };
     });
 
-    const totalTarget = goalsWithData.reduce((s, g) => s + g.target, 0);
+        const totalTarget = goalsWithData.reduce((s, g) => s + g.target, 0);
     const totalCurrent = goalsWithData.reduce((s, g) => s + g.currentValue, 0);
     const totalPct = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
 
@@ -566,7 +595,6 @@
         <div class="summary-card income"><div class="card-label">💰 Valor Atual</div><div class="card-value positive">R$ ${totalCurrent.toFixed(2)}</div></div>
         <div class="summary-card balance"><div class="card-label">📊 Progresso Geral</div><div class="card-value">${totalPct.toFixed(1)}%</div></div>`;
 
-    const idx = { cdi: '% CDI', selic: '% Selic', ipca: 'IPCA +', pre: 'Pré' };
     document.getElementById('goalsList').innerHTML = goalsWithData.map(g => {
         const own = g.userId === currentUser?.id;
         const cls = g.pct >= 80 && g.pct < 100 ? 'yellow' : 'green';
@@ -585,7 +613,7 @@
                 ${g.deadline ? `<div class="val-item"><div class="val-label">📅 Data Alvo</div><div class="val-number" style="font-size:12px;">${new Date(g.deadline + 'T12:00:00').toLocaleDateString('pt-BR')}</div></div>` : ''}
             </div>
             <div class="goal-progress-bar"><div class="goal-progress-fill ${cls}" style="width:${Math.min(g.pct, 100)}%"></div></div>
-            <div class="goal-stats"><span>${g.pct.toFixed(1)}% concluído</span><span>Faltam R$ ${(g.remaining > 0 ? g.remaining : 0).toFixed(2)}</span></div>
+            <div class="goal-stats"><span>${g.pct.toFixed(1)}% concluído</span> <span>Faltam R$ ${(g.remaining > 0 ? g.remaining : 0).toFixed(2)}</span></div>
             ${g.monthlyHint ? `<p class="goal-hint">${g.monthlyHint}</p>` : ''}
         </div>`;
     }).join('') || '<p style="text-align:center;padding:30px;">Nenhuma meta criada.</p>';
@@ -609,8 +637,8 @@
         function updateIconPicker() { document.querySelectorAll('#iconPicker .icon-option').forEach(el => el.classList.toggle('selected', el.dataset.icon === selectedIcon)); }
 
         // Setup recurring button events
-        document.getElementById('recAddBtn').addEventListener('click', () => saveRecurring());
-        document.getElementById('recSaveBtn').addEventListener('click', () => saveRecurring());
+        document.getElementById('recAddBtn').addEventListener('click', () => window.saveRecurring());
+        document.getElementById('recSaveBtn').addEventListener('click', () => window.saveRecurring());
         document.getElementById('recCancelBtn').addEventListener('click', () => cancelEditRecurring());
     </script>
 </body>
