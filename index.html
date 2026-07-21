@@ -15,19 +15,8 @@
             --text-light:#6b7280; --border:#e5e7eb; --shadow:0 1px 3px rgba(0,0,0,.1);
             --shadow-lg:0 4px 6px rgba(0,0,0,.1); --radius:12px;
         }
-        body {
-            font-family: Arial, sans-serif;
-            background:var(--bg);
-            color:var(--text);
-        }
-        .login-screen {
-            min-height:100vh;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            padding:20px;
-            background:linear-gradient(135deg,var(--bg),#e0f2fe);
-        }
+        body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; color:var(--text); }
+        .login-screen { display:flex; justify-content:center; align-items:center; min-height:100vh; padding:20px; }
         .login-screen.hidden { display:none; }
         .login-card { background:#fff; border-radius:20px; padding:40px; box-shadow:0 20px 60px rgba(0,0,0,.3); max-width:450px; width:100%; }
         .login-header { text-align:center; margin-bottom:30px; }
@@ -59,7 +48,6 @@
         .nav-tab:hover { background:var(--bg); }
         .nav-tab.active { background:var(--primary); color:#fff; border-color:var(--primary); }
         .nav-tab.config-tab { font-size:16px; padding:8px 12px; }
-
         .period-trigger { position:relative; display:flex; align-items:center; gap:6px; padding:7px 14px; background:#fff; border:1px solid var(--border); border-radius:20px; cursor:pointer; font-size:13px; font-weight:500; white-space:nowrap; transition:all .2s; user-select:none; }
         .period-trigger:hover { border-color:var(--primary); background:#f8faff; }
         .period-trigger .arrow { font-size:10px; color:var(--text-light); }
@@ -72,7 +60,6 @@
         .period-dropdown .dd-chip:hover { background:var(--bg); }
         .period-dropdown .dd-chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
         .period-dropdown .dd-row { display:flex; gap:8px; align-items:center; }
-        /* User filter chips */
         .user-filter-tabs { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
         .user-filter-chip { padding:5px 12px; border-radius:14px; font-size:12px; cursor:pointer; border:1px solid var(--border); background:#fff; transition:all .2s; }
         .user-filter-chip:hover { background:var(--bg); }
@@ -82,7 +69,6 @@
         .period-dropdown input[type=date] { padding:6px 8px; border:1px solid var(--border); border-radius:6px; font-size:12px; }
         .period-dropdown .dd-apply { padding:8px 16px; background:var(--primary); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; width:100%; margin-top:8px; }
         .period-current { font-size:11px; color:var(--text-light); text-align:center; margin-top:6px; }
-
         .app-content { background:var(--card-bg); border-radius:var(--radius); padding:25px; box-shadow:var(--shadow-lg); min-height:600px; }
         .tab-content { display:none; }
         .tab-content.active { display:block; animation:fadeIn .3s ease; }
@@ -304,14 +290,12 @@
             return new Date(base + 'T12:00:00');
         }
 
-        // Extract unique user names from a source array (transactions or investments)
         function getUniqueUsers(source) {
             const s = new Set();
             (source || []).forEach(x => { if (x && x.userName) s.add(x.userName); });
             return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR'));
         }
 
-        // Render user filter tabs into a container and wire click events
         function renderUserFilterTabs(containerId, currentFilter, users, onChangeCallback) {
             const container = document.getElementById(containerId);
             if (!container) return;
@@ -321,17 +305,14 @@
             uniq.forEach(u => { html += `<span class="user-filter-chip ${currentFilter === u ? 'active' : ''}" data-user="${escapeHtml(u)}">👤 ${escapeHtml(u)}</span>`; });
             html += `</div>`;
             container.innerHTML = html;
-            // delegate clicks
             container.querySelectorAll('.user-filter-chip').forEach(el => el.addEventListener('click', function(e) {
                 const user = this.dataset.user;
-                // update visual
                 container.querySelectorAll('.user-filter-chip').forEach(c => c.classList.remove('active'));
                 this.classList.add('active');
                 if (typeof onChangeCallback === 'function') onChangeCallback(user);
             }));
         }
 
-        // Small helper to escape HTML in labels
         function escapeHtml(str) { return String(str).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
 
         const defaultCategories = { food: { name: 'Alimentação', icon: '🍽️', color: '#FF6B6B', type: 'expense' }, housing: { name: 'Moradia', icon: '🏠', color: '#4ECDC4', type: 'expense' }, transport: { name: 'Transporte', icon: '🚗', color: '#45B7D1', type: 'expense' }, health: { name: 'Saúde', icon: '🏥', color: '#96CEB4', type: 'expense' }, leisure: { name: 'Lazer', icon: '🎮', color: '#DDA0DD', type: 'expense' }, other: { name: 'Outros', icon: '📦', color: '#98D8C8', type: 'expense' }, salary: { name: 'Salário', icon: '💰', color: '#2ECC71', type: 'income' }, freelance: { name: 'Freelance', icon: '💻', color: '#3498DB', type: 'income' } };
@@ -342,7 +323,6 @@
         function calcCurrentValue(aportes, rate, indexer) { return calcProjectedValue(aportes, rate, indexer, new Date()); }
         function recalcInvestment(inv) { const a = inv.aportes || []; inv.currentValue = calcCurrentValue(a, inv.rate, inv.indexer); inv.projectedValue = calcProjectedValue(a, inv.rate, inv.indexer, new Date(inv.endDate || Date.now() + 365 * 86400000)); inv.totalInvested = a.reduce((s, x) => s + x.value, 0); return inv; }
 
-        // ============ RECURRING (com edição e correção de data) ============
         async function processRecurring() {
             const now = new Date();
             for (const rec of allRecurring) {
@@ -411,7 +391,6 @@
 
         window.deleteRecurring = async function(id) { if (!confirm('Excluir?')) return; try { await deleteDoc(doc(db, "recurring", id)); } catch (e) { } };
 
-        // ============ AUTH ============
         async function checkUserAuthorization(uid) { try { const s = await getDoc(doc(db, "users", uid)); return s.exists() && s.data().allowed === true; } catch (e) { return false; } }
         function startListeningToFirestore() {
             onSnapshot(query(collection(db, "transactions"), orderBy("createdAt", "desc")), snap => { allTransactions = []; snap.forEach(d => allTransactions.push({ id: d.id, ...d.data() })); refreshCurrentView(); });
@@ -435,7 +414,6 @@
 
         function loadDashboard() {
             let ft = filterByPeriod(allTransactions);
-            // apply user filter if selected
             if (transactionUserFilter && transactionUserFilter !== 'all') {
                 ft = ft.filter(t => (t.userName || 'Outro') === transactionUserFilter);
             }
@@ -447,10 +425,7 @@
             const ec = {}; ft.filter(t => t.type === 'expense').forEach(t => { const cat = t.category || 'other'; if (!ec[cat]) ec[cat] = 0; ec[cat] += (t.amount || 0); });
             const cats = getCategories(); const cd = Object.entries(ec).map(([id, amt]) => ({ category: cats[id]?.name || id, amount: amt, color: cats[id]?.color || '#ccc' }));
             if (cd.length > 0) { const ctx = document.getElementById('categoryChart'); if (ctx) { if (charts['categoryChart']) charts['categoryChart'].destroy(); charts['categoryChart'] = new Chart(ctx, { type: 'pie', data: { labels: cd.map(d => d.category), datasets: [{ data: cd.map(d => d.amount), backgroundColor: cd.map(d => d.color), borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); } }
-
-            // render user filter tabs for transactions
             try { renderUserFilterTabs('transactionUserFilter', transactionUserFilter, getUniqueUsers(allTransactions), function(u){ transactionUserFilter = u; loadDashboard(); }); } catch(e) { }
-
             const displayTrans = ft.slice(0, 20);
             document.getElementById('transactionCards').innerHTML = displayTrans.map(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); const cat = getCategoryById(t.category); const own = t.userId === currentUser?.id; return `<div class="data-card"><div class="data-card-header"><h4>${cat.icon} ${t.description}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openTransactionModal('${t.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (t.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>${t.type === 'income' ? 'Receita' : 'Despesa'}</span><span>📅 ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span></div><div class="data-card-amount ${t.type === 'income' ? 'income' : 'expense'}" style="margin-top:6px;">${t.type === 'income' ? '+' : '-'} R$ ${(t.amount || 0).toFixed(2)}</div></div>`; }).join('') || '<p style="text-align:center;padding:20px;">Nenhuma transação neste período.</p>';
         }
@@ -460,7 +435,6 @@
         window.saveTransaction = async function() { const type = document.getElementById('transType').value, desc = document.getElementById('transDescription').value.trim(), amt = parseMoney(document.getElementById('transAmount').value), cat = document.getElementById('transCategory').value, date = document.getElementById('transDate').value || toLocalDateStr(new Date()); if (!desc || !amt || amt <= 0) { alert('Preencha'); return; } try { if (editingTransactionId) { await updateDoc(doc(db, "transactions", editingTransactionId), { type, description: desc, amount: amt, category: cat, date, updatedAt: serverTimestamp() }); } else { await addDoc(collection(db, "transactions"), { type, description: desc, amount: amt, category: cat, date, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeTransactionModal(); } catch (e) { alert('Erro'); } };
         window.deleteTransaction = async function(id) { if (!confirm('Excluir?')) return; try { await deleteDoc(doc(db, "transactions", id)); } catch (e) { } };
 
-        // ============ INVESTMENTS (com projeção visível como linha completa) ============
         window.openInvestmentModal = function(invId = null) { editingInvestmentId = invId; document.getElementById('investmentModal').classList.add('active'); if (invId) { const inv = allInvestments.find(i => i.id === invId); if (inv) { document.getElementById('investmentModalTitle').textContent = 'Editar'; document.getElementById('invType').value = inv.type; document.getElementById('invInstitution').value = inv.institution || ''; document.getElementById('invName').value = inv.name; document.getElementById('invRate').value = inv.rate || ''; document.getElementById('invIndexer').value = inv.indexer || 'cdi'; document.getElementById('invStartDate').value = inv.startDate || ''; document.getElementById('invEndDate').value = inv.endDate || ''; document.getElementById('invInitialValue').value = formatMoney((inv.aportes && inv.aportes.length > 0) ? inv.aportes[0].value : 0); document.getElementById('invEditId').value = invId; } } else { document.getElementById('investmentModalTitle').textContent = 'Novo'; document.getElementById('invType').value = 'CDB'; document.getElementById('invInstitution').value = ''; document.getElementById('invName').value = ''; document.getElementById('invRate').value = ''; document.getElementById('invIndexer').value = 'cdi'; document.getElementById('invStartDate').value = toLocalDateStr(new Date()); document.getElementById('invEndDate').value = ''; document.getElementById('invInitialValue').value = ''; document.getElementById('invEditId').value = ''; } };
         window.closeInvestmentModal = function() { document.getElementById('investmentModal').classList.remove('active'); };
         window.saveInvestment = async function() { const type = document.getElementById('invType').value, institution = document.getElementById('invInstitution').value.trim(), name = document.getElementById('invName').value.trim(), rate = parseFloat(document.getElementById('invRate').value) || 0, indexer = document.getElementById('invIndexer').value, startDate = document.getElementById('invStartDate').value || toLocalDateStr(new Date()); let endDate = document.getElementById('invEndDate').value; if (!endDate) { const sd = new Date(startDate + 'T12:00:00'); sd.setFullYear(sd.getFullYear() + 1); endDate = toLocalDateStr(sd); } const initialValue = parseMoney(document.getElementById('invInitialValue').value); if (!name || !initialValue || initialValue <= 0) { alert('Preencha'); return; } const aportes = [{ value: initialValue, date: startDate }]; const currentValue = calcCurrentValue(aportes, rate, indexer), projectedValue = calcProjectedValue(aportes, rate, indexer, new Date(endDate + 'T12:00:00')); const invData = { type, institution, name, rate, indexer, startDate, endDate, aportes, totalInvested: initialValue, currentValue, projectedValue, updatedAt: serverTimestamp() }; try { if (editingInvestmentId) { await updateDoc(doc(db, "investments", editingInvestmentId), invData); } else { await addDoc(collection(db, "investments"), { ...invData, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeInvestmentModal(); } catch (e) { alert('Erro'); } };
@@ -470,7 +444,6 @@
 
         function loadInvestments() {
             allInvestments.forEach(inv => recalcInvestment(inv));
-            // apply user filter for investments
             let investments = allInvestments.slice();
             if (investmentUserFilter && investmentUserFilter !== 'all') investments = investments.filter(i => (i.userName || 'Outro') === investmentUserFilter);
             const ti = investments.reduce((s, i) => s + (i.totalInvested || 0), 0), tc = investments.reduce((s, i) => s + (i.currentValue || 0), 0), rv = tc - ti, rp = ti > 0 ? (rv / ti) * 100 : 0;
@@ -481,64 +454,51 @@
             const tp = tf + tv;
             if (tp > 0) { const fp = (tf / tp) * 100, vp = (tv / tp) * 100; const ctxP = document.getElementById('portfolioTypeChart'); if (ctxP) { if (charts['portfolioTypeChart']) charts['portfolioTypeChart'].destroy(); charts['portfolioTypeChart'] = new Chart(ctxP, { type: 'pie', data: { labels: ['Renda Fixa', 'Renda Variável'], datasets: [{ data: [tf, tv], backgroundColor: ['#2563eb', '#ea580c'], borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); } const df = fp - 60; document.getElementById('portfolioTypeAnalysis').innerHTML = `<strong>Ideal 60/40:</strong> Fixa: <strong style="color:#2563eb;">${fp.toFixed(1)}%</strong> ${df > 5 ? '⚠️ Conservador' : df < -5 ? '⚠️ Arriscado' : '✅'} | Var: <strong style="color:#ea580c;">${vp.toFixed(1)}%</strong>${Math.abs(df) > 10 ? '<br>💡 Rebalancear' : ''}`; }
 
-            // BURNUP com projeção como linha completa (não só ponto final)
             const allAportes = []; investments.forEach(inv => { (inv.aportes || []).forEach(ap => allAportes.push({ ...ap, rate: inv.rate, indexer: inv.indexer, endDate: inv.endDate })); });
             if (allAportes.length > 0) {
                 const dailyData = {}; allAportes.forEach(ap => { const d = getDateWithFallback(ap.date); const key = toLocalDateStr(d); if (!dailyData[key]) dailyData[key] = { invested: 0, aportesDoDia: [] }; dailyData[key].invested += ap.value; dailyData[key].aportesDoDia.push(ap); });
                 const sortedDays = Object.keys(dailyData).sort();
                 const investedLine = [], currentLine = [], projLine = [];
                 let cumInvested = 0;
-                
-                // Encontrar a data de projeção mais distante
                 let maxProjDate = new Date();
                 investments.forEach(inv => {
                     const ed = new Date((inv.endDate || toLocalDateStr(new Date(new Date().setFullYear(new Date().getFullYear()+1)))) + 'T12:00:00');
                     if (ed > maxProjDate) maxProjDate = ed;
                 });
-                
                 sortedDays.forEach(day => {
                     cumInvested += dailyData[day].invested;
                     investedLine.push(cumInvested);
                     const allUntilNow = []; sortedDays.filter(d => d <= day).forEach(d => { dailyData[d].aportesDoDia.forEach(ap => allUntilNow.push(ap)); });
                     const curVal = allUntilNow.reduce((s, ap) => s + calcProjectedValue([ap], ap.rate || 0, ap.indexer || 'pre', new Date()), 0);
                     currentLine.push(curVal);
-                    
-                    // Projeção: valor de cada aporte até a data máxima de vencimento
                     const projVal = allUntilNow.reduce((s, ap) => s + calcProjectedValue([ap], ap.rate || 0, ap.indexer || 'pre', maxProjDate), 0);
                     projLine.push(projVal);
                 });
-                
-                // Adicionar datas futuras até a projeção máxima
                 const projDays = [];
                 const lastDay = new Date(sortedDays[sortedDays.length-1] + 'T12:00:00');
                 const current = new Date(lastDay);
                 while (current <= maxProjDate) {
                     current.setDate(current.getDate() + 30);
-                    if (current <= maxProjDate) {
-                        projDays.push(toLocalDateStr(current));
-                    }
+                    if (current <= maxProjDate) projDays.push(toLocalDateStr(current));
                 }
                 if (projDays.length === 0 || projDays[projDays.length-1] !== toLocalDateStr(maxProjDate)) {
                     projDays.push(toLocalDateStr(maxProjDate));
                 }
-                
                 const allLabels = [...sortedDays, ...projDays];
                 const fullInvestedLine = [...investedLine, ...projDays.map(() => investedLine[investedLine.length-1])];
                 const fullCurrentLine = [...currentLine, ...projDays.map(() => currentLine[currentLine.length-1])];
                 const fullProjLine = [...projLine, ...projDays.map(() => projLine[projLine.length-1])];
-                
                 createLineChart('investmentEvolutionChart', allLabels, [
                     { label: 'Valor Investido', data: fullInvestedLine, color: '#2563eb' },
                     { label: 'Valor Atual', data: fullCurrentLine, color: '#16a34a' },
                     { label: 'Projeção (até ' + maxProjDate.toLocaleDateString('pt-BR',{month:'short',year:'numeric'}) + ')', data: fullProjLine, color: '#7c3aed' }
                 ]);
             }
-                try { renderUserFilterTabs('investmentUserFilter', investmentUserFilter, getUniqueUsers(allInvestments), function(u){ investmentUserFilter = u; loadInvestments(); }); } catch(e) { }
-
             
-            document.getElementById('investmentCards').innerHTML = investments.map(inv => { const ret = (inv.currentValue || 0) - (inv.totalInvested || 0), retP = inv.totalInvested > 0 ? (ret / inv.totalInvested) * 100 : 0, realRet = retP - (indexers.ipca || 0); const own = inv.userId === currentUser?.id, aportes = inv.aportes || []; return `<div class="data-card"><div class="data-card-header"><h4>📈 ${inv.name}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openInvestmentModal('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (inv.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>🏦 ${inv.institution || '-'}</span><span>📋 ${inv.type}</span><span>📊 ${inv.rate || 0}% ${idx[inv.indexer] || ''}</span><span>📅 ${new Date(inv.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span><span>🏁 ${new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span></div><div class="investment-card-values"><div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${(inv.totalInvested || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${(inv.currentValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${(inv.projectedValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Nominal</div><div class="val-number ${ret >= 0 ? 'positive' : 'negative'}">${retP.toFixed(2)}%</div></div><div class="val-item"><div class="val-label">💎 Real</div><div class="val-number ${realRet >= 0 ? 'positive' : 'negative'}">${realRet.toFixed(2)}</div></div></div><div class="aportes-section"><h4>🏷️ Aportes (${aportes.length})</h4>${aportes.map((ap, i) => `<div class="aporte-mini-item"><span>R$ ${ap.value.toFixed(2)}</span><span class="aporte-date">${new Date(ap.date +  'T12:00:00').toLocaleDateString('pt-BR')}</span>${own?`<button class="btn-sm btn-delete" onclick="removeAporteFromInvestment('${inv.id}',${i})">✖</button>`:''}</div>`).join('')}<div class="aporte-add-mini"><input id="aporte-val-${inv.id}" placeholder="R$ 0,00"><input id="aporte-date-${inv.id}" type="date"><button class="btn-sm btn-add" onclick="addAporteToInvestment('${inv.id}')">➕</button></div></div></div>`; }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento cadastrado.</p>';
-
+            try { renderUserFilterTabs('investmentUserFilter', investmentUserFilter, getUniqueUsers(allInvestments), function(u){ investmentUserFilter = u; loadInvestments(); }); } catch(e) { }
             
+            document.getElementById('investmentCards').innerHTML = investments.map(inv => { const ret = (inv.currentValue || 0) - (inv.totalInvested || 0), retP = inv.totalInvested > 0 ? (ret / inv.totalInvested) * 100 : 0, realRet = retP - (indexers.ipca || 0); const own = inv.userId === currentUser?.id, aportes = inv.aportes || []; return `<div class="data-card"><div class="data-card-header"><h4>📈 ${inv.name}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openInvestmentModal('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (inv.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>🏦 ${inv.institution || '-'}</span><span>📋 ${inv.type}</span><span>📊 ${inv.rate || 0}% ${idx[inv.indexer] || ''}</span><span>📅 ${new Date(inv.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span><span>🏁 ${new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span></div><div class="investment-card-values"><div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${(inv.totalInvested || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${(inv.currentValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${(inv.projectedValue || 0).toFixed(2)}</div></div><div class="val-item"><div class="val-label">📈 Nominal</div><div class="val-number ${ret >= 0 ? 'positive' : 'negative'}">${retP.toFixed(2)}%</div></div><div class="val-item"><div class="val-label">💎 Real</div><div class="val-number ${realRet >= 0 ? 'positive' : 'negative'}">${realRet.toFixed(2)}</div></div></div><div class="aportes-section"><h4>🏷️ Aportes (${aportes.length})</h4>${aportes.map((ap, i) => `<div class="aporte-mini-item"><span>R$ ${ap.value.toFixed(2)}</span><span class="aporte-date">${new Date(ap.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>${i > 0 && own ? `<button onclick="removeAporteFromInvestment('${inv.id}',${i})">✕</button>` : (i === 0 ? '<span style="font-size:10px;">inicial</span>' : '')}</div>`).join('')}${own ? `<div class="aporte-add-mini"><input type="text" id="aporte-val-${inv.id}" placeholder="Valor" inputmode="decimal"><input type="date" id="aporte-date-${inv.id}"><button class="btn-sm btn-add" onclick="addAporteToInvestment('${inv.id}')">+</button></div>` : ''}</div></div>`; }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento.</p>';
+        }
 
         // ============ GOALS ============
         function getUniqueInvestmentNames() { const names = new Set(); allInvestments.forEach(inv => { if (inv.name) names.add(inv.name); }); return [...names].sort(); }
@@ -547,77 +507,66 @@
         window.closeGoalModal = function() { document.getElementById('goalModal').classList.remove('active'); editingGoalId = null; };
         window.saveGoal = async function() { const investmentName = document.getElementById('goalInvestment').value; const target = parseMoney(document.getElementById('goalTarget').value); const deadline = document.getElementById('goalDeadline').value; if (!investmentName || !target || target <= 0) { alert('Escolha um investimento e defina um objetivo'); return; } try { const goalData = { investmentName, target, deadline, updatedAt: serverTimestamp() }; if (editingGoalId) { await updateDoc(doc(db, "goals", editingGoalId), goalData); } else { await addDoc(collection(db, "goals"), { ...goalData, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeGoalModal(); } catch (e) { alert('Erro ao salvar meta'); } };
         window.deleteGoal = async function(id) { if (!confirm('Excluir meta?')) return; try { await deleteDoc(doc(db, "goals", id)); } catch (e) { } };
+        
         function loadGoals() {
-            // render user filter tabs for goals
             try { renderUserFilterTabs('goalsUserFilter', goalUserFilter, getUniqueUsers(allGoals), function(u){ goalUserFilter = u; loadGoals(); }); } catch(e) { }
-
-            // apply user filter for goals
             let goalsSource = allGoals.slice();
             if (goalUserFilter && goalUserFilter !== 'all') goalsSource = goalsSource.filter(g => (g.userName || 'Outro') === goalUserFilter);
 
-        const goalsWithData = goalsSource.map(g => {
-        // Buscar TODOS os investimentos com o mesmo nome e SOMAR
-        const matchingInvestments = allInvestments.filter(i => i.name === g.investmentName);
-        const currentValue = matchingInvestments.reduce((sum, inv) => sum + (inv.currentValue || inv.totalInvested || 0), 0);
-        const totalInvested = matchingInvestments.reduce((sum, inv) => sum + (inv.totalInvested || 0), 0);
-        const pct = g.target > 0 ? (currentValue / g.target) * 100 : 0;
-        const remaining = g.target - currentValue;
-        const dl = g.deadline ? new Date(g.deadline + 'T12:00:00') : null;
-        const now = new Date();
-        let monthlyHint = '';
-        if (dl && dl > now && remaining > 0) {
-            const monthsLeft = (dl.getFullYear() - now.getFullYear()) * 12 + (dl.getMonth() - now.getMonth()) + 1;
-            if (monthsLeft > 0) monthlyHint = `💡 Precisa investir + R$ ${(remaining / monthsLeft).toFixed(2)}/mês`;
+            const goalsWithData = goalsSource.map(g => {
+                const matchingInvestments = allInvestments.filter(i => i.name === g.investmentName);
+                const currentValue = matchingInvestments.reduce((sum, inv) => sum + (inv.currentValue || inv.totalInvested || 0), 0);
+                const totalInvested = matchingInvestments.reduce((sum, inv) => sum + (inv.totalInvested || 0), 0);
+                const pct = g.target > 0 ? (currentValue / g.target) * 100 : 0;
+                const remaining = g.target - currentValue;
+                const dl = g.deadline ? new Date(g.deadline + 'T12:00:00') : null;
+                const now = new Date();
+                let monthlyHint = '';
+                if (dl && dl > now && remaining > 0) {
+                    const monthsLeft = (dl.getFullYear() - now.getFullYear()) * 12 + (dl.getMonth() - now.getMonth()) + 1;
+                    if (monthsLeft > 0) monthlyHint = `💡 Precisa investir + R$ ${(remaining / monthsLeft).toFixed(2)}/mês`;
+                }
+                const firstInv = matchingInvestments[0] || {};
+                return { 
+                    ...g, currentValue, totalInvested, pct, remaining, monthlyHint, 
+                    institution: firstInv.institution || '', type: firstInv.type || '', 
+                    rate: firstInv.rate || 0, indexer: firstInv.indexer || '',
+                    matchCount: matchingInvestments.length
+                };
+            });
+
+            const totalTarget = goalsWithData.reduce((s, g) => s + g.target, 0);
+            const totalCurrent = goalsWithData.reduce((s, g) => s + g.currentValue, 0);
+            const totalPct = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
+
+            document.getElementById('goalsSummary').innerHTML = `
+                <div class="summary-card investment"><div class="card-label">🎯 Total em Metas</div><div class="card-value">R$ ${totalTarget.toFixed(2)}</div></div>
+                <div class="summary-card income"><div class="card-label">💰 Valor Atual</div><div class="card-value positive">R$ ${totalCurrent.toFixed(2)}</div></div>
+                <div class="summary-card balance"><div class="card-label">📊 Progresso Geral</div><div class="card-value">${totalPct.toFixed(1)}%</div></div>`;
+
+            document.getElementById('goalsList').innerHTML = goalsWithData.map(g => {
+                const own = g.userId === currentUser?.id;
+                const cls = g.pct >= 80 && g.pct < 100 ? 'yellow' : 'green';
+                return `<div class="goal-card">
+                    <div class="goal-card-header">
+                        <h3>🎯 Meta: ${g.investmentName} ${g.matchCount > 1 ? `<span style="font-size:11px;color:var(--text-light);">(${g.matchCount} investimentos)</span>` : ''}</h3>
+                        <div>${own ? `<button class="btn-sm btn-edit" onclick="openGoalModal('${g.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteGoal('${g.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (g.userName || 'Outro') + '</span>'}</div>
+                    </div>
+                    <div class="goal-card-meta">
+                        <span>🏦 ${g.institution || '-'}</span><span>📋 ${g.type || '-'}</span><span>📊 ${g.rate || 0}% ${idx[g.indexer] || ''}</span>
+                    </div>
+                    <div class="goal-card-values">
+                        <div class="val-item"><div class="val-label">🎯 Objetivo</div><div class="val-number">R$ ${g.target.toFixed(2)}</div></div>
+                        <div class="val-item"><div class="val-label">📊 Valor Atual</div><div class="val-number">R$ ${g.currentValue.toFixed(2)}</div></div>
+                        <div class="val-item"><div class="val-label">💰 Já investido</div><div class="val-number">R$ ${g.totalInvested.toFixed(2)}</div></div>
+                        ${g.deadline ? `<div class="val-item"><div class="val-label">📅 Data Alvo</div><div class="val-number" style="font-size:12px;">${new Date(g.deadline + 'T12:00:00').toLocaleDateString('pt-BR')}</div></div>` : ''}
+                    </div>
+                    <div class="goal-progress-bar"><div class="goal-progress-fill ${cls}" style="width:${Math.min(g.pct, 100)}%"></div></div>
+                    <div class="goal-stats"><span>${g.pct.toFixed(1)}% concluído</span> <span>Faltam R$ ${(g.remaining > 0 ? g.remaining : 0).toFixed(2)}</span></div>
+                    ${g.monthlyHint ? `<p class="goal-hint">${g.monthlyHint}</p>` : ''}
+                </div>`;
+            }).join('') || '<p style="text-align:center;padding:30px;">Nenhuma meta criada.</p>';
         }
-        // Pegar dados do primeiro investimento para exibição (instituição, tipo, etc)
-        const firstInv = matchingInvestments[0] || {};
-        return { 
-            ...g, 
-            currentValue, 
-            totalInvested, 
-            pct, 
-            remaining, 
-            monthlyHint, 
-            institution: firstInv.institution || '', 
-            type: firstInv.type || '', 
-            rate: firstInv.rate || 0, 
-            indexer: firstInv.indexer || '',
-            matchCount: matchingInvestments.length  // quantos investimentos com mesmo nome
-        };
-    });
-
-        const totalTarget = goalsWithData.reduce((s, g) => s + g.target, 0);
-    const totalCurrent = goalsWithData.reduce((s, g) => s + g.currentValue, 0);
-    const totalPct = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
-
-    document.getElementById('goalsSummary').innerHTML = `
-        <div class="summary-card investment"><div class="card-label">🎯 Total em Metas</div><div class="card-value">R$ ${totalTarget.toFixed(2)}</div></div>
-        <div class="summary-card income"><div class="card-label">💰 Valor Atual</div><div class="card-value positive">R$ ${totalCurrent.toFixed(2)}</div></div>
-        <div class="summary-card balance"><div class="card-label">📊 Progresso Geral</div><div class="card-value">${totalPct.toFixed(1)}%</div></div>`;
-
-    document.getElementById('goalsList').innerHTML = goalsWithData.map(g => {
-        const own = g.userId === currentUser?.id;
-        const cls = g.pct >= 80 && g.pct < 100 ? 'yellow' : 'green';
-        return `<div class="goal-card">
-            <div class="goal-card-header">
-                <h3>🎯 Meta: ${g.investmentName} ${g.matchCount > 1 ? `<span style="font-size:11px;color:var(--text-light);">(${g.matchCount} investimentos)</span>` : ''}</h3>
-                <div>${own ? `<button class="btn-sm btn-edit" onclick="openGoalModal('${g.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteGoal('${g.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (g.userName || 'Outro') + '</span>'}</div>
-            </div>
-            <div class="goal-card-meta">
-                <span>🏦 ${g.institution || '-'}</span><span>📋 ${g.type || '-'}</span><span>📊 ${g.rate || 0}% ${idx[g.indexer] || ''}</span>
-            </div>
-            <div class="goal-card-values">
-                <div class="val-item"><div class="val-label">🎯 Objetivo</div><div class="val-number">R$ ${g.target.toFixed(2)}</div></div>
-                <div class="val-item"><div class="val-label">📊 Valor Atual</div><div class="val-number">R$ ${g.currentValue.toFixed(2)}</div></div>
-                <div class="val-item"><div class="val-label">💰 Já investido</div><div class="val-number">R$ ${g.totalInvested.toFixed(2)}</div></div>
-                ${g.deadline ? `<div class="val-item"><div class="val-label">📅 Data Alvo</div><div class="val-number" style="font-size:12px;">${new Date(g.deadline + 'T12:00:00').toLocaleDateString('pt-BR')}</div></div>` : ''}
-            </div>
-            <div class="goal-progress-bar"><div class="goal-progress-fill ${cls}" style="width:${Math.min(g.pct, 100)}%"></div></div>
-            <div class="goal-stats"><span>${g.pct.toFixed(1)}% concluído</span> <span>Faltam R$ ${(g.remaining > 0 ? g.remaining : 0).toFixed(2)}</span></div>
-            ${g.monthlyHint ? `<p class="goal-hint">${g.monthlyHint}</p>` : ''}
-        </div>`;
-    }).join('') || '<p style="text-align:center;padding:30px;">Nenhuma meta criada.</p>';
-}
 
         // ============ SETTINGS ============
         function loadSettingsView() {
@@ -636,10 +585,9 @@
         document.getElementById('catIconInput').addEventListener('input', e => { selectedIcon = e.target.value || '📦'; updateIconPicker(); });
         function updateIconPicker() { document.querySelectorAll('#iconPicker .icon-option').forEach(el => el.classList.toggle('selected', el.dataset.icon === selectedIcon)); }
 
-        // Setup recurring button events
         document.getElementById('recAddBtn').addEventListener('click', () => window.saveRecurring());
         document.getElementById('recSaveBtn').addEventListener('click', () => window.saveRecurring());
-        document.getElementById('recCancelBtn').addEventListener('click', () => cancelEditRecurring());
+        document.getElementById('recCancelBtn').addEventListener('click', () => window.cancelEditRecurring());
     </script>
 </body>
 </html>
