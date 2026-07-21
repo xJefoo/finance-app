@@ -1,5 +1,6 @@
 ﻿window.FH = window.FH || {};
 var FH = window.FH;
+
 FH.setupGlobalHandlers = () => {
     window.loginWithGoogle = FH.loginWithGoogle;
     window.logout = FH.logout;
@@ -34,11 +35,13 @@ FH.setupGlobalHandlers = () => {
     window.deleteRecurring = FH.deleteRecurring;
     window.updateCategoryDropdown = FH.updateCategoryDropdown;
 };
+
 FH.setupRecurringButtons = () => {
     document.getElementById('recAddBtn')?.addEventListener('click', FH.saveRecurring);
     document.getElementById('recSaveBtn')?.addEventListener('click', FH.saveRecurring);
     document.getElementById('recCancelBtn')?.addEventListener('click', FH.cancelEditRecurring);
 };
+
 FH.setupCategoryPickers = () => {
     const colorPicker = document.getElementById('colorPicker');
     const iconPicker = document.getElementById('iconPicker');
@@ -47,23 +50,24 @@ FH.setupCategoryPickers = () => {
     colorPicker.addEventListener('click', e => {
         const target = e.target;
         if (target.classList.contains('color-option')) {
-            FH.state.selectedColor = target.dataset.color;
+            FH.selectedColor = target.dataset.color;  // ← CORRIGIDO
             FH.updateColorPicker();
         }
     });
     iconPicker.addEventListener('click', e => {
         const target = e.target;
         if (target.classList.contains('icon-option')) {
-            FH.state.selectedIcon = target.dataset.icon;
-            catIconInput.value = FH.state.selectedIcon;
+            FH.selectedIcon = target.dataset.icon;  // ← CORRIGIDO
+            catIconInput.value = FH.selectedIcon;
             FH.updateIconPicker();
         }
     });
     catIconInput.addEventListener('input', e => {
-        FH.state.selectedIcon = e.target.value || '📦';
+        FH.selectedIcon = e.target.value || '📦';  // ← CORRIGIDO
         FH.updateIconPicker();
     });
 };
+
 FH.initialize = () => {
     FH.setupGlobalHandlers();
     FH.setupCategoryPickers();
@@ -71,4 +75,5 @@ FH.initialize = () => {
     FH.updatePeriodLabel();
     FH.setupAuthListener();
 };
+
 document.addEventListener('DOMContentLoaded', () => FH.initialize());
