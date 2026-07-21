@@ -509,7 +509,6 @@
             Sincronizado via nuvem ☁️
         </div>
     </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import {
@@ -517,9 +516,8 @@
             onAuthStateChanged, signOut
         } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
         import {
-            getFirestore, doc, getDoc, collection, addDoc,
-            deleteDoc, query, orderBy, onSnapshot, serverTimestamp,
-            updateDoc
+            getFirestore, doc, getDoc, getDocs, collection, addDoc,
+            deleteDoc, query, orderBy, onSnapshot, serverTimestamp
         } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -541,12 +539,12 @@
         let charts = {};
         let allTransactions = [];
         let allInvestments = [];
-        let allCategories = [];
+        let allCategories = {};  // Objeto: { catId: { name, icon, color, type } }
         let selectedColor = '#FF6B6B';
         let selectedIcon = '📦';
         let editingCategoryId = null;
 
-        // Categorias padrão (usadas se não houver categorias personalizadas)
+        // Categorias padrão (usadas como fallback)
         const defaultCategories = {
             food: { name: 'Alimentação', icon: '🍽️', color: '#FF6B6B', type: 'expense' },
             housing: { name: 'Moradia', icon: '🏠', color: '#4ECDC4', type: 'expense' },
@@ -558,13 +556,18 @@
             freelance: { name: 'Freelance', icon: '💻', color: '#3498DB', type: 'income' },
         };
 
+        // Retorna categorias personalizadas + padrão como fallback
         function getCategories() {
-            return allCategories.length > 0 ? allCategories : defaultCategories;
+            // Se tem categorias personalizadas, mescla com padrão (personalizadas têm prioridade)
+            if (Object.keys(allCategories).length > 0) {
+                return { ...defaultCategories, ...allCategories };
+            }
+            return defaultCategories;
         }
 
         function getCategoryById(catId) {
             const cats = getCategories();
-            return cats[catId] || defaultCategories[catId] || { name: catId, icon: '📦', color: '#ccc' };
+            return cats[catId] || { name: catId, icon: '📦', color: '#ccc', type: 'expense' };
         }
 
         // ============ VERIFICAR AUTORIZAÇÃO ============
@@ -603,13 +606,18 @@
                 allCategories = {};
                 snapshot.forEach((doc) => {
                     const data = doc.data();
-                    allCategories[data.id] = {
-                        name: data.name,
-                        icon: data.icon,
-                        color: data.color,
-                        type: data.type
-                    };
+                    // Usar o campo 'id' como chave (ex: 'pets', 'assinaturas')
+                    if (data.id) {
+                        allCategories[data.id] = {
+                            name: data.name,
+                            icon: data.icon || '📦',
+                            color: data.color || '#ccc',
+                            type: data.type || 'expense',
+                            docId: doc.id  // guardar ID real do documento para deletar
+                        };
+                    }
                 });
+                console.log('📋 Categorias carregadas:', Object.keys(allCategories).length);
                 updateCategoryDropdown();
                 refreshCurrentView();
             });
@@ -623,21 +631,27 @@
                 case 'transactions': loadTransactions(); break;
                 case 'investments': loadInvestments(); break;
                 case 'shared': loadSharedView(); break;
-                case 'categories': loadCategories(); break;
+                case 'categories': loadCategoriesView(); break;
             }
         }
 
         // ============ ATUALIZAR DROPDOWN DE CATEGORIAS ============
         window.updateCategoryDropdown = function() {
-            const type = document.getElementById('transType')?.value || 'expense';
             const select = document.getElementById('transCategory');
             if (!select) return;
             
+            const type = document.getElementById('transType')?.value || 'expense';
             const cats = getCategories();
-            select.innerHTML = Object.entries(cats)
-                .filter(([_, cat]) => cat.type === type || cat.type === 'both')
-                .map(([id, cat]) => `<option value="${id}">${cat.icon} ${cat.name}</option>`)
-                .join('');
+            
+            let options = '';
+            Object.entries(cats).forEach(([id, cat]) => {
+                // Mostrar apenas categorias do tipo selecionado (ou ambos)
+                if (cat.type === type || cat.type === 'both') {
+                    options += `<option value="${id}">${cat.icon} ${cat.name}</option>`;
+                }
+            });
+            
+            select.innerHTML = options || '<option value="other">📦 Outros</option>';
         };
 
         // ============ GOOGLE LOGIN ============
@@ -655,13 +669,20 @@
                     showLoading(false);
                     return;
                 }
-                currentUser = { id: user.uid, name: user.displayName || user.email.split('@')[0], avatar: user.photoURL || null, email: user.email };
+                currentUser = { 
+                    id: user.uid, 
+                    name: user.displayName || user.email.split('@')[0], 
+                    avatar: user.photoURL || null, 
+                    email: user.email 
+                };
                 startListeningToFirestore();
                 enterApp();
                 showLoading(false);
             } catch (error) {
                 console.error('Erro no login:', error);
-                if (error.code !== 'auth/popup-closed-by-user') alert('Erro ao fazer login: ' + error.message);
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    alert('Erro ao fazer login: ' + error.message);
+                }
                 showLoading(false);
             }
         };
@@ -676,12 +697,20 @@
                     showLoading(false);
                     return;
                 }
-                currentUser = { id: user.uid, name: user.displayName || user.email.split('@')[0], avatar: user.photoURL || null, email: user.email };
+                currentUser = { 
+                    id: user.uid, 
+                    name: user.displayName || user.email.split('@')[0], 
+                    avatar: user.photoURL || null, 
+                    email: user.email 
+                };
                 startListeningToFirestore();
                 enterApp();
                 showLoading(false);
             } else {
-                currentUser = null; allTransactions = []; allInvestments = []; allCategories = {};
+                currentUser = null; 
+                allTransactions = []; 
+                allInvestments = []; 
+                allCategories = {};
                 document.getElementById('mainApp').classList.remove('active');
                 document.getElementById('loginScreen').classList.remove('hidden');
                 showLoading(false);
@@ -709,7 +738,10 @@
         window.logout = async function() {
             if (confirm('Tem certeza que deseja sair?')) {
                 try { await signOut(auth); } catch (e) {}
-                currentUser = null; allTransactions = []; allInvestments = []; allCategories = {};
+                currentUser = null; 
+                allTransactions = []; 
+                allInvestments = []; 
+                allCategories = {};
                 document.getElementById('mainApp').classList.remove('active');
                 document.getElementById('loginScreen').classList.remove('hidden');
             }
@@ -719,16 +751,32 @@
         window.showTab = function(tabName) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabName).classList.add('active');
+            
+            const tabElement = document.getElementById(tabName);
+            if (tabElement) tabElement.classList.add('active');
+            
             const tabButtons = document.querySelectorAll('.nav-tab');
-            const tabMap = { 'dashboard': 0, 'transactions': 1, 'investments': 2, 'shared': 3, 'categories': 4 };
-            if (tabButtons[tabMap[tabName]]) tabButtons[tabMap[tabName]].classList.add('active');
+            const tabMap = { 
+                'dashboard': 0, 
+                'transactions': 1, 
+                'investments': 2, 
+                'shared': 3, 
+                'categories': 4 
+            };
+            
+            if (tabButtons[tabMap[tabName]]) {
+                tabButtons[tabMap[tabName]].classList.add('active');
+            }
+            
             switch(tabName) {
                 case 'dashboard': loadDashboard(); break;
-                case 'transactions': loadTransactions(); updateCategoryDropdown(); break;
+                case 'transactions': 
+                    updateCategoryDropdown(); 
+                    loadTransactions(); 
+                    break;
                 case 'investments': loadInvestments(); break;
                 case 'shared': loadSharedView(); break;
-                case 'categories': loadCategories(); break;
+                case 'categories': loadCategoriesView(); break;
             }
         };
 
@@ -737,43 +785,83 @@
             const now = new Date();
             const currentMonth = now.getMonth();
             const currentYear = now.getFullYear();
+            
             const monthlyTransactions = allTransactions.filter(t => {
-                const date = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt);
+                const date = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
                 return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
             });
-            const monthlyIncome = monthlyTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-            const monthlyExpenses = monthlyTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            
+            const monthlyIncome = monthlyTransactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + (t.amount || 0), 0);
+            
+            const monthlyExpenses = monthlyTransactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + (t.amount || 0), 0);
+            
             const balance = monthlyIncome - monthlyExpenses;
-            const totalInvestments = allInvestments.reduce((sum, i) => sum + (i.currentValue || i.amount), 0);
+            const totalInvestments = allInvestments.reduce((sum, i) => sum + (i.currentValue || i.amount || 0), 0);
 
             document.getElementById('summaryCards').innerHTML = `
-                <div class="summary-card income"><div class="card-label">💵 Receitas da Família</div><div class="card-value positive">R$ ${monthlyIncome.toFixed(2)}</div></div>
-                <div class="summary-card expense"><div class="card-label">💸 Despesas da Família</div><div class="card-value negative">R$ ${monthlyExpenses.toFixed(2)}</div></div>
-                <div class="summary-card balance"><div class="card-label">💰 Saldo do Mês</div><div class="card-value ${balance >= 0 ? 'positive' : 'negative'}">R$ ${balance.toFixed(2)}</div></div>
-                <div class="summary-card investment"><div class="card-label">📈 Total Investido</div><div class="card-value">R$ ${totalInvestments.toFixed(2)}</div></div>
+                <div class="summary-card income">
+                    <div class="card-label">💵 Receitas da Família</div>
+                    <div class="card-value positive">R$ ${monthlyIncome.toFixed(2)}</div>
+                </div>
+                <div class="summary-card expense">
+                    <div class="card-label">💸 Despesas da Família</div>
+                    <div class="card-value negative">R$ ${monthlyExpenses.toFixed(2)}</div>
+                </div>
+                <div class="summary-card balance">
+                    <div class="card-label">💰 Saldo do Mês</div>
+                    <div class="card-value ${balance >= 0 ? 'positive' : 'negative'}">R$ ${balance.toFixed(2)}</div>
+                </div>
+                <div class="summary-card investment">
+                    <div class="card-label">📈 Total Investido</div>
+                    <div class="card-value">R$ ${totalInvestments.toFixed(2)}</div>
+                </div>
             `;
 
+            // Gráfico de categorias
             const expensesByCategory = {};
             monthlyTransactions.filter(t => t.type === 'expense').forEach(t => {
-                if (!expensesByCategory[t.category]) expensesByCategory[t.category] = 0;
-                expensesByCategory[t.category] += t.amount;
+                const cat = t.category || 'other';
+                if (!expensesByCategory[cat]) expensesByCategory[cat] = 0;
+                expensesByCategory[cat] += (t.amount || 0);
             });
+            
             const cats = getCategories();
-            const categoryData = Object.entries(expensesByCategory).map(([cat, amount]) => ({
-                category: cats[cat]?.name || cat, amount, color: cats[cat]?.color || '#ccc'
+            const categoryData = Object.entries(expensesByCategory).map(([catId, amount]) => ({
+                category: cats[catId]?.name || catId,
+                amount,
+                color: cats[catId]?.color || '#ccc'
             }));
+            
             if (categoryData.length > 0) createPieChart('categoryChart', categoryData);
 
+            // Últimas transações
             const recent = allTransactions.slice(0, 5);
             document.getElementById('recentTransactions').innerHTML = `
                 <h3 style="margin:20px 0;">📋 Últimas Transações (Família)</h3>
-                <div class="table-container"><table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Usuário</th></tr></thead><tbody>
-                    ${recent.map(t => {
-                        const date = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt);
-                        const cat = getCategoryById(t.category);
-                        return `<tr><td>${date.toLocaleDateString('pt-BR')}</td><td>${t.description}</td><td>${cat.icon} ${cat.name}</td><td style="color:${t.type==='income'?'var(--success)':'var(--danger)'};font-weight:600;">${t.type==='income'?'+':'-'} R$ ${t.amount.toFixed(2)}</td><td>${t.userName||'Anônimo'}</td></tr>`;
-                    }).join('') || '<tr><td colspan="5" style="text-align:center;padding:20px;">Nenhuma transação ainda</td></tr>'}
-                </tbody></table></div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Usuário</th></tr></thead>
+                        <tbody>
+                            ${recent.map(t => {
+                                const date = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
+                                const cat = getCategoryById(t.category);
+                                return `<tr>
+                                    <td>${date.toLocaleDateString('pt-BR')}</td>
+                                    <td>${t.description}</td>
+                                    <td>${cat.icon} ${cat.name}</td>
+                                    <td style="color:${t.type==='income'?'var(--success)':'var(--danger)'};font-weight:600;">
+                                        ${t.type==='income'?'+':'-'} R$ ${(t.amount||0).toFixed(2)}
+                                    </td>
+                                    <td>${t.userName||'Anônimo'}</td>
+                                </tr>`;
+                            }).join('') || '<tr><td colspan="5" style="text-align:center;padding:20px;">Nenhuma transação ainda</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
             `;
         }
 
@@ -781,10 +869,23 @@
             const ctx = document.getElementById(canvasId);
             if (!ctx) return;
             if (charts[canvasId]) charts[canvasId].destroy();
+            
             charts[canvasId] = new Chart(ctx, {
                 type: 'pie',
-                data: { labels: data.map(d => d.category), datasets: [{ data: data.map(d => d.amount), backgroundColor: data.map(d => d.color), borderWidth: 2, borderColor: '#fff' }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                data: {
+                    labels: data.map(d => d.category),
+                    datasets: [{
+                        data: data.map(d => d.amount),
+                        backgroundColor: data.map(d => d.color),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
             });
         }
 
@@ -795,25 +896,51 @@
             const amount = parseFloat(document.getElementById('transAmount').value);
             const category = document.getElementById('transCategory').value;
             const date = document.getElementById('transDate').value || new Date().toISOString().split('T')[0];
-            if (!description || !amount || amount <= 0) { alert('Preencha todos os campos corretamente'); return; }
+            
+            if (!description || !amount || amount <= 0) {
+                alert('Preencha todos os campos corretamente');
+                return;
+            }
+            
             try {
-                await addDoc(collection(db, "transactions"), { type, description, amount, category, date, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() });
+                await addDoc(collection(db, "transactions"), {
+                    type, description, amount, category, date,
+                    userId: currentUser.id,
+                    userName: currentUser.name,
+                    createdAt: serverTimestamp()
+                });
                 document.getElementById('transDescription').value = '';
                 document.getElementById('transAmount').value = '';
-            } catch (error) { console.error('Erro:', error); alert('Erro ao salvar transação'); }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao salvar transação');
+            }
         };
 
         window.deleteTransaction = async function(id) {
             if (!confirm('Deseja excluir esta transação?')) return;
-            try { await deleteDoc(doc(db, "transactions", id)); } catch (error) { alert('Erro ao excluir'); }
+            try {
+                await deleteDoc(doc(db, "transactions", id));
+            } catch (error) {
+                alert('Erro ao excluir');
+            }
         };
 
         function loadTransactions() {
-            const cats = getCategories();
             document.getElementById('transactionsTable').innerHTML = allTransactions.map(t => {
                 const date = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
                 const cat = getCategoryById(t.category);
-                return `<tr><td>${date.toLocaleDateString('pt-BR')}</td><td>${t.description}</td><td>${cat.icon} ${cat.name}</td><td style="color:${t.type==='income'?'var(--success)':'var(--danger)'};font-weight:600;">${t.type==='income'?'+':'-'} R$ ${t.amount.toFixed(2)}</td><td><span style="padding:4px 8px;border-radius:12px;font-size:12px;background:${t.type==='income'?'#dcfce7':'#fee2e2'};color:${t.type==='income'?'var(--success)':'var(--danger)'};">${t.type==='income'?'Receita':'Despesa'}</span></td><td>${t.userName||'Anônimo'}</td><td>${t.userId===currentUser.id?`<button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>`:'<span style="font-size:12px;color:var(--text-light);">Outro</span>'}</td></tr>`;
+                return `<tr>
+                    <td>${date.toLocaleDateString('pt-BR')}</td>
+                    <td>${t.description}</td>
+                    <td>${cat.icon} ${cat.name}</td>
+                    <td style="color:${t.type==='income'?'var(--success)':'var(--danger)'};font-weight:600;">
+                        ${t.type==='income'?'+':'-'} R$ ${(t.amount||0).toFixed(2)}
+                    </td>
+                    <td><span style="padding:4px 8px;border-radius:12px;font-size:12px;background:${t.type==='income'?'#dcfce7':'#fee2e2'};color:${t.type==='income'?'var(--success)':'var(--danger)'};">${t.type==='income'?'Receita':'Despesa'}</span></td>
+                    <td>${t.userName||'Anônimo'}</td>
+                    <td>${t.userId===currentUser.id ? `<button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` : '<span style="font-size:12px;color:var(--text-light);">Outro</span>'}</td>
+                </tr>`;
             }).join('') || '<tr><td colspan="7" style="text-align:center;padding:20px;">Nenhuma transação</td></tr>';
         }
 
@@ -824,33 +951,71 @@
             const amount = parseFloat(document.getElementById('invAmount').value);
             const currentValue = parseFloat(document.getElementById('invCurrent').value) || amount;
             const date = document.getElementById('invDate').value || new Date().toISOString().split('T')[0];
-            if (!name || !amount || amount <= 0) { alert('Preencha todos os campos'); return; }
+            
+            if (!name || !amount || amount <= 0) {
+                alert('Preencha todos os campos');
+                return;
+            }
+            
             try {
-                await addDoc(collection(db, "investments"), { type, name, amount, currentValue, date, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() });
-                document.getElementById('invName').value = ''; document.getElementById('invAmount').value = ''; document.getElementById('invCurrent').value = '';
-            } catch (error) { alert('Erro ao salvar'); }
+                await addDoc(collection(db, "investments"), {
+                    type, name, amount, currentValue, date,
+                    userId: currentUser.id,
+                    userName: currentUser.name,
+                    createdAt: serverTimestamp()
+                });
+                document.getElementById('invName').value = '';
+                document.getElementById('invAmount').value = '';
+                document.getElementById('invCurrent').value = '';
+            } catch (error) {
+                alert('Erro ao salvar');
+            }
         };
 
         window.deleteInvestment = async function(id) {
             if (!confirm('Deseja excluir?')) return;
-            try { await deleteDoc(doc(db, "investments", id)); } catch (error) { alert('Erro ao excluir'); }
+            try {
+                await deleteDoc(doc(db, "investments", id));
+            } catch (error) {
+                alert('Erro ao excluir');
+            }
         };
 
         function loadInvestments() {
-            const totalInvested = allInvestments.reduce((sum, i) => sum + i.amount, 0);
-            const totalCurrent = allInvestments.reduce((sum, i) => sum + (i.currentValue || i.amount), 0);
+            const totalInvested = allInvestments.reduce((sum, i) => sum + (i.amount || 0), 0);
+            const totalCurrent = allInvestments.reduce((sum, i) => sum + (i.currentValue || i.amount || 0), 0);
             const returnValue = totalCurrent - totalInvested;
             const returnPct = totalInvested > 0 ? ((returnValue / totalInvested) * 100) : 0;
+            
             document.getElementById('investmentSummary').innerHTML = `
-                <div class="summary-card investment"><div class="card-label">💼 Total Investido</div><div class="card-value">R$ ${totalInvested.toFixed(2)}</div></div>
-                <div class="summary-card ${returnValue>=0?'income':'expense'}"><div class="card-label">📊 Valor Atual</div><div class="card-value ${returnValue>=0?'positive':'negative'}">R$ ${totalCurrent.toFixed(2)}</div></div>
-                <div class="summary-card ${returnValue>=0?'income':'expense'}"><div class="card-label">📈 Rentabilidade</div><div class="card-value ${returnValue>=0?'positive':'negative'}">${returnPct.toFixed(2)}%</div></div>
+                <div class="summary-card investment">
+                    <div class="card-label">💼 Total Investido</div>
+                    <div class="card-value">R$ ${totalInvested.toFixed(2)}</div>
+                </div>
+                <div class="summary-card ${returnValue>=0?'income':'expense'}">
+                    <div class="card-label">📊 Valor Atual</div>
+                    <div class="card-value ${returnValue>=0?'positive':'negative'}">R$ ${totalCurrent.toFixed(2)}</div>
+                </div>
+                <div class="summary-card ${returnValue>=0?'income':'expense'}">
+                    <div class="card-label">📈 Rentabilidade</div>
+                    <div class="card-value ${returnValue>=0?'positive':'negative'}">${returnPct.toFixed(2)}%</div>
+                </div>
             `;
+            
             document.getElementById('investmentsTable').innerHTML = allInvestments.map(inv => {
-                const retorno = inv.currentValue - inv.amount;
+                const retorno = (inv.currentValue || 0) - (inv.amount || 0);
                 const retornoPct = inv.amount > 0 ? ((retorno / inv.amount) * 100) : 0;
                 const date = inv.createdAt?.toDate ? inv.createdAt.toDate() : new Date(inv.createdAt || inv.date);
-                return `<tr><td>${inv.type}</td><td>${inv.name}</td><td>R$ ${inv.amount.toFixed(2)}</td><td>R$ ${inv.currentValue.toFixed(2)}</td><td style="color:${retorno>=0?'var(--success)':'var(--danger)'};font-weight:600;">${retornoPct.toFixed(2)}%</td><td>${date.toLocaleDateString('pt-BR')}</td><td>${inv.userName||'Anônimo'}</td><td>${inv.userId===currentUser.id?`<button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>`:'<span style="font-size:12px;color:var(--text-light);">Outro</span>'}</td></tr>`;
+                return `<tr>
+                    <td>${inv.type}</td>
+                    <td>${inv.name}</td>
+                    <td>R$ ${(inv.amount||0).toFixed(2)}</td>
+                    <td>R$ ${(inv.currentValue||0).toFixed(2)}</td>
+                    <td style="color:${retorno>=0?'var(--success)':'var(--danger)'};font-weight:600;">${retornoPct.toFixed(2)}%</td>
+                    <td>${date.toLocaleDateString('pt-BR')}</td>
+                    <td>${inv.userName||'Anônimo'}</td>
+                    <td>${inv.userId===currentUser.id ? `<button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span style="font-size:12px;color:var(--text-light);">Outro</span>'}</td>
+                </tr>`;
             }).join('') || '<tr><td colspan="8" style="text-align:center;padding:20px;">Nenhum investimento</td></tr>';
         }
 
@@ -859,34 +1024,45 @@
             const now = new Date();
             const currentMonth = now.getMonth();
             const currentYear = now.getFullYear();
+            
             const monthlyTransactions = allTransactions.filter(t => {
-                const date = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt);
+                const date = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
                 return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
             });
-            const familyIncome = monthlyTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-            const familyExpenses = monthlyTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            
+            const familyIncome = monthlyTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + (t.amount||0), 0);
+            const familyExpenses = monthlyTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + (t.amount||0), 0);
             const familyBalance = familyIncome - familyExpenses;
-            const totalInvestments = allInvestments.reduce((sum, i) => sum + (i.currentValue || i.amount), 0);
+            const totalInvestments = allInvestments.reduce((sum, i) => sum + (i.currentValue || i.amount || 0), 0);
+            
             document.getElementById('familySummary').innerHTML = `
                 <div class="summary-card income"><div class="card-label">💵 Receitas da Família</div><div class="card-value positive">R$ ${familyIncome.toFixed(2)}</div></div>
                 <div class="summary-card expense"><div class="card-label">💸 Despesas da Família</div><div class="card-value negative">R$ ${familyExpenses.toFixed(2)}</div></div>
                 <div class="summary-card balance"><div class="card-label">💰 Saldo da Família</div><div class="card-value ${familyBalance>=0?'positive':'negative'}">R$ ${familyBalance.toFixed(2)}</div></div>
                 <div class="summary-card investment"><div class="card-label">📈 Patrimônio Total</div><div class="card-value">R$ ${totalInvestments.toFixed(2)}</div></div>
             `;
+            
             const userExpenses = {}, userIncomes = {};
             allTransactions.forEach(t => {
                 const userName = t.userName || 'Anônimo';
                 if (!userExpenses[userName]) { userExpenses[userName] = 0; userIncomes[userName] = 0; }
-                if (t.type === 'expense') userExpenses[userName] += t.amount;
-                else userIncomes[userName] += t.amount;
+                if (t.type === 'expense') userExpenses[userName] += (t.amount||0);
+                else userIncomes[userName] += (t.amount||0);
             });
+            
             let cardsHTML = '';
             Object.keys({...userExpenses, ...userIncomes}).forEach(userName => {
                 const expenses = userExpenses[userName] || 0;
                 const incomes = userIncomes[userName] || 0;
                 const balance = incomes - expenses;
-                cardsHTML += `<div class="comparison-card"><h3>👤 ${userName}</h3><p>💵 Receitas: <strong style="color:var(--success);">R$ ${incomes.toFixed(2)}</strong></p><p>💸 Despesas: <strong style="color:var(--danger);">R$ ${expenses.toFixed(2)}</strong></p><p>💰 Saldo: <strong style="color:${balance>=0?'var(--success)':'var(--danger)'};">R$ ${balance.toFixed(2)}</strong></p></div>`;
+                cardsHTML += `<div class="comparison-card">
+                    <h3>👤 ${userName}</h3>
+                    <p>💵 Receitas: <strong style="color:var(--success);">R$ ${incomes.toFixed(2)}</strong></p>
+                    <p>💸 Despesas: <strong style="color:var(--danger);">R$ ${expenses.toFixed(2)}</strong></p>
+                    <p>💰 Saldo: <strong style="color:${balance>=0?'var(--success)':'var(--danger)'};">R$ ${balance.toFixed(2)}</strong></p>
+                </div>`;
             });
+            
             document.getElementById('comparisonCards').innerHTML = cardsHTML || '<p style="text-align:center;padding:20px;">Nenhum dado ainda.</p>';
         }
 
@@ -927,56 +1103,114 @@
         window.saveCategory = async function() {
             const name = document.getElementById('catName').value.trim();
             const type = document.getElementById('catType').value;
-            const editId = document.getElementById('catEditId').value;
             
-            if (!name) { alert('Digite um nome para a categoria'); return; }
+            if (!name) {
+                alert('Digite um nome para a categoria');
+                return;
+            }
             
-            const catId = editId || name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+            // Gerar ID a partir do nome
+            const catId = name.toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove acentos
+                .replace(/\s+/g, '_')
+                .replace(/[^a-z0-9_]/g, '');
             
             try {
                 await addDoc(collection(db, "categories"), {
                     id: catId,
-                    name,
-                    type,
+                    name: name,
+                    type: type,
                     color: selectedColor,
                     icon: selectedIcon,
+                    createdBy: currentUser.id,
                     createdAt: serverTimestamp()
                 });
+                
+                console.log('✅ Categoria salva:', catId, name);
                 closeCategoryModal();
+                // O listener onSnapshot vai atualizar automaticamente
             } catch (error) {
                 console.error('Erro ao salvar categoria:', error);
-                alert('Erro ao salvar categoria');
+                alert('Erro ao salvar categoria: ' + error.message);
             }
         };
 
         window.deleteCategory = async function(catId) {
-            if (!confirm('Deseja excluir esta categoria? Transações antigas continuarão existindo.')) return;
+            if (!confirm('Deseja excluir esta categoria? As transações que a usam continuarão existindo.')) return;
             
-            // Buscar o documento com esse ID
-            const q = query(collection(db, "categories"));
-            // Precisamos encontrar o doc pelo campo 'id'
-            // Como é mais complexo, vamos buscar todos e filtrar
-            const snapshot = await getDocs(query(collection(db, "categories")));
-            snapshot.forEach(async (docSnap) => {
-                if (docSnap.data().id === catId) {
-                    await deleteDoc(doc(db, "categories", docSnap.id));
+            try {
+                // Buscar documento pelo campo 'id'
+                const q = query(collection(db, "categories"));
+                const snapshot = await getDocs(q);
+                
+                let deleted = false;
+                snapshot.forEach(async (docSnap) => {
+                    if (docSnap.data().id === catId) {
+                        await deleteDoc(doc(db, "categories", docSnap.id));
+                        deleted = true;
+                        console.log('🗑️ Categoria deletada:', catId);
+                    }
+                });
+                
+                if (!deleted) {
+                    // Tentar deletar categoria padrão não é possível
+                    alert('Categorias padrão não podem ser deletadas.');
                 }
-            });
+            } catch (error) {
+                console.error('Erro ao deletar:', error);
+                alert('Erro ao deletar categoria');
+            }
         };
 
-        function loadCategories() {
+        function loadCategoriesView() {
             const cats = getCategories();
-            document.getElementById('categoryPills').innerHTML = Object.entries(cats).map(([id, cat]) => `
-                <div class="category-pill">
-                    <span class="color-dot" style="background:${cat.color}"></span>
-                    <span>${cat.icon}</span>
-                    <span>${cat.name}</span>
-                    <span style="font-size:10px;color:var(--text-light);">(${cat.type==='expense'?'Despesa':'Receita'})</span>
-                </div>
-            `).join('') || '<p style="color:var(--text-light);">Nenhuma categoria criada ainda. Usando categorias padrão.</p>';
+            const defaultIds = Object.keys(defaultCategories);
+            
+            let html = '';
+            
+            // Mostrar categorias personalizadas primeiro
+            const customCats = Object.entries(cats).filter(([id]) => !defaultIds.includes(id));
+            const defaultCats = Object.entries(cats).filter(([id]) => defaultIds.includes(id));
+            
+            if (customCats.length > 0) {
+                html += '<h3 style="margin-bottom:10px;">✨ Suas Categorias</h3>';
+                html += '<div class="category-pills" style="margin-bottom:20px;">';
+                customCats.forEach(([id, cat]) => {
+                    html += `
+                        <div class="category-pill">
+                            <span class="color-dot" style="background:${cat.color}"></span>
+                            <span>${cat.icon}</span>
+                            <span>${cat.name}</span>
+                            <span style="font-size:10px;color:var(--text-light);">(${cat.type==='expense'?'Despesa':'Receita'})</span>
+                            <span style="margin-left:8px;display:flex;gap:4px;">
+                                <button onclick="deleteCategory('${id}')" style="background:none;border:none;cursor:pointer;font-size:12px;" title="Excluir">🗑️</button>
+                            </span>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            // Mostrar categorias padrão
+            html += '<h3 style="margin-bottom:10px;">📋 Categorias Padrão</h3>';
+            html += '<div class="category-pills">';
+            defaultCats.forEach(([id, cat]) => {
+                html += `
+                    <div class="category-pill">
+                        <span class="color-dot" style="background:${cat.color}"></span>
+                        <span>${cat.icon}</span>
+                        <span>${cat.name}</span>
+                        <span style="font-size:10px;color:var(--text-light);">(${cat.type==='expense'?'Despesa':'Receita'})</span>
+                        <span style="font-size:10px;color:var(--text-light);margin-left:4px;">padrão</span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            document.getElementById('categoryPills').innerHTML = html || '<p style="color:var(--text-light);">Nenhuma categoria encontrada.</p>';
         }
 
-        // Color Picker
+        // ============ COLOR PICKER ============
         document.getElementById('colorPicker').addEventListener('click', (e) => {
             if (e.target.classList.contains('color-option')) {
                 selectedColor = e.target.dataset.color;
@@ -990,7 +1224,7 @@
             });
         }
 
-        // Icon Picker
+        // ============ ICON PICKER ============
         document.getElementById('iconPicker').addEventListener('click', (e) => {
             if (e.target.classList.contains('icon-option')) {
                 selectedIcon = e.target.dataset.icon;
@@ -1003,9 +1237,6 @@
                 el.classList.toggle('selected', el.dataset.icon === selectedIcon);
             });
         }
-
-        // Import getDocs
-        import { getDocs } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-    </script>
+    </script>    
 </body>
 </html>
