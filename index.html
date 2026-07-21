@@ -121,6 +121,7 @@
         .summary-card {
             background: white; border-radius: var(--radius); padding: 25px;
             border: 1px solid var(--border); transition: all 0.3s;
+            cursor: pointer;
         }
         .summary-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
         .summary-card.income { border-left: 4px solid var(--success); }
@@ -137,6 +138,7 @@
         .chart-container { background: white; border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); }
         .chart-container h3 { margin-bottom: 20px; font-size: 18px; }
         .chart-wrapper { position: relative; height: 300px; }
+        .chart-wrapper.large { height: 400px; }
 
         .add-form { background: white; border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); margin-bottom: 30px; }
         .add-form h3 { margin-bottom: 15px; font-size: 18px; }
@@ -154,7 +156,6 @@
         th { background: #f9fafb; padding: 12px; text-align: left; font-size: 12px; text-transform: uppercase; color: var(--text-light); font-weight: 600; }
         td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
 
-        /* Inputs inline para edição */
         .edit-input {
             padding: 4px 8px; border: 1px solid var(--primary); border-radius: 4px;
             font-size: 14px; width: 100%; font-family: inherit;
@@ -179,9 +180,10 @@
 
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); display: flex;
+            background: rgba(0,0,0,0.5); display: none;
             justify-content: center; align-items: center; z-index: 9999;
         }
+        .modal-overlay.active { display: flex; }
         .modal {
             background: white; border-radius: var(--radius); padding: 30px;
             max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;
@@ -243,6 +245,13 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Back button */
+        .back-btn {
+            background: none; border: none; color: var(--primary); cursor: pointer;
+            font-size: 14px; margin-bottom: 15px; display: inline-flex; align-items: center; gap: 5px;
+        }
+        .back-btn:hover { text-decoration: underline; }
+
         @media (max-width: 768px) {
             .app-header { flex-direction: column; }
             .charts-grid { grid-template-columns: 1fr; }
@@ -258,7 +267,7 @@
     </div>
 
     <!-- Modal de Categoria -->
-    <div id="categoryModal" class="modal-overlay" style="display:none;">
+    <div id="categoryModal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header">
                 <h2 id="categoryModalTitle">Nova Categoria</h2>
@@ -368,14 +377,25 @@
         <main class="app-content">
             <!-- Dashboard -->
             <div id="dashboard" class="tab-content active">
-                <div class="summary-cards" id="summaryCards"></div>
-                <div class="charts-grid">
+                <div id="dashboardMain">
+                    <div class="summary-cards" id="summaryCards"></div>
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <h3>📊 Gastos por Categoria (Família)</h3>
+                            <div class="chart-wrapper"><canvas id="categoryChart"></canvas></div>
+                        </div>
+                    </div>
+                    <div id="recentTransactions"></div>
+                </div>
+                <div id="dashboardDetail" style="display:none;">
+                    <button class="back-btn" onclick="showDashboardMain()">⬅ Voltar ao Dashboard</button>
+                    <h2 id="detailTitle" style="margin-bottom:20px;"></h2>
+                    <div class="summary-cards" id="detailSummaryCards"></div>
                     <div class="chart-container">
-                        <h3>📊 Gastos por Categoria (Família)</h3>
-                        <div class="chart-wrapper"><canvas id="categoryChart"></canvas></div>
+                        <h3 id="detailChartTitle">📈 Evolução</h3>
+                        <div class="chart-wrapper large"><canvas id="detailChart"></canvas></div>
                     </div>
                 </div>
-                <div id="recentTransactions"></div>
             </div>
 
             <!-- Transações -->
@@ -419,6 +439,13 @@
                     <button class="btn btn-primary" onclick="addInvestment()" style="width: auto;">Adicionar Investimento</button>
                 </div>
                 <div class="summary-cards" id="investmentSummary"></div>
+                
+                <!-- Gráfico de evolução dos investimentos -->
+                <div class="chart-container" style="margin-bottom:20px;">
+                    <h3>📈 Evolução do Patrimônio (Burnup)</h3>
+                    <div class="chart-wrapper large"><canvas id="investmentEvolutionChart"></canvas></div>
+                </div>
+
                 <div class="table-container">
                     <table>
                         <thead><tr><th>Tipo</th><th>Nome</th><th>Valor Investido</th><th>Valor Atual</th><th>Rentabilidade</th><th>Data</th><th>Usuário</th><th>Ações</th></tr></thead>
@@ -646,6 +673,10 @@
             const tabButtons = document.querySelectorAll('.nav-tab');
             const tabMap = { 'dashboard': 0, 'transactions': 1, 'investments': 2, 'shared': 3, 'categories': 4 };
             if (tabButtons[tabMap[tabName]]) tabButtons[tabMap[tabName]].classList.add('active');
+            
+            // Reset dashboard view
+            if (tabName === 'dashboard') showDashboardMain();
+            
             switch(tabName) {
                 case 'dashboard': loadDashboard(); break;
                 case 'transactions': updateCategoryDropdown(); loadTransactions(); break;
@@ -654,6 +685,202 @@
                 case 'categories': loadCategoriesView(); break;
             }
         };
+
+        // ============ DASHBOARD DETAIL VIEW ============
+        window.showDashboardDetail = function(type) {
+            document.getElementById('dashboardMain').style.display = 'none';
+            document.getElementById('dashboardDetail').style.display = 'block';
+            
+            if (type === 'investment') {
+                document.getElementById('detailTitle').textContent = '📈 Detalhes dos Investimentos';
+                loadInvestmentDetail();
+            } else if (type === 'expense') {
+                document.getElementById('detailTitle').textContent = '💸 Detalhes das Despesas';
+                loadExpenseDetail();
+            } else if (type === 'income') {
+                document.getElementById('detailTitle').textContent = '💵 Detalhes das Receitas';
+                loadIncomeDetail();
+            } else if (type === 'balance') {
+                document.getElementById('detailTitle').textContent = '💰 Detalhes do Saldo';
+                loadBalanceDetail();
+            }
+        };
+
+        window.showDashboardMain = function() {
+            document.getElementById('dashboardMain').style.display = 'block';
+            document.getElementById('dashboardDetail').style.display = 'none';
+        };
+
+        function loadInvestmentDetail() {
+            const totalInvested = allInvestments.reduce((sum, i) => sum + (i.amount || 0), 0);
+            const totalCurrent = allInvestments.reduce((sum, i) => sum + (i.currentValue || i.amount || 0), 0);
+            const returnValue = totalCurrent - totalInvested;
+            const returnPct = totalInvested > 0 ? ((returnValue / totalInvested) * 100) : 0;
+
+            document.getElementById('detailSummaryCards').innerHTML = `
+                <div class="summary-card investment"><div class="card-label">💼 Total Investido</div><div class="card-value">R$ ${totalInvested.toFixed(2)}</div></div>
+                <div class="summary-card ${returnValue>=0?'income':'expense'}"><div class="card-label">📊 Valor Atual</div><div class="card-value ${returnValue>=0?'positive':'negative'}">R$ ${totalCurrent.toFixed(2)}</div></div>
+                <div class="summary-card ${returnValue>=0?'income':'expense'}"><div class="card-label">📈 Rentabilidade</div><div class="card-value ${returnValue>=0?'positive':'negative'}">${returnPct.toFixed(2)}%</div></div>
+            `;
+
+            // Burnup chart - evolução mensal dos investimentos
+            const monthlyData = {};
+            allInvestments.forEach(inv => {
+                const date = inv.createdAt?.toDate ? inv.createdAt.toDate() : new Date(inv.createdAt || inv.date);
+                const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
+                if (!monthlyData[key]) monthlyData[key] = { invested: 0, current: 0 };
+                monthlyData[key].invested += (inv.amount || 0);
+                monthlyData[key].current += (inv.currentValue || inv.amount || 0);
+            });
+
+            const sortedKeys = Object.keys(monthlyData).sort();
+            const cumulativeInvested = [];
+            const cumulativeCurrent = [];
+            let cumInv = 0, cumCur = 0;
+            sortedKeys.forEach(k => {
+                cumInv += monthlyData[k].invested;
+                cumCur += monthlyData[k].current;
+                cumulativeInvested.push(cumInv);
+                cumulativeCurrent.push(cumCur);
+            });
+
+            document.getElementById('detailChartTitle').textContent = '📈 Burnup - Evolução do Patrimônio';
+            createLineChart('detailChart', sortedKeys, [
+                { label: 'Valor Investido', data: cumulativeInvested, color: '#2563eb' },
+                { label: 'Valor Atual', data: cumulativeCurrent, color: '#16a34a' }
+            ]);
+        }
+
+        function loadExpenseDetail() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            const monthlyTransactions = allTransactions.filter(t => {
+                const date = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
+                return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+            });
+            const monthlyExpenses = monthlyTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + (t.amount||0), 0);
+            
+            document.getElementById('detailSummaryCards').innerHTML = `
+                <div class="summary-card expense"><div class="card-label">💸 Despesas do Mês</div><div class="card-value negative">R$ ${monthlyExpenses.toFixed(2)}</div></div>
+            `;
+
+            // Burnup de despesas acumuladas no mês
+            const dailyExpenses = {};
+            monthlyTransactions.filter(t => t.type === 'expense').forEach(t => {
+                const date = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
+                const key = date.toISOString().split('T')[0];
+                if (!dailyExpenses[key]) dailyExpenses[key] = 0;
+                dailyExpenses[key] += (t.amount || 0);
+            });
+
+            const sortedKeys = Object.keys(dailyExpenses).sort();
+            const cumulative = [];
+            let cum = 0;
+            sortedKeys.forEach(k => { cum += dailyExpenses[k]; cumulative.push(cum); });
+
+            document.getElementById('detailChartTitle').textContent = '📈 Burnup - Despesas Acumuladas no Mês';
+            createLineChart('detailChart', sortedKeys, [
+                { label: 'Despesas Acumuladas', data: cumulative, color: '#dc2626' }
+            ]);
+        }
+
+        function loadIncomeDetail() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            const monthlyTransactions = allTransactions.filter(t => {
+                const date = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
+                return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+            });
+            const monthlyIncome = monthlyTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + (t.amount||0), 0);
+            
+            document.getElementById('detailSummaryCards').innerHTML = `
+                <div class="summary-card income"><div class="card-label">💵 Receitas do Mês</div><div class="card-value positive">R$ ${monthlyIncome.toFixed(2)}</div></div>
+            `;
+
+            const dailyIncome = {};
+            monthlyTransactions.filter(t => t.type === 'income').forEach(t => {
+                const date = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
+                const key = date.toISOString().split('T')[0];
+                if (!dailyIncome[key]) dailyIncome[key] = 0;
+                dailyIncome[key] += (t.amount || 0);
+            });
+
+            const sortedKeys = Object.keys(dailyIncome).sort();
+            const cumulative = [];
+            let cum = 0;
+            sortedKeys.forEach(k => { cum += dailyIncome[k]; cumulative.push(cum); });
+
+            document.getElementById('detailChartTitle').textContent = '📈 Burnup - Receitas Acumuladas no Mês';
+            createLineChart('detailChart', sortedKeys, [
+                { label: 'Receitas Acumuladas', data: cumulative, color: '#16a34a' }
+            ]);
+        }
+
+        function loadBalanceDetail() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            const monthlyTransactions = allTransactions.filter(t => {
+                const date = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
+                return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+            });
+
+            const dailyBalance = {};
+            monthlyTransactions.forEach(t => {
+                const date = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
+                const key = date.toISOString().split('T')[0];
+                if (!dailyBalance[key]) dailyBalance[key] = 0;
+                if (t.type === 'income') dailyBalance[key] += (t.amount || 0);
+                else dailyBalance[key] -= (t.amount || 0);
+            });
+
+            const sortedKeys = Object.keys(dailyBalance).sort();
+            const cumulative = [];
+            let cum = 0;
+            sortedKeys.forEach(k => { cum += dailyBalance[k]; cumulative.push(cum); });
+            const finalBalance = cumulative.length > 0 ? cumulative[cumulative.length-1] : 0;
+
+            document.getElementById('detailSummaryCards').innerHTML = `
+                <div class="summary-card ${finalBalance>=0?'income':'expense'}"><div class="card-label">💰 Saldo do Mês</div><div class="card-value ${finalBalance>=0?'positive':'negative'}">R$ ${finalBalance.toFixed(2)}</div></div>
+            `;
+
+            document.getElementById('detailChartTitle').textContent = '📈 Burnup - Saldo Acumulado no Mês';
+            createLineChart('detailChart', sortedKeys, [
+                { label: 'Saldo Acumulado', data: cumulative, color: finalBalance >= 0 ? '#16a34a' : '#dc2626' }
+            ]);
+        }
+
+        function createLineChart(canvasId, labels, datasets) {
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) return;
+            if (charts[canvasId]) charts[canvasId].destroy();
+            charts[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets.map(ds => ({
+                        label: ds.label,
+                        data: ds.data,
+                        borderColor: ds.color,
+                        backgroundColor: ds.color + '20',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointHoverRadius: 6
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { callback: v => 'R$ ' + v.toFixed(0) } }
+                    }
+                }
+            });
+        }
 
         // ============ DASHBOARD ============
         function loadDashboard() {
@@ -669,11 +896,24 @@
             const balance = monthlyIncome - monthlyExpenses;
             const totalInvestments = allInvestments.reduce((sum, i) => sum + (i.currentValue || i.amount || 0), 0);
 
+            // Cards clicáveis
             document.getElementById('summaryCards').innerHTML = `
-                <div class="summary-card income"><div class="card-label">💵 Receitas da Família</div><div class="card-value positive">R$ ${monthlyIncome.toFixed(2)}</div></div>
-                <div class="summary-card expense"><div class="card-label">💸 Despesas da Família</div><div class="card-value negative">R$ ${monthlyExpenses.toFixed(2)}</div></div>
-                <div class="summary-card balance"><div class="card-label">💰 Saldo do Mês</div><div class="card-value ${balance >= 0 ? 'positive' : 'negative'}">R$ ${balance.toFixed(2)}</div></div>
-                <div class="summary-card investment"><div class="card-label">📈 Total Investido</div><div class="card-value">R$ ${totalInvestments.toFixed(2)}</div></div>
+                <div class="summary-card income" onclick="showDashboardDetail('income')" title="Clique para ver detalhes">
+                    <div class="card-label">💵 Receitas da Família <span style="font-size:10px;opacity:0.6;">↗</span></div>
+                    <div class="card-value positive">R$ ${monthlyIncome.toFixed(2)}</div>
+                </div>
+                <div class="summary-card expense" onclick="showDashboardDetail('expense')" title="Clique para ver detalhes">
+                    <div class="card-label">💸 Despesas da Família <span style="font-size:10px;opacity:0.6;">↗</span></div>
+                    <div class="card-value negative">R$ ${monthlyExpenses.toFixed(2)}</div>
+                </div>
+                <div class="summary-card balance" onclick="showDashboardDetail('balance')" title="Clique para ver detalhes">
+                    <div class="card-label">💰 Saldo do Mês <span style="font-size:10px;opacity:0.6;">↗</span></div>
+                    <div class="card-value ${balance >= 0 ? 'positive' : 'negative'}">R$ ${balance.toFixed(2)}</div>
+                </div>
+                <div class="summary-card investment" onclick="showDashboardDetail('investment')" title="Clique para ver detalhes">
+                    <div class="card-label">📈 Total Investido <span style="font-size:10px;opacity:0.6;">↗</span></div>
+                    <div class="card-value">R$ ${totalInvestments.toFixed(2)}</div>
+                </div>
             `;
 
             const expensesByCategory = {};
@@ -732,29 +972,19 @@
             try { await deleteDoc(doc(db, "transactions", id)); } catch (error) { alert('Erro ao excluir'); }
         };
 
-        window.startEditTransaction = function(id) {
-            editingTransactionId = id;
-            loadTransactions(); // Re-renderiza com campos editáveis
-        };
-
-        window.cancelEditTransaction = function() {
-            editingTransactionId = null;
-            loadTransactions();
-        };
+        window.startEditTransaction = function(id) { editingTransactionId = id; loadTransactions(); };
+        window.cancelEditTransaction = function() { editingTransactionId = null; loadTransactions(); };
 
         window.saveEditTransaction = async function(id) {
             const descEl = document.getElementById(`edit-desc-${id}`);
             const amountEl = document.getElementById(`edit-amount-${id}`);
             const catEl = document.getElementById(`edit-cat-${id}`);
             const dateEl = document.getElementById(`edit-date-${id}`);
-            
             const description = descEl?.value;
             const amount = parseFloat(amountEl?.value);
             const category = catEl?.value;
             const date = dateEl?.value;
-            
             if (!description || !amount || amount <= 0) { alert('Preencha corretamente'); return; }
-            
             try {
                 await updateDoc(doc(db, "transactions", id), { description, amount, category, date, updatedAt: serverTimestamp() });
                 editingTransactionId = null;
@@ -768,38 +998,23 @@
                 const cat = getCategoryById(t.category);
                 const isEditing = editingTransactionId === t.id;
                 const isOwner = t.userId === currentUser.id;
-                
                 if (isEditing) {
                     return `<tr>
                         <td><input type="date" id="edit-date-${t.id}" class="edit-input" value="${t.date || date.toISOString().split('T')[0]}"></td>
                         <td><input type="text" id="edit-desc-${t.id}" class="edit-input" value="${t.description}"></td>
-                        <td>
-                            <select id="edit-cat-${t.id}" class="edit-select">
-                                ${Object.entries(cats).map(([id, c]) => `<option value="${id}" ${id === t.category ? 'selected' : ''}>${c.icon} ${c.name}</option>`).join('')}
-                            </select>
-                        </td>
+                        <td><select id="edit-cat-${t.id}" class="edit-select">${Object.entries(cats).map(([id, c]) => `<option value="${id}" ${id === t.category ? 'selected' : ''}>${c.icon} ${c.name}</option>`).join('')}</select></td>
                         <td><input type="number" id="edit-amount-${t.id}" class="edit-input" value="${t.amount}" step="0.01" min="0.01"></td>
                         <td><span style="padding:4px 8px;border-radius:12px;font-size:12px;background:${t.type==='income'?'#dcfce7':'#fee2e2'};color:${t.type==='income'?'var(--success)':'var(--danger)'};">${t.type==='income'?'Receita':'Despesa'}</span></td>
                         <td>${t.userName||'Anônimo'}</td>
-                        <td>
-                            <button class="btn-sm btn-save" onclick="saveEditTransaction('${t.id}')">💾</button>
-                            <button class="btn-sm btn-cancel" onclick="cancelEditTransaction()">✕</button>
-                        </td>
+                        <td><button class="btn-sm btn-save" onclick="saveEditTransaction('${t.id}')">💾</button><button class="btn-sm btn-cancel" onclick="cancelEditTransaction()">✕</button></td>
                     </tr>`;
                 }
-                
                 return `<tr>
-                    <td>${date.toLocaleDateString('pt-BR')}</td>
-                    <td>${t.description}</td>
-                    <td>${cat.icon} ${cat.name}</td>
+                    <td>${date.toLocaleDateString('pt-BR')}</td><td>${t.description}</td><td>${cat.icon} ${cat.name}</td>
                     <td style="color:${t.type==='income'?'var(--success)':'var(--danger)'};font-weight:600;">${t.type==='income'?'+':'-'} R$ ${(t.amount||0).toFixed(2)}</td>
                     <td><span style="padding:4px 8px;border-radius:12px;font-size:12px;background:${t.type==='income'?'#dcfce7':'#fee2e2'};color:${t.type==='income'?'var(--success)':'var(--danger)'};">${t.type==='income'?'Receita':'Despesa'}</span></td>
                     <td>${t.userName||'Anônimo'}</td>
-                    <td>
-                        ${isOwner ? `<button class="btn-sm btn-edit" onclick="startEditTransaction('${t.id}')">✏️</button>
-                        <button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` 
-                        : '<span style="font-size:12px;color:var(--text-light);">Outro</span>'}
-                    </td>
+                    <td>${isOwner ? `<button class="btn-sm btn-edit" onclick="startEditTransaction('${t.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` : '<span style="font-size:12px;color:var(--text-light);">Outro</span>'}</td>
                 </tr>`;
             }).join('') || '<tr><td colspan="7" style="text-align:center;padding:20px;">Nenhuma transação</td></tr>';
         }
@@ -823,27 +1038,17 @@
             try { await deleteDoc(doc(db, "investments", id)); } catch (error) { alert('Erro ao excluir'); }
         };
 
-        window.startEditInvestment = function(id) {
-            editingInvestmentId = id;
-            loadInvestments();
-        };
-
-        window.cancelEditInvestment = function() {
-            editingInvestmentId = null;
-            loadInvestments();
-        };
+        window.startEditInvestment = function(id) { editingInvestmentId = id; loadInvestments(); };
+        window.cancelEditInvestment = function() { editingInvestmentId = null; loadInvestments(); };
 
         window.saveEditInvestment = async function(id) {
             const nameEl = document.getElementById(`edit-inv-name-${id}`);
             const amountEl = document.getElementById(`edit-inv-amount-${id}`);
             const currentEl = document.getElementById(`edit-inv-current-${id}`);
-            
             const name = nameEl?.value;
             const amount = parseFloat(amountEl?.value);
             const currentValue = parseFloat(currentEl?.value) || amount;
-            
             if (!name || !amount || amount <= 0) { alert('Preencha corretamente'); return; }
-            
             try {
                 await updateDoc(doc(db, "investments", id), { name, amount, currentValue, updatedAt: serverTimestamp() });
                 editingInvestmentId = null;
@@ -861,6 +1066,33 @@
                 <div class="summary-card ${returnValue>=0?'income':'expense'}"><div class="card-label">📊 Valor Atual</div><div class="card-value ${returnValue>=0?'positive':'negative'}">R$ ${totalCurrent.toFixed(2)}</div></div>
                 <div class="summary-card ${returnValue>=0?'income':'expense'}"><div class="card-label">📈 Rentabilidade</div><div class="card-value ${returnValue>=0?'positive':'negative'}">${returnPct.toFixed(2)}%</div></div>
             `;
+
+            // Gráfico de evolução na aba de investimentos
+            const monthlyData = {};
+            allInvestments.forEach(inv => {
+                const date = inv.createdAt?.toDate ? inv.createdAt.toDate() : new Date(inv.createdAt || inv.date);
+                const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
+                if (!monthlyData[key]) monthlyData[key] = { invested: 0, current: 0 };
+                monthlyData[key].invested += (inv.amount || 0);
+                monthlyData[key].current += (inv.currentValue || inv.amount || 0);
+            });
+
+            const sortedKeys = Object.keys(monthlyData).sort();
+            const cumulativeInvested = [], cumulativeCurrent = [];
+            let cumInv = 0, cumCur = 0;
+            sortedKeys.forEach(k => {
+                cumInv += monthlyData[k].invested;
+                cumCur += monthlyData[k].current;
+                cumulativeInvested.push(cumInv);
+                cumulativeCurrent.push(cumCur);
+            });
+
+            if (sortedKeys.length > 0) {
+                createLineChart('investmentEvolutionChart', sortedKeys, [
+                    { label: 'Valor Investido', data: cumulativeInvested, color: '#2563eb' },
+                    { label: 'Valor Atual', data: cumulativeCurrent, color: '#16a34a' }
+                ]);
+            }
             
             document.getElementById('investmentsTable').innerHTML = allInvestments.map(inv => {
                 const retorno = (inv.currentValue || 0) - (inv.amount || 0);
@@ -868,7 +1100,6 @@
                 const date = inv.createdAt?.toDate ? inv.createdAt.toDate() : new Date(inv.createdAt || inv.date);
                 const isEditing = editingInvestmentId === inv.id;
                 const isOwner = inv.userId === currentUser.id;
-                
                 if (isEditing) {
                     return `<tr>
                         <td>${inv.type}</td>
@@ -876,44 +1107,29 @@
                         <td><input type="number" id="edit-inv-amount-${inv.id}" class="edit-input" value="${inv.amount}" step="0.01"></td>
                         <td><input type="number" id="edit-inv-current-${inv.id}" class="edit-input" value="${inv.currentValue||inv.amount}" step="0.01"></td>
                         <td style="color:${retorno>=0?'var(--success)':'var(--danger)'};font-weight:600;">${retornoPct.toFixed(2)}%</td>
-                        <td>${date.toLocaleDateString('pt-BR')}</td>
-                        <td>${inv.userName||'Anônimo'}</td>
-                        <td>
-                            <button class="btn-sm btn-save" onclick="saveEditInvestment('${inv.id}')">💾</button>
-                            <button class="btn-sm btn-cancel" onclick="cancelEditInvestment()">✕</button>
-                        </td>
+                        <td>${date.toLocaleDateString('pt-BR')}</td><td>${inv.userName||'Anônimo'}</td>
+                        <td><button class="btn-sm btn-save" onclick="saveEditInvestment('${inv.id}')">💾</button><button class="btn-sm btn-cancel" onclick="cancelEditInvestment()">✕</button></td>
                     </tr>`;
                 }
-                
                 return `<tr>
-                    <td>${inv.type}</td>
-                    <td>${inv.name}</td>
-                    <td>R$ ${(inv.amount||0).toFixed(2)}</td>
-                    <td>R$ ${(inv.currentValue||0).toFixed(2)}</td>
+                    <td>${inv.type}</td><td>${inv.name}</td>
+                    <td>R$ ${(inv.amount||0).toFixed(2)}</td><td>R$ ${(inv.currentValue||0).toFixed(2)}</td>
                     <td style="color:${retorno>=0?'var(--success)':'var(--danger)'};font-weight:600;">${retornoPct.toFixed(2)}%</td>
-                    <td>${date.toLocaleDateString('pt-BR')}</td>
-                    <td>${inv.userName||'Anônimo'}</td>
-                    <td>
-                        ${isOwner ? `<button class="btn-sm btn-edit" onclick="startEditInvestment('${inv.id}')">✏️</button>
-                        <button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` 
-                        : '<span style="font-size:12px;color:var(--text-light);">Outro</span>'}
-                    </td>
+                    <td>${date.toLocaleDateString('pt-BR')}</td><td>${inv.userName||'Anônimo'}</td>
+                    <td>${isOwner ? `<button class="btn-sm btn-edit" onclick="startEditInvestment('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span style="font-size:12px;color:var(--text-light);">Outro</span>'}</td>
                 </tr>`;
             }).join('') || '<tr><td colspan="8" style="text-align:center;padding:20px;">Nenhum investimento</td></tr>';
         }
 
-        // ============ SHARED VIEW (CORRIGIDA) ============
+        // ============ SHARED VIEW ============
         function loadSharedView() {
             const now = new Date();
             const currentMonth = now.getMonth();
             const currentYear = now.getFullYear();
-            
-            // Totais da família (mês atual)
             const monthlyTransactions = allTransactions.filter(t => {
                 const date = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
                 return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
             });
-            
             const familyIncome = monthlyTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + (t.amount||0), 0);
             const familyExpenses = monthlyTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + (t.amount||0), 0);
             const familyBalance = familyIncome - familyExpenses;
@@ -926,49 +1142,31 @@
                 <div class="summary-card investment"><div class="card-label">📈 Patrimônio Total</div><div class="card-value">R$ ${totalInvestments.toFixed(2)}</div></div>
             `;
 
-            // Agrupar TODAS as transações por usuário (não só do mês)
             const userData = {};
-            
             allTransactions.forEach(t => {
                 const userName = t.userName || 'Anônimo';
-                if (!userData[userName]) {
-                    userData[userName] = { income: 0, expense: 0, count: 0 };
-                }
+                if (!userData[userName]) { userData[userName] = { income: 0, expense: 0, count: 0 }; }
                 if (t.type === 'income') userData[userName].income += (t.amount || 0);
                 else userData[userName].expense += (t.amount || 0);
                 userData[userName].count++;
             });
-            
-            // Também incluir usuários dos investimentos
             allInvestments.forEach(inv => {
                 const userName = inv.userName || 'Anônimo';
-                if (!userData[userName]) {
-                    userData[userName] = { income: 0, expense: 0, count: 0 };
-                }
+                if (!userData[userName]) { userData[userName] = { income: 0, expense: 0, count: 0 }; }
                 userData[userName].count++;
             });
             
             let cardsHTML = '';
             Object.entries(userData).forEach(([userName, data]) => {
                 const balance = data.income - data.expense;
-                cardsHTML += `
-                    <div class="comparison-card">
-                        <h3>👤 ${userName}</h3>
-                        <p>💵 Receitas: <strong style="color:var(--success);">R$ ${data.income.toFixed(2)}</strong></p>
-                        <p>💸 Despesas: <strong style="color:var(--danger);">R$ ${data.expense.toFixed(2)}</strong></p>
-                        <p>💰 Saldo: <strong style="color:${balance >= 0 ? 'var(--success)' : 'var(--danger)'};">R$ ${balance.toFixed(2)}</strong></p>
-                        <p style="font-size:12px;color:var(--text-light);margin-top:8px;">📊 ${data.count} transações/investimentos</p>
-                    </div>
-                `;
+                cardsHTML += `<div class="comparison-card"><h3>👤 ${userName}</h3><p>💵 Receitas: <strong style="color:var(--success);">R$ ${data.income.toFixed(2)}</strong></p><p>💸 Despesas: <strong style="color:var(--danger);">R$ ${data.expense.toFixed(2)}</strong></p><p>💰 Saldo: <strong style="color:${balance >= 0 ? 'var(--success)' : 'var(--danger)'};">R$ ${balance.toFixed(2)}</strong></p><p style="font-size:12px;color:var(--text-light);margin-top:8px;">📊 ${data.count} transações/investimentos</p></div>`;
             });
-            
-            document.getElementById('comparisonCards').innerHTML = cardsHTML || '<p style="text-align:center;padding:20px;">Nenhum dado ainda. Comece adicionando transações!</p>';
+            document.getElementById('comparisonCards').innerHTML = cardsHTML || '<p style="text-align:center;padding:20px;">Nenhum dado ainda.</p>';
         }
 
         // ============ CATEGORIES ============
         window.openCategoryModal = function(catId = null) {
-            editingCategoryId = catId;
-            document.getElementById('categoryModal').style.display = 'flex';
+            document.getElementById('categoryModal').classList.add('active');
             if (catId) {
                 const cats = getCategories();
                 const cat = cats[catId];
@@ -978,7 +1176,6 @@
                     document.getElementById('catType').value = cat.type;
                     selectedColor = cat.color;
                     selectedIcon = cat.icon;
-                    document.getElementById('catEditId').value = catId;
                 }
             } else {
                 document.getElementById('categoryModalTitle').textContent = 'Nova Categoria';
@@ -986,13 +1183,14 @@
                 document.getElementById('catType').value = 'expense';
                 selectedColor = '#FF6B6B';
                 selectedIcon = '📦';
-                document.getElementById('catEditId').value = '';
             }
             updateColorPicker();
             updateIconPicker();
         };
 
-        window.closeCategoryModal = function() { document.getElementById('categoryModal').style.display = 'none'; editingCategoryId = null; };
+        window.closeCategoryModal = function() {
+            document.getElementById('categoryModal').classList.remove('active');
+        };
 
         window.saveCategory = async function() {
             const name = document.getElementById('catName').value.trim();
@@ -1026,7 +1224,7 @@
             if (customCats.length > 0) {
                 html += '<h3 style="margin-bottom:10px;">✨ Suas Categorias</h3><div class="category-pills" style="margin-bottom:20px;">';
                 customCats.forEach(([id, cat]) => {
-                    html += `<div class="category-pill"><span class="color-dot" style="background:${cat.color}"></span><span>${cat.icon}</span><span>${cat.name}</span><span style="font-size:10px;color:var(--text-light);">(${cat.type==='expense'?'Despesa':'Receita'})</span><span style="margin-left:8px;"><button onclick="deleteCategory('${id}')" style="background:none;border:none;cursor:pointer;font-size:12px;" title="Excluir">🗑️</button></span></div>`;
+                    html += `<div class="category-pill"><span class="color-dot" style="background:${cat.color}"></span><span>${cat.icon}</span><span>${cat.name}</span><span style="font-size:10px;color:var(--text-light);">(${cat.type==='expense'?'Despesa':'Receita'})</span><span style="margin-left:8px;"><button onclick="deleteCategory('${id}')" style="background:none;border:none;cursor:pointer;font-size:12px;">🗑️</button></span></div>`;
                 });
                 html += '</div>';
             }
