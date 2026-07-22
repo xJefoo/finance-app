@@ -178,7 +178,7 @@
         .filter-info strong { color:var(--text); }
         .filter-info .highlight { background:var(--primary); color:#fff; padding:2px 10px; border-radius:12px; font-size:11px; }
         
-        /* ===== NOVOS ESTILOS DOS TOOLTIPS ===== */
+        /* ===== GAIN ROWS ===== */
         .gain-row {
             display: flex;
             justify-content: space-between;
@@ -280,8 +280,6 @@
         .tooltip-box .highlight-yellow {
             color: #fbbf24;
         }
-        
-        /* NOVA SEÇÃO DE GANHOS NO CARD */
         .gains-section {
             margin: 8px 0 4px 0;
             padding: 6px 0;
@@ -362,17 +360,14 @@
                 <div class="section-header"><h2>📈 Investimentos</h2><button class="btn btn-primary btn-sm" onclick="openInvestmentModal()">➕ Novo</button></div>
                 <div class="summary-cards" id="investmentSummary"></div>
                 
-                <!-- Seletor de modo de filtro -->
                 <div class="filter-mode-selector" id="filterModeSelector">
                     <button class="filter-mode-btn all-mode active" data-mode="all" onclick="setInvestmentFilterMode('all')">📊 Todos (por Usuário)</button>
                     <button class="filter-mode-btn type-mode" data-mode="type" onclick="setInvestmentFilterMode('type')">🏷️ Filtrar por Tipo</button>
                     <button class="filter-mode-btn institution-mode" data-mode="institution" onclick="setInvestmentFilterMode('institution')">🏦 Filtrar por Instituição</button>
                 </div>
                 
-                <!-- Container para os chips de filtro (dinâmico) -->
                 <div class="filter-chips-container" id="investmentFilterChips"></div>
                 
-                <!-- Informações do filtro atual -->
                 <div class="filter-info" id="filterInfo">
                     <span>📊 </span><span id="filterInfoText">Mostrando todos os investimentos</span>
                 </div>
@@ -612,6 +607,20 @@
             return inv;
         }
 
+        // ===== FUNÇÃO PARA CALCULAR PROJEÇÃO BASEADA NO PERÍODO DO FILTRO =====
+        function calcProjectedForPeriod(investments, endDate) {
+            let totalInvested = 0;
+            let projectedValue = 0;
+            
+            investments.forEach(inv => {
+                const aportes = inv.aportes || [];
+                totalInvested += aportes.reduce((s, x) => s + x.value, 0);
+                projectedValue += calcProjectedValue(aportes, inv.rate, inv.indexer, endDate);
+            });
+            
+            return { totalInvested, projectedValue };
+        }
+
         // ===== FUNÇÃO DE TOOLTIP =====
         function getTooltipContent(tipo, inv) {
             if (tipo === 'atual') {
@@ -803,23 +812,141 @@
             return { total: values.reduce((a,b) => a + b, 0), labels, values };
         }
 
-        // ============ DASHBOARD ============
+        // ============ DASHBOARD - CORRIGIDO ============
         function loadDashboard() {
             let ft = filterByPeriod(allTransactions);
             if (transactionUserFilter && transactionUserFilter !== 'all') ft = ft.filter(t => (t.userName || 'Outro') === transactionUserFilter);
+            
             const mi = ft.filter(t => t.type === 'income').reduce((s, t) => s + (t.amount || 0), 0);
             const me = ft.filter(t => t.type === 'expense').reduce((s, t) => s + (t.amount || 0), 0);
             const bal = mi - me;
-            const ti = allInvestments.reduce((s, i) => s + (i.currentValue || i.totalInvested || 0), 0);
-            document.getElementById('summaryCards').innerHTML = `<div class="summary-card income"><div class="card-label">💵 Receitas</div><div class="card-value positive">R$ ${fmt(mi)}</div></div><div class="summary-card expense"><div class="card-label">💸 Despesas</div><div class="card-value negative">R$ ${fmt(me)}</div></div><div class="summary-card balance"><div class="card-label">💰 Saldo</div><div class="card-value ${bal>=0?'positive':'negative'}">R$ ${fmt(bal)}</div></div><div class="summary-card investment"><div class="card-label">📈 Investimentos</div><div class="card-value">R$ ${fmt(ti)}</div></div>`;
-            const ec = {}; ft.filter(t => t.type === 'expense').forEach(t => { const cat = t.category || 'other'; if (!ec[cat]) ec[cat] = 0; ec[cat] += (t.amount || 0); });
-            const cats = getCategories(); const cd = Object.entries(ec).map(([id, amt]) => ({ category: cats[id]?.name || id, amount: amt, color: cats[id]?.color || '#ccc' }));
-            if (cd.length > 0) { const ctx = document.getElementById('categoryChart'); if (ctx) { if (charts['categoryChart']) charts['categoryChart'].destroy(); charts['categoryChart'] = new Chart(ctx, { type: 'pie', data: { labels: cd.map(d => d.category), datasets: [{ data: cd.map(d => d.amount), backgroundColor: cd.map(d => d.color), borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); } }
-            try { renderUserFilterTabs('transactionUserFilter', transactionUserFilter, getUniqueUsers(allTransactions), function(u){ transactionUserFilter = u; loadDashboard(); }); } catch(e) {}
+            
+            // ===== INVESTIMENTOS COM BASE NO FILTRO DE DATA =====
+            // Pegar a data final do período do filtro
+            const { end } = getPeriodRange();
+            
+            // Filtrar investimentos pelo usuário selecionado
+            let investmentData = allInvestments;
+            if (transactionUserFilter && transactionUserFilter !== 'all') {
+                investmentData = investmentData.filter(inv => (inv.userName || 'Outro') === transactionUserFilter);
+            }
+            
+            // Recalcular todos os investimentos
+            investmentData.forEach(inv => recalcInvestment(inv));
+            
+            // Calcular total investido e valor atual (até hoje)
+            const totalInvested = investmentData.reduce((s, inv) => s + (inv.totalInvested || 0), 0);
+            const currentValue = investmentData.reduce((s, inv) => s + (inv.currentValue || 0), 0);
+            
+            // Calcular projeção até a data do filtro
+            let projectedValue = 0;
+            investmentData.forEach(inv => {
+                const aportes = inv.aportes || [];
+                projectedValue += calcProjectedValue(aportes, inv.rate, inv.indexer, end);
+            });
+            
+            // Calcular rendimento real baseado no período do filtro
+            const ganhoProjetado = projectedValue - totalInvested;
+            const nominalProjetado = totalInvested > 0 ? (ganhoProjetado / totalInvested) * 100 : 0;
+            
+            // IPCA proporcional ao período do filtro
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30); // aproximação
+            const diasPeriodo = Math.max(1, Math.floor((end - startDate) / 86400000));
+            const ipcaPeriodo = (indexers.ipca || 0) * (diasPeriodo / 365);
+            const realProjetado = ((1 + nominalProjetado / 100) / (1 + ipcaPeriodo / 100) - 1) * 100;
+            
+            // Atualizar cards
+            document.getElementById('summaryCards').innerHTML = `
+                <div class="summary-card income">
+                    <div class="card-label">💼 Total Investido</div>
+                    <div class="card-value positive">R$ ${fmt(totalInvested)}</div>
+                </div>
+                <div class="summary-card expense">
+                    <div class="card-label">📊 Valor Atual</div>
+                    <div class="card-value">R$ ${fmt(currentValue)}</div>
+                </div>
+                <div class="summary-card balance">
+                    <div class="card-label">📈 Projetado (até ${end.toLocaleDateString('pt-BR')})</div>
+                    <div class="card-value ${ganhoProjetado>=0?'positive':'negative'}">R$ ${fmt(projectedValue)}</div>
+                </div>
+                <div class="summary-card investment">
+                    <div class="card-label">💎 Rendimento Real</div>
+                    <div class="card-value ${realProjetado>=0?'positive':'negative'}">${realProjetado.toFixed(2)}%</div>
+                </div>
+            `;
+            
+            // ===== GRÁFICO DE GASTOS POR CATEGORIA =====
+            const ec = {};
+            ft.filter(t => t.type === 'expense').forEach(t => {
+                const cat = t.category || 'other';
+                if (!ec[cat]) ec[cat] = 0;
+                ec[cat] += (t.amount || 0);
+            });
+            const cats = getCategories();
+            const cd = Object.entries(ec).map(([id, amt]) => ({
+                category: cats[id]?.name || id,
+                amount: amt,
+                color: cats[id]?.color || '#ccc'
+            }));
+            
+            if (cd.length > 0) {
+                const ctx = document.getElementById('categoryChart');
+                if (ctx) {
+                    if (charts['categoryChart']) charts['categoryChart'].destroy();
+                    charts['categoryChart'] = new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: cd.map(d => d.category),
+                            datasets: [{
+                                data: cd.map(d => d.amount),
+                                backgroundColor: cd.map(d => d.color),
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'bottom' }
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // ===== FILTRO DE USUÁRIO =====
+            try {
+                renderUserFilterTabs('transactionUserFilter', transactionUserFilter, getUniqueUsers(allTransactions), function(u){
+                    transactionUserFilter = u;
+                    loadDashboard();
+                });
+            } catch(e) {}
+            
+            // ===== TRANSAÇÕES =====
             const displayTrans = ft.slice(0, 20);
-            document.getElementById('transactionCards').innerHTML = displayTrans.map(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); const cat = getCategoryById(t.category); const own = t.userId === currentUser?.id; return `<div class="data-card"><div class="data-card-header"><h4>${cat.icon} ${t.description}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openTransactionModal('${t.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (t.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>${t.type==='income'?'Receita':'Despesa'}</span><span>📅 ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span></div><div class="data-card-amount ${t.type==='income'?'income':'expense'}" style="margin-top:6px;">${t.type==='income'?'+':'-'} R$ ${fmt(t.amount||0)}</div></div>`; }).join('') || '<p style="text-align:center;padding:20px;">Nenhuma transação neste período.</p>';
+            document.getElementById('transactionCards').innerHTML = displayTrans.map(t => {
+                const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
+                const cat = getCategoryById(t.category);
+                const own = t.userId === currentUser?.id;
+                return `<div class="data-card">
+                    <div class="data-card-header">
+                        <h4>${cat.icon} ${t.description}</h4>
+                        <div>${own ? `<button class="btn-sm btn-edit" onclick="openTransactionModal('${t.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (t.userName || 'Outro') + '</span>'}</div>
+                    </div>
+                    <div class="data-card-meta">
+                        <span>${t.type==='income'?'Receita':'Despesa'}</span>
+                        <span>📅 ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span>
+                    </div>
+                    <div class="data-card-amount ${t.type==='income'?'income':'expense'}" style="margin-top:6px;">
+                        ${t.type==='income'?'+':'-'} R$ ${fmt(t.amount||0)}
+                    </div>
+                </div>`;
+            }).join('') || '<p style="text-align:center;padding:20px;">Nenhuma transação neste período.</p>';
         }
 
+        // ============ INVESTMENTS ============
         window.openTransactionModal = function(tid = null) { editingTransactionId = tid; document.getElementById('transactionModal').classList.add('active'); updateCategoryDropdown(); if (tid) { const t = allTransactions.find(x => x.id === tid); if (t) { document.getElementById('transModalTitle').textContent = 'Editar Transação'; document.getElementById('transType').value = t.type; document.getElementById('transDescription').value = t.description; document.getElementById('transAmount').value = fmt(t.amount); document.getElementById('transDate').value = t.date || toLocalDateStr(new Date(t.createdAt?.toDate ? t.createdAt.toDate() : t.createdAt)); document.getElementById('transEditId').value = tid; updateCategoryDropdown(); setTimeout(() => { document.getElementById('transCategory').value = t.category; }, 100); } } else { document.getElementById('transModalTitle').textContent = 'Nova Transação'; document.getElementById('transType').value = 'expense'; document.getElementById('transDescription').value = ''; document.getElementById('transAmount').value = ''; document.getElementById('transDate').value = toLocalDateStr(new Date()); document.getElementById('transEditId').value = ''; updateCategoryDropdown(); } };
         window.closeTransactionModal = function() { document.getElementById('transactionModal').classList.remove('active'); };
         window.saveTransaction = async function() { const type = document.getElementById('transType').value, desc = document.getElementById('transDescription').value.trim(), amt = parseMoney(document.getElementById('transAmount').value), cat = document.getElementById('transCategory').value, date = document.getElementById('transDate').value || toLocalDateStr(new Date()); if (!desc || !amt || amt <= 0) { alert('Preencha'); return; } try { if (editingTransactionId) { await updateDoc(doc(db, "transactions", editingTransactionId), { type, description: desc, amount: amt, category: cat, date, updatedAt: serverTimestamp() }); } else { await addDoc(collection(db, "transactions"), { type, description: desc, amount: amt, category: cat, date, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeTransactionModal(); } catch (e) { alert('Erro'); } };
@@ -1127,7 +1254,7 @@
                 });
             } catch(e) {}
             
-            // ===== INVESTMENT CARDS COM TOOLTIPS =====
+            // ===== INVESTMENT CARDS =====
             document.getElementById('investmentCards').innerHTML = investments.map(inv => {
                 const own = inv.userId === currentUser?.id;
                 const aportes = inv.aportes || [];
@@ -1156,7 +1283,7 @@
                         <div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${fmt(inv.projectedValue || 0)}</div></div>
                     </div>
                     
-                    <!-- NOVA SEÇÃO DE GANHOS COM TOOLTIPS -->
+                    <!-- SEÇÃO DE GANHOS COM TOOLTIPS -->
                     <div class="gains-section">
                         <div class="gains-title">💵 Ganhos</div>
                         
@@ -1196,17 +1323,14 @@
                     
                     if (!inv) return;
                     
-                    // Remover tooltips antigos
                     const oldTooltip = el.querySelector('.tooltip-box');
                     if (oldTooltip) oldTooltip.remove();
                     
-                    // Criar novo tooltip
                     const tooltip = document.createElement('div');
                     tooltip.className = 'tooltip-box';
                     tooltip.innerHTML = getTooltipContent(tipo, inv);
                     el.appendChild(tooltip);
                     
-                    // Event listeners
                     el.addEventListener('mouseenter', function(e) {
                         const tb = this.querySelector('.tooltip-box');
                         if (tb) tb.style.display = 'block';
