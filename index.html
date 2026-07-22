@@ -425,10 +425,11 @@
         function getGlobalDateRange() {
             const now = new Date();
             let start = new Date(now);
+            let end = new Date(now);
             
             if (globalDateFilter.type === 'custom') {
                 start = new Date(globalDateFilter.startDate + 'T00:00:00');
-                const end = new Date(globalDateFilter.endDate + 'T23:59:59');
+                end = new Date(globalDateFilter.endDate + 'T23:59:59');
                 return { start, end };
             }
             
@@ -444,7 +445,12 @@
             start.setDate(now.getDate() - p.days);
             start.setHours(0, 0, 0, 0);
             
-            return { start, end: now };
+            // END = início + período completo
+            end = new Date(start);
+            end.setDate(end.getDate() + p.days);
+            end.setHours(23, 59, 59, 999);
+            
+            return { start, end };
         }
 
         window.setQuickFilter = function(period) {
@@ -853,7 +859,7 @@
             }));
         }
 
-        // ============ DASHBOARD - CORRIGIDO ============
+        // ============ DASHBOARD ============
         function loadDashboard() {
             let ft = filterByPeriod(allTransactions);
             if (transactionUserFilter && transactionUserFilter !== 'all') ft = ft.filter(t => (t.userName || 'Outro') === transactionUserFilter);
@@ -862,7 +868,7 @@
             const me = ft.filter(t => t.type === 'expense').reduce((s, t) => s + (t.amount || 0), 0);
             const bal = mi - me;
             
-            // ===== CARDS DE INVESTIMENTO CORRIGIDOS =====
+            // ===== CARDS DE INVESTIMENTO =====
             const { start, end } = getGlobalDateRange();
             const hoje = new Date();
             
@@ -1142,7 +1148,6 @@
                 investments = investments.filter(i => i.institution === investmentFilterValue);
             }
             
-            // CÁLCULOS APENAS COM APORTES DO PERÍODO
             const ti = investments.reduce((sum, inv) => {
                 const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
                     const d = new Date(ap.date + 'T12:00:00');
@@ -1164,7 +1169,6 @@
             const rv = tc - ti;
             const rp = ti > 0 ? (rv / ti) * 100 : 0;
             
-            // IPCA do período (do início do filtro até HOJE)
             const diasAteHoje = Math.max(1, Math.floor((hoje - start) / 86400000));
             const ipcaPeriodo = (indexers.ipca || 0) * (diasAteHoje / 365);
             const realRet = ((1 + rp / 100) / (1 + ipcaPeriodo / 100) - 1) * 100;
@@ -1305,7 +1309,6 @@
                 if (charts['portfolioTypeChart']) charts['portfolioTypeChart'].destroy();
             }
             
-            // BURNUP CHART - APENAS APORTES DO PERÍODO
             const allAportes = [];
             investments.forEach(inv => {
                 (inv.aportes || []).forEach(ap => {
