@@ -287,6 +287,63 @@
         .color-config-item .color-preview {
             width:30px; height:30px; border-radius:4px; border:1px solid var(--border);
         }
+
+        /* Estilos para o indicador de limite */
+        .limit-indicator {
+            margin: 8px 0 12px 0;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border-left: 3px solid #gray;
+            transition: all 0.3s;
+        }
+        .limit-indicator.safe { border-left-color: #16a34a; }
+        .limit-indicator.warning { border-left-color: #eab308; }
+        .limit-indicator.critical { border-left-color: #ea580c; }
+        .limit-indicator.exceeded { border-left-color: #dc2626; }
+        .limit-indicator.no-limit { border-left-color: #9ca3af; }
+        
+        .limit-progress {
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 4px 0;
+        }
+        .limit-progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        .limit-progress-fill.safe { background: #16a34a; }
+        .limit-progress-fill.warning { background: #eab308; }
+        .limit-progress-fill.critical { background: #ea580c; }
+        .limit-progress-fill.exceeded { background: #dc2626; }
+        
+        .limit-actions {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .limit-actions input {
+            width: 80px;
+            padding: 2px 4px;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            font-size: 11px;
+        }
+        .limit-actions input:disabled {
+            background: #f3f4f6;
+        }
+        
+        .limit-status-text {
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .limit-tip {
+            font-size: 10px;
+        }
         
         @media (max-width:768px) {
             .app-header { flex-direction:column; }
@@ -309,6 +366,9 @@
             .gain-row .tooltip-icon {
                 margin-left: auto;
             }
+            .limit-actions input {
+                width: 60px;
+            }
         }
     </style>
 </head>
@@ -318,7 +378,16 @@
     <div id="categoryModal" class="modal-overlay"><div class="modal"><div class="modal-header"><h2>Nova Categoria</h2><button class="modal-close" onclick="closeCategoryModal()">✕</button></div><div class="form-group"><label>Nome</label><input type="text" id="catName"></div><div class="form-group"><label>Tipo</label><select id="catType"><option value="expense">Despesa</option><option value="income">Receita</option></select></div><div class="form-group"><label>Cor</label><div class="color-picker" id="colorPicker"><div class="color-option selected" style="background:#FF6B6B" data-color="#FF6B6B"></div><div class="color-option" style="background:#4ECDC4" data-color="#4ECDC4"></div><div class="color-option" style="background:#45B7D1" data-color="#45B7D1"></div><div class="color-option" style="background:#96CEB4" data-color="#96CEB4"></div><div class="color-option" style="background:#FFEAA7" data-color="#FFEAA7"></div><div class="color-option" style="background:#DDA0DD" data-color="#DDA0DD"></div><div class="color-option" style="background:#98D8C8" data-color="#98D8C8"></div><div class="color-option" style="background:#2ECC71" data-color="#2ECC71"></div><div class="color-option" style="background:#3498DB" data-color="#3498DB"></div><div class="color-option" style="background:#9B59B6" data-color="#9B59B6"></div><div class="color-option" style="background:#E67E22" data-color="#E67E22"></div><div class="color-option" style="background:#F39C12" data-color="#F39C12"></div></div></div><div class="form-group"><label>Ícone</label><div style="display:flex;gap:4px;align-items:center;"><input type="text" id="catIconInput" maxlength="4" placeholder="📦"><span style="font-size:10px;color:var(--text-light);">💡 Win+.</span></div></div><div class="form-group"><label>Sugestões:</label><div class="icon-picker" id="iconPicker"><span class="icon-option selected" data-icon="📦">📦</span><span class="icon-option" data-icon="🍽️">🍽️</span><span class="icon-option" data-icon="🏠">🏠</span><span class="icon-option" data-icon="🚗">🚗</span><span class="icon-option" data-icon="🏥">🏥</span><span class="icon-option" data-icon="📚">📚</span><span class="icon-option" data-icon="🎮">🎮</span><span class="icon-option" data-icon="🐾">🐾</span><span class="icon-option" data-icon="💳">💳</span><span class="icon-option" data-icon="🎬">🎬</span><span class="icon-option" data-icon="✈️">✈️</span><span class="icon-option" data-icon="🎁">🎁</span><span class="icon-option" data-icon="💻">💻</span><span class="icon-option" data-icon="📱">📱</span><span class="icon-option" data-icon="👕">👕</span><span class="icon-option" data-icon="💄">💄</span></div></div><button class="btn btn-primary" onclick="saveCategory()">Salvar</button></div></div>
     <div id="transactionModal" class="modal-overlay"><div class="modal"><div class="modal-header"><h2 id="transModalTitle">Nova Transação</h2><button class="modal-close" onclick="closeTransactionModal()">✕</button></div><div class="form-row"><div class="form-group"><label>Tipo</label><select id="transType" onchange="updateCategoryDropdown()"><option value="expense">Despesa</option><option value="income">Receita</option></select></div><div class="form-group"><label>Categoria</label><select id="transCategory"></select></div></div><div class="form-group"><label>Descrição</label><input type="text" id="transDescription"></div><div class="form-row"><div class="form-group"><label>Valor (R$)</label><input type="text" id="transAmount" inputmode="decimal" placeholder="0,00"></div><div class="form-group"><label>Data</label><input type="date" id="transDate"></div></div><input type="hidden" id="transEditId"><button class="btn btn-primary" onclick="saveTransaction()">Salvar</button></div></div>
     <div id="goalModal" class="modal-overlay"><div class="modal"><div class="modal-header"><h2 id="goalModalTitle">Nova Meta</h2><button class="modal-close" onclick="closeGoalModal()">✕</button></div><div class="form-group"><label>Investimento</label><select id="goalInvestment"></select></div><div class="form-row"><div class="form-group"><label>Objetivo (R$)</label><input type="text" id="goalTarget" inputmode="decimal" placeholder="0,00"></div><div class="form-group"><label>Data Alvo</label><input type="date" id="goalDeadline"></div></div><input type="hidden" id="goalEditId"><button class="btn btn-primary" onclick="saveGoal()">Salvar</button></div></div>
-    <div id="investmentModal" class="modal-overlay"><div class="modal"><div class="modal-header"><h2 id="investmentModalTitle">Novo Investimento</h2><button class="modal-close" onclick="closeInvestmentModal()">✕</button></div><div class="form-row"><div class="form-group"><label>Tipo</label><select id="invType"><option>CDB</option><option>Tesouro Direto</option><option>Ações</option><option>Fundos Imobiliários</option><option>LCI/LCA</option><option>Poupança</option><option>Criptomoedas</option><option>Outros</option></select></div><div class="form-group"><label>Instituição</label><input type="text" id="invInstitution"></div></div><div class="form-row"><div class="form-group"><label>Nome/Ativo</label><input type="text" id="invName"></div><div class="form-group"><label>Valor Inicial (R$)</label><input type="text" id="invInitialValue" inputmode="decimal" placeholder="0,00"></div></div><div class="form-row"><div class="form-group"><label>Taxa</label><input type="text" id="invRate" inputmode="numeric"></div><div class="form-group"><label>Indexador</label><select id="invIndexer"><option value="cdi">% do CDI</option><option value="selic">% da Selic</option><option value="ipca">IPCA +</option><option value="pre">Pré-fixado</option></select></div></div><div class="form-row"><div class="form-group"><label>Data Início</label><input type="date" id="invStartDate"></div><div class="form-group"><label>Vencimento</label><input type="date" id="invEndDate"><span style="font-size:9px;color:var(--text-light);">vazio = +1 ano</span></div></div><input type="hidden" id="invEditId"><button class="btn btn-primary" onclick="saveInvestment()">Salvar</button></div></div>
+    
+    <!-- Investment Modal com campo de limite -->
+    <div id="investmentModal" class="modal-overlay"><div class="modal"><div class="modal-header"><h2 id="investmentModalTitle">Novo Investimento</h2><button class="modal-close" onclick="closeInvestmentModal()">✕</button></div><div class="form-row"><div class="form-group"><label>Tipo</label><select id="invType"><option>CDB</option><option>Tesouro Direto</option><option>Ações</option><option>Fundos Imobiliários</option><option>LCI/LCA</option><option>Poupança</option><option>Criptomoedas</option><option>Outros</option></select></div><div class="form-group"><label>Instituição</label><input type="text" id="invInstitution"></div></div><div class="form-row"><div class="form-group"><label>Nome/Ativo</label><input type="text" id="invName"></div><div class="form-group"><label>Valor Inicial (R$)</label><input type="text" id="invInitialValue" inputmode="decimal" placeholder="0,00"></div></div><div class="form-row"><div class="form-group"><label>Taxa</label><input type="text" id="invRate" inputmode="numeric"></div><div class="form-group"><label>Indexador</label><select id="invIndexer"><option value="cdi">% do CDI</option><option value="selic">% da Selic</option><option value="ipca">IPCA +</option><option value="pre">Pré-fixado</option></select></div></div><div class="form-row"><div class="form-group"><label>Data Início</label><input type="date" id="invStartDate"></div><div class="form-group"><label>Vencimento</label><input type="date" id="invEndDate"><span style="font-size:9px;color:var(--text-light);">vazio = +1 ano</span></div></div>
+        <!-- CAMPO DE LIMITE ADICIONADO -->
+        <div class="form-group">
+            <label>Limite Máximo (R$)</label>
+            <input type="text" id="invLimit" inputmode="decimal" placeholder="0,00">
+            <span style="font-size:9px;color:var(--text-light);">⚠️ Valor máximo que você quer investir neste ativo</span>
+        </div>
+        <input type="hidden" id="invEditId"><button class="btn btn-primary" onclick="saveInvestment()">Salvar</button></div></div>
 
     <div id="loginScreen" class="login-screen"><div class="login-card"><div class="login-header"><h1>💰 FinanceHub</h1><p>Controle Financeiro Familiar</p></div><div class="error-message" id="loginError">Acesso não autorizado.</div><button class="btn btn-google" onclick="loginWithGoogle()"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Entrar com Google</button></div></div>
 
@@ -459,13 +528,13 @@
         function getCategories() { return Object.keys(allCategories).length > 0 ? { ...defaultCategories, ...allCategories } : defaultCategories; }
         function getCategoryById(catId) { const cats = getCategories(); return cats[catId] || { name: catId, icon: '📦', color: '#ccc', type: 'expense' }; }
 
-        // ============ INVESTMENT CALCULATIONS ============
+        // ============ INVESTMENT CALCULATIONS WITH LIMITS ============
         function getAnnualRate(rate, indexer) { 
             const base = indexers[indexer] || 0; 
             if (indexer === 'pre') return rate; 
             return (rate / 100) * base; 
         }
-        
+
         function calcProjectedValue(aportes, rate, indexer, endDate) { 
             const ar = getAnnualRate(rate, indexer) / 100; 
             const dr = Math.pow(1 + ar, 1 / 365) - 1; 
@@ -511,8 +580,90 @@
             inv.ganhoProjetado = ganhoProjetado;
             inv.diasAteVencimento = diasAteVencimento;
             
+            // ===== Cálculo de limite =====
+            inv.limit = inv.limit || 0;
+            inv.limitUsed = inv.limit > 0 ? (inv.totalInvested / inv.limit) * 100 : 0;
+            inv.limitRemaining = inv.limit > 0 ? inv.limit - inv.totalInvested : 0;
+            inv.limitStatus = getLimitStatus(inv);
+            
             return inv;
         }
+
+        // ===== Função de status do limite =====
+        function getLimitStatus(inv) {
+            if (!inv.limit || inv.limit <= 0) return { status: 'no_limit', message: 'Sem limite definido', color: '#9ca3af', pct: 0, tip: 'Defina um limite para este investimento' };
+            
+            const pct = (inv.totalInvested / inv.limit) * 100;
+            const remaining = inv.limit - inv.totalInvested;
+            
+            if (remaining <= 0) {
+                return { 
+                    status: 'exceeded', 
+                    message: `⚠️ Limite excedido! (${pct.toFixed(1)}%)`, 
+                    color: '#dc2626',
+                    pct: Math.min(pct, 100),
+                    tip: '⚠️ Pare de investir aqui! Considere outros ativos.'
+                };
+            } else if (pct >= 90) {
+                return { 
+                    status: 'critical', 
+                    message: `🔴 Quase no limite! (${pct.toFixed(1)}%)`, 
+                    color: '#ea580c',
+                    pct: pct,
+                    tip: '🔴 Muito perto do limite! Diversifique seus investimentos.'
+                };
+            } else if (pct >= 70) {
+                return { 
+                    status: 'warning', 
+                    message: `🟡 Aproximando do limite (${pct.toFixed(1)}%)`, 
+                    color: '#eab308',
+                    pct: pct,
+                    tip: '🟡 Considere diversificar. Você está próximo do seu limite.'
+                };
+            } else {
+                return { 
+                    status: 'safe', 
+                    message: `🟢 Dentro do limite (${pct.toFixed(1)}%)`, 
+                    color: '#16a34a',
+                    pct: pct,
+                    tip: '✅ Espaço disponível para mais aportes!'
+                };
+            }
+        }
+
+        // ===== Função para adicionar limite rápido =====
+        window.addLimitToInvestment = function(invId) {
+            const input = document.getElementById(`limit-input-${invId}`);
+            if (!input) return;
+            const limit = parseMoney(input.value);
+            if (!limit || limit <= 0) {
+                alert('Digite um valor válido para o limite.');
+                return;
+            }
+            
+            const inv = allInvestments.find(i => i.id === invId);
+            if (!inv) return;
+            
+            try {
+                updateDoc(doc(db, "investments", invId), { 
+                    limit: limit,
+                    updatedAt: serverTimestamp() 
+                });
+                input.value = '';
+                input.disabled = true;
+                loadInvestments();
+            } catch (e) {
+                alert('Erro ao adicionar limite: ' + e.message);
+            }
+        };
+
+        window.editLimit = function(invId) {
+            const input = document.getElementById(`limit-input-${invId}`);
+            if (input) {
+                input.disabled = false;
+                input.focus();
+            }
+        };
 
         function getTooltipContent(tipo, inv) {
             if (tipo === 'atual') {
@@ -746,7 +897,6 @@
             // ===== CARDS DE INVESTIMENTO =====
             const hoje = new Date();
             
-            // Todos os investimentos
             let investmentData = allInvestments;
             
             if (transactionUserFilter && transactionUserFilter !== 'all') {
@@ -762,7 +912,6 @@
             const ganhoNominal = currentValue - totalInvested;
             const nominalPct = totalInvested > 0 ? (ganhoNominal / totalInvested) * 100 : 0;
             
-            // IPCA do período (considerando desde o início do primeiro investimento até hoje)
             const firstStartDate = investmentData.length > 0 
                 ? new Date(Math.min(...investmentData.map(inv => new Date(inv.startDate + 'T12:00:00').getTime())))
                 : new Date();
@@ -866,8 +1015,40 @@
         window.deleteTransaction = async function(id) { if (!confirm('Excluir?')) return; try { await deleteDoc(doc(db, "transactions", id)); } catch (e) { } };
 
         // ============ INVESTMENTS ============
-        window.openInvestmentModal = function(invId = null) { editingInvestmentId = invId; document.getElementById('investmentModal').classList.add('active'); if (invId) { const inv = allInvestments.find(i => i.id === invId); if (inv) { document.getElementById('investmentModalTitle').textContent = 'Editar'; document.getElementById('invType').value = inv.type; document.getElementById('invInstitution').value = inv.institution || ''; document.getElementById('invName').value = inv.name; document.getElementById('invRate').value = inv.rate || ''; document.getElementById('invIndexer').value = inv.indexer || 'cdi'; document.getElementById('invStartDate').value = inv.startDate || ''; document.getElementById('invEndDate').value = inv.endDate || ''; document.getElementById('invInitialValue').value = fmt((inv.aportes && inv.aportes.length > 0) ? inv.aportes[0].value : 0); document.getElementById('invEditId').value = invId; } } else { document.getElementById('investmentModalTitle').textContent = 'Novo'; document.getElementById('invType').value = 'CDB'; document.getElementById('invInstitution').value = ''; document.getElementById('invName').value = ''; document.getElementById('invRate').value = ''; document.getElementById('invIndexer').value = 'cdi'; document.getElementById('invStartDate').value = toLocalDateStr(new Date()); document.getElementById('invEndDate').value = ''; document.getElementById('invInitialValue').value = ''; document.getElementById('invEditId').value = ''; } };
+        window.openInvestmentModal = function(invId = null) { 
+            editingInvestmentId = invId; 
+            document.getElementById('investmentModal').classList.add('active'); 
+            if (invId) { 
+                const inv = allInvestments.find(i => i.id === invId); 
+                if (inv) { 
+                    document.getElementById('investmentModalTitle').textContent = 'Editar Investimento'; 
+                    document.getElementById('invType').value = inv.type; 
+                    document.getElementById('invInstitution').value = inv.institution || ''; 
+                    document.getElementById('invName').value = inv.name; 
+                    document.getElementById('invRate').value = inv.rate || ''; 
+                    document.getElementById('invIndexer').value = inv.indexer || 'cdi'; 
+                    document.getElementById('invStartDate').value = inv.startDate || ''; 
+                    document.getElementById('invEndDate').value = inv.endDate || ''; 
+                    document.getElementById('invInitialValue').value = fmt((inv.aportes && inv.aportes.length > 0) ? inv.aportes[0].value : 0); 
+                    document.getElementById('invLimit').value = inv.limit > 0 ? fmt(inv.limit) : '';
+                    document.getElementById('invEditId').value = invId; 
+                } 
+            } else { 
+                document.getElementById('investmentModalTitle').textContent = 'Novo Investimento'; 
+                document.getElementById('invType').value = 'CDB'; 
+                document.getElementById('invInstitution').value = ''; 
+                document.getElementById('invName').value = ''; 
+                document.getElementById('invRate').value = ''; 
+                document.getElementById('invIndexer').value = 'cdi'; 
+                document.getElementById('invStartDate').value = toLocalDateStr(new Date()); 
+                document.getElementById('invEndDate').value = ''; 
+                document.getElementById('invInitialValue').value = ''; 
+                document.getElementById('invLimit').value = '';
+                document.getElementById('invEditId').value = ''; 
+            } 
+        };
         window.closeInvestmentModal = function() { document.getElementById('investmentModal').classList.remove('active'); };
+        
         window.saveInvestment = async function() { 
             const type = document.getElementById('invType').value;
             const institution = document.getElementById('invInstitution').value.trim();
@@ -878,9 +1059,16 @@
             let endDate = document.getElementById('invEndDate').value;
             if (!endDate) { const sd = new Date(startDate + 'T12:00:00'); sd.setFullYear(sd.getFullYear() + 1); endDate = toLocalDateStr(sd); }
             const initialValue = parseMoney(document.getElementById('invInitialValue').value);
+            const limit = parseMoney(document.getElementById('invLimit').value);
+            
             if (!name || !initialValue || initialValue <= 0) { alert('Preencha todos os campos obrigatórios'); return; }
             const aportes = [{ value: initialValue, date: startDate }];
-            const invData = { type, institution, name, rate, indexer, startDate, endDate, aportes, totalInvested: initialValue, updatedAt: serverTimestamp() };
+            const invData = { 
+                type, institution, name, rate, indexer, startDate, endDate, 
+                aportes, totalInvested: initialValue, 
+                limit: limit || 0,
+                updatedAt: serverTimestamp() 
+            };
             recalcInvestment(invData);
             try { 
                 if (editingInvestmentId) { 
@@ -891,6 +1079,7 @@
                 closeInvestmentModal(); 
             } catch (e) { alert('Erro ao salvar: ' + e.message); } 
         };
+        
         window.deleteInvestment = async function(id) { if (!confirm('Excluir?')) return; try { await deleteDoc(doc(db, "investments", id)); } catch (e) { } };
         window.addAporteToInvestment = async function(invId) { 
             const vi = document.getElementById(`aporte-val-${invId}`);
@@ -965,7 +1154,7 @@
             loadInvestments();
         };
 
-        // ===== INVESTMENTS =====
+        // ===== INVESTMENTS LOAD =====
         function loadInvestments() {
             allInvestments.forEach(inv => recalcInvestment(inv));
             
@@ -1168,6 +1357,7 @@
                 });
             } catch(e) {}
             
+            // ===== RENDERIZAÇÃO DOS CARDS COM INDICADORES DE LIMITE =====
             document.getElementById('investmentCards').innerHTML = investments.map(inv => {
                 const own = inv.userId === currentUser?.id;
                 const aportes = inv.aportes || [];
@@ -1178,6 +1368,14 @@
                 const isPositiveAtual = ganhoAtual >= 0;
                 const isPositiveProjetado = ganhoProjetado >= 0;
                 const endDateFormatted = new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR');
+                
+                // Dados de limite
+                const limitStatus = inv.limitStatus || { status: 'no_limit', message: 'Sem limite definido', color: '#9ca3af', pct: 0, tip: 'Defina um limite para este investimento' };
+                const hasLimit = inv.limit > 0;
+                const isExceeded = limitStatus.status === 'exceeded';
+                const isCritical = limitStatus.status === 'critical';
+                const progressColor = isExceeded ? '#dc2626' : isCritical ? '#ea580c' : limitStatus.color || '#9ca3af';
+                const limitClass = hasLimit ? limitStatus.status : 'no-limit';
                 
                 return `<div class="data-card" data-investment-id="${inv.id}">
                     <div class="data-card-header">
@@ -1190,6 +1388,48 @@
                         <span>📅 ${new Date(inv.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
                         <span>🏁 ${endDateFormatted}</span>
                     </div>
+                    
+                    <!-- ===== INDICADOR DE LIMITE ===== -->
+                    <div class="limit-indicator ${limitClass}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px;">
+                            <span class="limit-status-text" style="color: ${progressColor};">
+                                ${hasLimit ? `🔒 Limite: R$ ${fmt(inv.limit)}` : '🔓 Sem limite definido'}
+                            </span>
+                            <span class="limit-status-text" style="color: ${progressColor};">
+                                ${hasLimit ? limitStatus.message : 'ℹ️ Adicione um limite'}
+                            </span>
+                        </div>
+                        
+                        ${hasLimit ? `
+                        <div class="limit-progress">
+                            <div class="limit-progress-fill ${limitClass}" style="width: ${Math.min(limitStatus.pct, 100)}%;"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 2px;">
+                            <span style="font-size: 9px; color: var(--text-light);">${fmt(inv.totalInvested)}</span>
+                            <span style="font-size: 9px; color: var(--text-light);">${fmt(inv.limit)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px; margin-top: 4px;">
+                            <span class="limit-tip" style="color: ${progressColor};">
+                                ${limitStatus.tip}
+                            </span>
+                            ${own ? `
+                            <div class="limit-actions">
+                                <input type="text" id="limit-input-${inv.id}" value="${fmt(inv.limit)}" disabled>
+                                <button class="btn-sm btn-edit" onclick="editLimit('${inv.id}')">✏️</button>
+                                <button class="btn-sm btn-save" onclick="addLimitToInvestment('${inv.id}')">💾</button>
+                            </div>
+                            ` : ''}
+                        </div>
+                        ` : `
+                        ${own ? `
+                        <div style="display: flex; gap: 4px; margin-top: 4px; align-items: center;">
+                            <input type="text" id="limit-input-${inv.id}" placeholder="Definir limite" style="width: 120px; padding: 4px; border: 1px solid var(--border); border-radius: 3px; font-size: 11px;">
+                            <button class="btn-sm btn-add" onclick="addLimitToInvestment('${inv.id}')">➕</button>
+                        </div>
+                        ` : '<span class="limit-tip" style="color: var(--text-light);">ℹ️ Defina um limite para acompanhar melhor</span>'}
+                        `}
+                    </div>
+                    
                     <div class="investment-card-values">
                         <div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${fmt(inv.totalInvested || 0)}</div></div>
                         <div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${fmt(inv.currentValue || 0)}</div></div>
@@ -1224,6 +1464,7 @@
                 </div>`;
             }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento encontrado.</p>';
             
+            // ===== TOOLTIPS =====
             setTimeout(() => {
                 document.querySelectorAll('.tooltip-icon').forEach(el => {
                     const tipo = el.getAttribute('data-tooltip');
