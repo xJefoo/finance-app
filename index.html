@@ -853,7 +853,7 @@
             }));
         }
 
-        // ============ DASHBOARD ============
+        // ============ DASHBOARD - CORRIGIDO ============
         function loadDashboard() {
             let ft = filterByPeriod(allTransactions);
             if (transactionUserFilter && transactionUserFilter !== 'all') ft = ft.filter(t => (t.userName || 'Outro') === transactionUserFilter);
@@ -862,24 +862,55 @@
             const me = ft.filter(t => t.type === 'expense').reduce((s, t) => s + (t.amount || 0), 0);
             const bal = mi - me;
             
-            const { end } = getGlobalDateRange();
-            let investmentData = allInvestments;
+            // ===== CARDS DE INVESTIMENTO CORRIGIDOS =====
+            const { start, end } = getGlobalDateRange();
+            
+            // FILTRAR investimentos por aportes no período
+            let investmentData = allInvestments.filter(inv => {
+                const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
+                    const d = new Date(ap.date + 'T12:00:00');
+                    return d >= start && d <= end;
+                });
+                return aportesNoPeriodo.length > 0;
+            });
+            
             if (transactionUserFilter && transactionUserFilter !== 'all') {
                 investmentData = investmentData.filter(inv => (inv.userName || 'Outro') === transactionUserFilter);
             }
-            investmentData.forEach(inv => recalcInvestment(inv));
-            const totalInvested = investmentData.reduce((s, inv) => s + (inv.totalInvested || 0), 0);
-            const currentValue = investmentData.reduce((s, inv) => s + (inv.currentValue || 0), 0);
+            
+            // CALCULAR APENAS com aportes do período
+            const totalInvested = investmentData.reduce((sum, inv) => {
+                const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
+                    const d = new Date(ap.date + 'T12:00:00');
+                    return d >= start && d <= end;
+                });
+                return sum + aportesNoPeriodo.reduce((s, ap) => s + ap.value, 0);
+            }, 0);
+            
+            const currentValue = investmentData.reduce((sum, inv) => {
+                const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
+                    const d = new Date(ap.date + 'T12:00:00');
+                    return d >= start && d <= end;
+                });
+                if (aportesNoPeriodo.length === 0) return sum;
+                const currentPeriodo = calcProjectedValue(aportesNoPeriodo, inv.rate, inv.indexer, end);
+                return sum + currentPeriodo;
+            }, 0);
+            
+            // Projeção até o final do período
             let projectedValue = 0;
             investmentData.forEach(inv => {
-                const aportes = inv.aportes || [];
-                projectedValue += calcProjectedValue(aportes, inv.rate, inv.indexer, end);
+                const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
+                    const d = new Date(ap.date + 'T12:00:00');
+                    return d >= start && d <= end;
+                });
+                if (aportesNoPeriodo.length === 0) return;
+                projectedValue += calcProjectedValue(aportesNoPeriodo, inv.rate, inv.indexer, end);
             });
+            
             const ganhoProjetado = projectedValue - totalInvested;
             const nominalProjetado = totalInvested > 0 ? (ganhoProjetado / totalInvested) * 100 : 0;
-            const startDate = new Date();
-            startDate.setDate(startDate.getDate() - 30);
-            const diasPeriodo = Math.max(1, Math.floor((end - startDate) / 86400000));
+            const diasPeriodo = Math.max(1, Math.floor((end - start) / 86400000));
             const ipcaPeriodo = (indexers.ipca || 0) * (diasPeriodo / 365);
             const realProjetado = ((1 + nominalProjetado / 100) / (1 + ipcaPeriodo / 100) - 1) * 100;
             
@@ -902,6 +933,7 @@
                 </div>
             `;
             
+            // ===== GRÁFICO DE GASTOS =====
             const ec = {};
             ft.filter(t => t.type === 'expense').forEach(t => {
                 const cat = t.category || 'other';
@@ -1075,13 +1107,12 @@
             loadInvestments();
         };
 
-        // ===== INVESTMENTS CORRIGIDO =====
+        // ===== INVESTMENTS =====
         function loadInvestments() {
             allInvestments.forEach(inv => recalcInvestment(inv));
             
             const { start, end } = getGlobalDateRange();
             
-            // FILTRO: apenas investimentos com aportes no período
             let investments = allInvestments.filter(inv => {
                 const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
                     const d = new Date(ap.date + 'T12:00:00');
@@ -1100,7 +1131,6 @@
                 investments = investments.filter(i => i.institution === investmentFilterValue);
             }
             
-            // CÁLCULOS APENAS COM APORTES DO PERÍODO
             const ti = investments.reduce((sum, inv) => {
                 const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
                     const d = new Date(ap.date + 'T12:00:00');
@@ -1130,7 +1160,6 @@
                 <div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">💎 Rent. Real</div><div class="card-value ${realRet>=0?'positive':'negative'}">${realRet.toFixed(2)}%</div></div>
             `;
             
-            // PIE CHART com dados do período
             let pieData = [];
             let pieTitle = '';
             let analysisText = '';
@@ -1260,7 +1289,6 @@
                 if (charts['portfolioTypeChart']) charts['portfolioTypeChart'].destroy();
             }
             
-            // BURNUP CHART - APENAS APORTES DO PERÍODO
             const allAportes = [];
             investments.forEach(inv => {
                 (inv.aportes || []).forEach(ap => {
@@ -1411,13 +1439,11 @@
         window.saveGoal = async function() { const investmentName = document.getElementById('goalInvestment').value; const target = parseMoney(document.getElementById('goalTarget').value); const deadline = document.getElementById('goalDeadline').value; if (!investmentName || !target || target <= 0) { alert('Escolha um investimento e defina um objetivo'); return; } try { const goalData = { investmentName, target, deadline, updatedAt: serverTimestamp() }; if (editingGoalId) { await updateDoc(doc(db, "goals", editingGoalId), goalData); } else { await addDoc(collection(db, "goals"), { ...goalData, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeGoalModal(); } catch (e) { alert('Erro ao salvar meta'); } };
         window.deleteGoal = async function(id) { if (!confirm('Excluir meta?')) return; try { await deleteDoc(doc(db, "goals", id)); } catch (e) { } };
         
-        // ===== GOALS CORRIGIDO =====
         function loadGoals() {
             try { renderUserFilterTabs('goalsUserFilter', goalUserFilter, getUniqueUsers(allGoals), function(u){ goalUserFilter = u; loadGoals(); }); } catch(e) {}
             
             const { start, end } = getGlobalDateRange();
             
-            // Filtrar metas: apenas se o investimento tem aportes no período
             let goalsSource = allGoals.filter(goal => {
                 const matchingInvestments = allInvestments.filter(i => i.name === goal.investmentName);
                 return matchingInvestments.some(inv => 
