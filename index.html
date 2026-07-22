@@ -49,18 +49,6 @@
         .nav-tab:hover { background:var(--bg); }
         .nav-tab.active { background:var(--primary); color:#fff; border-color:var(--primary); }
         .nav-tab.config-tab { font-size:16px; padding:8px 12px; }
-        .period-trigger { position:relative; display:flex; align-items:center; gap:6px; padding:7px 14px; background:#fff; border:1px solid var(--border); border-radius:20px; cursor:pointer; font-size:13px; font-weight:500; white-space:nowrap; transition:all .2s; user-select:none; }
-        .period-trigger:hover { border-color:var(--primary); background:#f8faff; }
-        .period-trigger .arrow { font-size:10px; color:var(--text-light); }
-        .period-dropdown { position:absolute; top:110%; right:0; background:#fff; border-radius:var(--radius); box-shadow:0 10px 40px rgba(0,0,0,.15); padding:20px; min-width:340px; z-index:100; display:none; }
-        .period-dropdown.open { display:block; }
-        .period-dropdown .dd-section { margin-bottom:15px; }
-        .period-dropdown .dd-label { font-size:11px; text-transform:uppercase; color:var(--text-light); font-weight:600; margin-bottom:6px; letter-spacing:.5px; }
-        .period-dropdown .dd-chips { display:flex; gap:6px; flex-wrap:wrap; }
-        .period-dropdown .dd-chip { padding:5px 12px; border-radius:14px; font-size:12px; cursor:pointer; border:1px solid var(--border); background:#fff; transition:all .2s; }
-        .period-dropdown .dd-chip:hover { background:var(--bg); }
-        .period-dropdown .dd-chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
-        .period-dropdown .dd-row { display:flex; gap:8px; align-items:center; }
         .user-filter-tabs { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
         .user-filter-chip { padding:5px 12px; border-radius:14px; font-size:12px; cursor:pointer; border:1px solid var(--border); background:#fff; transition:all .2s; }
         .user-filter-chip:hover { background:var(--bg); }
@@ -81,11 +69,6 @@
         .filter-chips-container .filter-chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
         .filter-chips-container .filter-chip.back-chip { background:#e5e7eb; color:var(--text); }
         .filter-chips-container .filter-chip.back-chip:hover { background:#d1d5db; }
-        .period-dropdown input[type=text] { width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px; }
-        .period-dropdown input[type=text]:focus { outline:none; border-color:var(--primary); }
-        .period-dropdown input[type=date] { padding:6px 8px; border:1px solid var(--border); border-radius:6px; font-size:12px; }
-        .period-dropdown .dd-apply { padding:8px 16px; background:var(--primary); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; width:100%; margin-top:8px; }
-        .period-current { font-size:11px; color:var(--text-light); text-align:center; margin-top:6px; }
         .app-content { background:var(--card-bg); border-radius:var(--radius); padding:25px; box-shadow:var(--shadow-lg); min-height:600px; }
         .tab-content { display:none; }
         .tab-content.active { display:block; animation:fadeIn .3s ease; }
@@ -310,7 +293,6 @@
             .summary-cards { grid-template-columns:1fr 1fr; }
             .charts-grid { grid-template-columns:1fr; }
             .form-row { grid-template-columns:1fr; }
-            .period-dropdown { right:-50px; min-width:300px; }
             .tooltip-box {
                 min-width: 200px;
                 max-width: 260px;
@@ -344,14 +326,6 @@
         <header class="app-header">
             <div class="header-left"><h1>💰 FinanceHub</h1><span class="user-badge" id="userBadge"></span></div>
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                <div class="period-trigger" id="periodTrigger">
-                    📅 <span id="periodLabel">Últimos 30 dias</span> <span class="arrow">▾</span>
-                    <div class="period-dropdown" id="periodDropdown">
-                        <div class="dd-section"><div class="dd-label">⚡ Período</div><div class="dd-chips" id="quickChips"><span class="dd-chip" data-period="1d">1D</span><span class="dd-chip" data-period="7d">7D</span><span class="dd-chip active" data-period="1m">1M</span><span class="dd-chip" data-period="6m">6M</span><span class="dd-chip" data-period="1a">1A</span></div></div>
-                        <div class="dd-section"><div class="dd-label">📆 Datas exatas</div><div class="dd-row"><input type="date" id="filterStart"><span>a</span><input type="date" id="filterEnd"><button class="dd-apply" id="applyDateFilterBtn" style="width:auto;padding:4px 12px;">Filtrar</button></div></div>
-                        <div class="period-current" id="periodCurrent">📍 Últimos 30 dias</div>
-                    </div>
-                </div>
                 <div class="nav-tabs"><button class="nav-tab active" onclick="showTab('dashboard')">📊 Dashboard</button><button class="nav-tab" onclick="showTab('investments')">📈 Investimentos</button><button class="nav-tab" onclick="showTab('goals')">🏆 Metas</button><button class="nav-tab config-tab" onclick="showTab('settings')">⚙️</button></div>
                 <button class="btn btn-danger btn-sm" onclick="logout()" style="width:auto;">🚪</button>
             </div>
@@ -360,7 +334,7 @@
             <div id="dashboard" class="tab-content active">
                 <div class="summary-cards" id="summaryCards"></div>
                 <div class="charts-grid"><div class="chart-container"><h3>📊 Gastos por Categoria</h3><div class="chart-wrapper"><canvas id="categoryChart"></canvas></div></div></div>
-                <div class="section-header"><h3>💳 Transações <span class="period-badge"></span></h3><button class="btn btn-primary btn-sm" onclick="openTransactionModal()">➕ Nova</button></div>
+                <div class="section-header"><h3>💳 Transações</h3><button class="btn btn-primary btn-sm" onclick="openTransactionModal()">➕ Nova</button></div>
                 <div id="transactionUserFilter"></div>
                 <div id="transactionCards"></div>
             </div>
@@ -418,105 +392,6 @@
         let investmentFilterMode = 'all';
         let investmentFilterValue = null;
         let selectedColor = '#FF6B6B', selectedIcon = '📦', editingTransactionId = null, editingInvestmentId = null, editingGoalId = null, editingRecurringId = null;
-
-        // ===== FILTRO GLOBAL =====
-        let globalDateFilter = { type: 'quick', period: '1m', startDate: null, endDate: null };
-
-        function getGlobalDateRange() {
-            const now = new Date();
-            let start = new Date(now);
-            let end = new Date(now);
-            
-            if (globalDateFilter.type === 'custom') {
-                start = new Date(globalDateFilter.startDate + 'T00:00:00');
-                end = new Date(globalDateFilter.endDate + 'T23:59:59');
-                return { start, end };
-            }
-            
-            const periods = {
-                '1d': { days: 1 },
-                '7d': { days: 7 },
-                '1m': { days: 30 },
-                '6m': { days: 180 },
-                '1a': { days: 365 }
-            };
-            
-            const p = periods[globalDateFilter.period] || { days: 30 };
-            start.setDate(now.getDate() - p.days);
-            start.setHours(0, 0, 0, 0);
-            
-            // END = início + período completo
-            end = new Date(start);
-            end.setDate(end.getDate() + p.days);
-            end.setHours(23, 59, 59, 999);
-            
-            return { start, end };
-        }
-
-        window.setQuickFilter = function(period) {
-            globalDateFilter = { type: 'quick', period, startDate: null, endDate: null };
-            document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active'));
-            const chip = document.querySelector(`#quickChips .dd-chip[data-period="${period}"]`);
-            if (chip) chip.classList.add('active');
-            updatePeriodLabel();
-            document.getElementById('periodDropdown').classList.remove('open');
-            updateAllDashboard();
-        };
-
-        window.applyDateFilter = function() {
-            const start = document.getElementById('filterStart').value;
-            const end = document.getElementById('filterEnd').value;
-            
-            if (!start || !end) { alert('Preencha ambas as datas'); return; }
-            
-            globalDateFilter = { 
-                type: 'custom', 
-                period: null, 
-                startDate: start, 
-                endDate: end 
-            };
-            document.querySelectorAll('#quickChips .dd-chip').forEach(el => el.classList.remove('active'));
-            updatePeriodLabel();
-            document.getElementById('periodDropdown').classList.remove('open');
-            updateAllDashboard();
-        };
-
-        function updatePeriodLabel() {
-            const { start, end } = getGlobalDateRange();
-            const fmtDate = d => d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
-            let label = '';
-            if (globalDateFilter.type === 'custom') {
-                label = `${fmtDate(start)} - ${fmtDate(end)}`;
-            } else {
-                const names = { '1d':'1 dia', '7d':'7 dias', '1m':'1 mês', '6m':'6 meses', '1a':'1 ano' };
-                label = `Últimos ${names[globalDateFilter.period] || '30 dias'}`;
-            }
-            document.getElementById('periodLabel').textContent = label;
-            document.getElementById('periodCurrent').textContent = '📍 ' + label;
-            document.querySelectorAll('.period-badge').forEach(el => el.textContent = `${fmtDate(start)} - ${fmtDate(end)}`);
-        }
-
-        function filterByPeriod(arr, dateField = 'date') {
-            const { start, end } = getGlobalDateRange();
-            return arr.filter(item => {
-                let d;
-                if (item.createdAt?.toDate) d = item.createdAt.toDate();
-                else if (item[dateField]) d = new Date(item[dateField] + 'T12:00:00');
-                else d = new Date(item.createdAt || item.date);
-                return d >= start && d <= end;
-            });
-        }
-
-        function updateAllDashboard() {
-            const t = document.querySelector('.tab-content.active');
-            if (!t) return;
-            switch (t.id) {
-                case 'dashboard': loadDashboard(); break;
-                case 'investments': loadInvestments(); break;
-                case 'goals': loadGoals(); break;
-                case 'settings': loadSettingsView(); break;
-            }
-        }
 
         // ===== SISTEMA DE CORES =====
         let colorConfig = {
@@ -578,19 +453,6 @@
         function getUniqueUsers(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.userName) s.add(x.userName); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
         function getUniqueInstitutions(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.institution) s.add(x.institution); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
         function getUniqueTypes(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.type) s.add(x.type); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
-
-        function setupPeriodEvents() {
-            document.getElementById('periodTrigger').addEventListener('click', function(e) { e.stopPropagation(); document.getElementById('periodDropdown').classList.toggle('open'); });
-            document.getElementById('quickChips').addEventListener('click', function(e) { 
-                if (e.target.classList.contains('dd-chip')) { 
-                    e.stopPropagation(); 
-                    setQuickFilter(e.target.dataset.period); 
-                } 
-            });
-            document.getElementById('applyDateFilterBtn').addEventListener('click', function(e) { e.stopPropagation(); applyDateFilter(); });
-            document.getElementById('periodDropdown').addEventListener('click', function(e) { e.stopPropagation(); });
-            document.addEventListener('click', function(e) { if (!e.target.closest('.period-trigger')) { document.getElementById('periodDropdown').classList.remove('open'); } });
-        }
 
         // ============ CATEGORIES ============
         const defaultCategories = { food: { name: 'Alimentação', icon: '🍽️', color: '#FF6B6B', type: 'expense' }, housing: { name: 'Moradia', icon: '🏠', color: '#4ECDC4', type: 'expense' }, transport: { name: 'Transporte', icon: '🚗', color: '#45B7D1', type: 'expense' }, health: { name: 'Saúde', icon: '🏥', color: '#96CEB4', type: 'expense' }, leisure: { name: 'Lazer', icon: '🎮', color: '#DDA0DD', type: 'expense' }, other: { name: 'Outros', icon: '📦', color: '#98D8C8', type: 'expense' }, salary: { name: 'Salário', icon: '💰', color: '#2ECC71', type: 'income' }, freelance: { name: 'Freelance', icon: '💻', color: '#3498DB', type: 'income' } };
@@ -741,7 +603,7 @@
         window.loginWithGoogle = async function() { const le = document.getElementById('loginError'); le.classList.remove('show'); try { showLoading(true); const r = await signInWithPopup(auth, provider); if (!await checkUserAuthorization(r.user.uid)) { await signOut(auth); le.classList.add('show'); showLoading(false); return; } currentUser = { id: r.user.uid, name: r.user.displayName || r.user.email.split('@')[0], avatar: r.user.photoURL || null, email: r.user.email }; startListeningToFirestore(); enterApp(); showLoading(false); } catch (e) { if (e.code !== 'auth/popup-closed-by-user') alert('Erro: ' + e.message); showLoading(false); } };
         onAuthStateChanged(auth, async (u) => { if (u) { showLoading(true); if (!await checkUserAuthorization(u.uid)) { await signOut(auth); document.getElementById('loginError').classList.add('show'); showLoading(false); return; } currentUser = { id: u.uid, name: u.displayName || u.email.split('@')[0], avatar: u.photoURL || null, email: u.email }; startListeningToFirestore(); enterApp(); showLoading(false); } else { currentUser = null; allTransactions = []; allInvestments = []; allGoals = []; allCategories = {}; allRecurring = []; document.getElementById('mainApp').classList.remove('active'); document.getElementById('loginScreen').classList.remove('hidden'); showLoading(false); } });
         function showLoading(s) { document.getElementById('loadingOverlay').classList.toggle('hidden', !s); }
-        function enterApp() { const b = document.getElementById('userBadge'); if (currentUser.avatar?.startsWith('http')) b.innerHTML = `<img src="${currentUser.avatar}" style="width:22px;height:22px;border-radius:50%;"> ${currentUser.name}`; else b.textContent = '👤 ' + currentUser.name; document.getElementById('loginScreen').classList.add('hidden'); document.getElementById('mainApp').classList.add('active'); document.getElementById('loginError').classList.remove('show'); updateCategoryDropdown(); updatePeriodLabel(); setupPeriodEvents(); loadColorConfig(); showTab('dashboard'); }
+        function enterApp() { const b = document.getElementById('userBadge'); if (currentUser.avatar?.startsWith('http')) b.innerHTML = `<img src="${currentUser.avatar}" style="width:22px;height:22px;border-radius:50%;"> ${currentUser.name}`; else b.textContent = '👤 ' + currentUser.name; document.getElementById('loginScreen').classList.add('hidden'); document.getElementById('mainApp').classList.add('active'); document.getElementById('loginError').classList.remove('show'); updateCategoryDropdown(); loadColorConfig(); showTab('dashboard'); }
         window.logout = async function() { if (confirm('Sair?')) { try { await signOut(auth); } catch (e) { } currentUser = null; allTransactions = []; allInvestments = []; allGoals = []; allCategories = {}; allRecurring = []; document.getElementById('mainApp').classList.remove('active'); document.getElementById('loginScreen').classList.remove('hidden'); } };
         window.showTab = function(tn) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active')); const te = document.getElementById(tn); if (te) te.classList.add('active'); const tm = { dashboard: 0, investments: 1, goals: 2, settings: 3 }; const bt = document.querySelectorAll('.nav-tab'); if (bt[tm[tn]]) bt[tm[tn]].classList.add('active'); updateAllDashboard(); };
 
@@ -859,75 +721,55 @@
             }));
         }
 
+        function updateAllDashboard() {
+            const t = document.querySelector('.tab-content.active');
+            if (!t) return;
+            switch (t.id) {
+                case 'dashboard': loadDashboard(); break;
+                case 'investments': loadInvestments(); break;
+                case 'goals': loadGoals(); break;
+                case 'settings': loadSettingsView(); break;
+            }
+        }
+
         // ============ DASHBOARD ============
         function loadDashboard() {
-            let ft = filterByPeriod(allTransactions);
-            if (transactionUserFilter && transactionUserFilter !== 'all') ft = ft.filter(t => (t.userName || 'Outro') === transactionUserFilter);
+            const ft = allTransactions;
+            const filtered = transactionUserFilter && transactionUserFilter !== 'all' 
+                ? ft.filter(t => (t.userName || 'Outro') === transactionUserFilter)
+                : ft;
             
-            const mi = ft.filter(t => t.type === 'income').reduce((s, t) => s + (t.amount || 0), 0);
-            const me = ft.filter(t => t.type === 'expense').reduce((s, t) => s + (t.amount || 0), 0);
+            const mi = filtered.filter(t => t.type === 'income').reduce((s, t) => s + (t.amount || 0), 0);
+            const me = filtered.filter(t => t.type === 'expense').reduce((s, t) => s + (t.amount || 0), 0);
             const bal = mi - me;
             
             // ===== CARDS DE INVESTIMENTO =====
-            const { start, end } = getGlobalDateRange();
             const hoje = new Date();
             
-            // FILTRAR investimentos por aportes no período
-            let investmentData = allInvestments.filter(inv => {
-                const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
-                    const d = new Date(ap.date + 'T12:00:00');
-                    return d >= start && d <= end;
-                });
-                return aportesNoPeriodo.length > 0;
-            });
+            // Todos os investimentos
+            let investmentData = allInvestments;
             
             if (transactionUserFilter && transactionUserFilter !== 'all') {
                 investmentData = investmentData.filter(inv => (inv.userName || 'Outro') === transactionUserFilter);
             }
             
-            // 1. TOTAL INVESTIDO (apenas aportes do período)
-            const totalInvested = investmentData.reduce((sum, inv) => {
-                const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
-                    const d = new Date(ap.date + 'T12:00:00');
-                    return d >= start && d <= end;
-                });
-                return sum + aportesNoPeriodo.reduce((s, ap) => s + ap.value, 0);
-            }, 0);
+            investmentData.forEach(inv => recalcInvestment(inv));
             
-            // 2. VALOR ATUAL (projeção até HOJE)
-            const currentValue = investmentData.reduce((sum, inv) => {
-                const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
-                    const d = new Date(ap.date + 'T12:00:00');
-                    return d >= start && d <= end;
-                });
-                if (aportesNoPeriodo.length === 0) return sum;
-                const currentPeriodo = calcProjectedValue(aportesNoPeriodo, inv.rate, inv.indexer, hoje);
-                return sum + currentPeriodo;
-            }, 0);
+            const totalInvested = investmentData.reduce((sum, inv) => sum + (inv.totalInvested || 0), 0);
+            const currentValue = investmentData.reduce((sum, inv) => sum + (inv.currentValue || 0), 0);
+            const projectedValue = investmentData.reduce((sum, inv) => sum + (inv.projectedValue || 0), 0);
             
-            // 3. PROJEÇÃO (até a data final do filtro)
-            let projectedValue = 0;
-            investmentData.forEach(inv => {
-                const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
-                    const d = new Date(ap.date + 'T12:00:00');
-                    return d >= start && d <= end;
-                });
-                if (aportesNoPeriodo.length === 0) return;
-                projectedValue += calcProjectedValue(aportesNoPeriodo, inv.rate, inv.indexer, end);
-            });
-            
-            // 4. GANHO NOMINAL (valor atual - investido)
             const ganhoNominal = currentValue - totalInvested;
             const nominalPct = totalInvested > 0 ? (ganhoNominal / totalInvested) * 100 : 0;
             
-            // 5. IPCA do período (do início do filtro até HOJE)
-            const diasAteHoje = Math.max(1, Math.floor((hoje - start) / 86400000));
-            const ipcaPeriodo = (indexers.ipca || 0) * (diasAteHoje / 365);
-            
-            // 6. RENDIMENTO REAL
+            // IPCA do período (considerando desde o início do primeiro investimento até hoje)
+            const firstStartDate = investmentData.length > 0 
+                ? new Date(Math.min(...investmentData.map(inv => new Date(inv.startDate + 'T12:00:00').getTime())))
+                : new Date();
+            const diasTotal = Math.max(1, Math.floor((hoje - firstStartDate) / 86400000));
+            const ipcaPeriodo = (indexers.ipca || 0) * (diasTotal / 365);
             const realRetorno = ((1 + nominalPct / 100) / (1 + ipcaPeriodo / 100) - 1) * 100;
             
-            // 7. PROJEÇÃO DE GANHO (até o final do período)
             const ganhoProjetado = projectedValue - totalInvested;
             
             document.getElementById('summaryCards').innerHTML = `
@@ -940,7 +782,7 @@
                     <div class="card-value">R$ ${fmt(currentValue)}</div>
                 </div>
                 <div class="summary-card balance">
-                    <div class="card-label">📈 Projetado (até ${end.toLocaleDateString('pt-BR')})</div>
+                    <div class="card-label">📈 Projetado (até vencimento)</div>
                     <div class="card-value ${ganhoProjetado>=0?'positive':'negative'}">R$ ${fmt(projectedValue)}</div>
                 </div>
                 <div class="summary-card investment">
@@ -951,7 +793,7 @@
             
             // ===== GRÁFICO DE GASTOS =====
             const ec = {};
-            ft.filter(t => t.type === 'expense').forEach(t => {
+            filtered.filter(t => t.type === 'expense').forEach(t => {
                 const cat = t.category || 'other';
                 if (!ec[cat]) ec[cat] = 0;
                 ec[cat] += (t.amount || 0);
@@ -996,7 +838,7 @@
                 });
             } catch(e) {}
             
-            const displayTrans = ft.slice(0, 20);
+            const displayTrans = filtered.slice(0, 20);
             document.getElementById('transactionCards').innerHTML = displayTrans.map(t => {
                 const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
                 const cat = getCategoryById(t.category);
@@ -1014,7 +856,7 @@
                         ${t.type==='income'?'+':'-'} R$ ${fmt(t.amount||0)}
                     </div>
                 </div>`;
-            }).join('') || '<p style="text-align:center;padding:20px;">Nenhuma transação neste período.</p>';
+            }).join('') || '<p style="text-align:center;padding:20px;">Nenhuma transação cadastrada.</p>';
         }
 
         // ============ TRANSACTIONS MODAL ============
@@ -1127,16 +969,7 @@
         function loadInvestments() {
             allInvestments.forEach(inv => recalcInvestment(inv));
             
-            const { start, end } = getGlobalDateRange();
-            const hoje = new Date();
-            
-            let investments = allInvestments.filter(inv => {
-                const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
-                    const d = new Date(ap.date + 'T12:00:00');
-                    return d >= start && d <= end;
-                });
-                return aportesNoPeriodo.length > 0;
-            });
+            let investments = allInvestments.slice();
             
             if (investmentUserFilter && investmentUserFilter !== 'all') {
                 investments = investments.filter(i => (i.userName || 'Outro') === investmentUserFilter);
@@ -1148,29 +981,17 @@
                 investments = investments.filter(i => i.institution === investmentFilterValue);
             }
             
-            const ti = investments.reduce((sum, inv) => {
-                const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
-                    const d = new Date(ap.date + 'T12:00:00');
-                    return d >= start && d <= end;
-                });
-                return sum + aportesNoPeriodo.reduce((s, ap) => s + ap.value, 0);
-            }, 0);
-            
-            const tc = investments.reduce((sum, inv) => {
-                const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
-                    const d = new Date(ap.date + 'T12:00:00');
-                    return d >= start && d <= end;
-                });
-                if (aportesNoPeriodo.length === 0) return sum;
-                const currentPeriodo = calcProjectedValue(aportesNoPeriodo, inv.rate, inv.indexer, hoje);
-                return sum + currentPeriodo;
-            }, 0);
-            
+            const ti = investments.reduce((sum, inv) => sum + (inv.totalInvested || 0), 0);
+            const tc = investments.reduce((sum, inv) => sum + (inv.currentValue || 0), 0);
             const rv = tc - ti;
             const rp = ti > 0 ? (rv / ti) * 100 : 0;
             
-            const diasAteHoje = Math.max(1, Math.floor((hoje - start) / 86400000));
-            const ipcaPeriodo = (indexers.ipca || 0) * (diasAteHoje / 365);
+            const hoje = new Date();
+            const firstStartDate = investments.length > 0 
+                ? new Date(Math.min(...investments.map(inv => new Date(inv.startDate + 'T12:00:00').getTime())))
+                : new Date();
+            const diasTotal = Math.max(1, Math.floor((hoje - firstStartDate) / 86400000));
+            const ipcaPeriodo = (indexers.ipca || 0) * (diasTotal / 365);
             const realRet = ((1 + rp / 100) / (1 + ipcaPeriodo / 100) - 1) * 100;
             
             document.getElementById('investmentSummary').innerHTML = `
@@ -1188,11 +1009,7 @@
                 const userMap = {};
                 investments.forEach(inv => {
                     const userName = inv.userName || 'Outro';
-                    const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
-                        const d = new Date(ap.date + 'T12:00:00');
-                        return d >= start && d <= end;
-                    });
-                    const value = aportesNoPeriodo.reduce((s, ap) => s + ap.value, 0);
+                    const value = inv.currentValue || inv.totalInvested || 0;
                     if (!userMap[userName]) userMap[userName] = 0;
                     userMap[userName] += value;
                 });
@@ -1201,20 +1018,16 @@
                     value: value,
                     color: getRandomColor(name)
                 }));
-                pieTitle = '📊 Distribuição por Usuário (período)';
+                pieTitle = '📊 Distribuição por Usuário';
                 const total = pieData.reduce((s, d) => s + d.value, 0);
                 const topUser = pieData.length > 0 ? pieData.reduce((a, b) => a.value > b.value ? a : b) : null;
-                analysisText = `• ${pieData.length} usuário(s) • Total: R$ ${fmt(total)}${topUser ? ` • Maior: ${topUser.label} (${((topUser.value/total)*100).toFixed(1)}%)` : ''}`;
-                document.getElementById('filterInfoText').textContent = `Mostrando aportes do período → ${globalDateFilter.type === 'custom' ? 'datas exatas' : globalDateFilter.period}`;
+                analysisText = `• ${pieData.length} usuário(s) ativo(s) • Total: R$ ${fmt(total)}${topUser ? ` • Maior: ${topUser.label} (${((topUser.value/total)*100).toFixed(1)}%)` : ''}`;
+                document.getElementById('filterInfoText').textContent = `Mostrando todos os investimentos → divisão por Usuário`;
             } else if (investmentFilterMode === 'type' && investmentFilterValue === null) {
                 const typeMap = {};
                 investments.forEach(inv => {
                     const type = inv.type || 'Outro';
-                    const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
-                        const d = new Date(ap.date + 'T12:00:00');
-                        return d >= start && d <= end;
-                    });
-                    const value = aportesNoPeriodo.reduce((s, ap) => s + ap.value, 0);
+                    const value = inv.currentValue || inv.totalInvested || 0;
                     if (!typeMap[type]) typeMap[type] = 0;
                     typeMap[type] += value;
                 });
@@ -1223,7 +1036,7 @@
                     value: value,
                     color: getRandomColor(name)
                 }));
-                pieTitle = '📊 Distribuição por Tipo (período)';
+                pieTitle = '📊 Distribuição por Tipo';
                 const total = pieData.reduce((s, d) => s + d.value, 0);
                 const topType = pieData.length > 0 ? pieData.reduce((a, b) => a.value > b.value ? a : b) : null;
                 analysisText = `• ${pieData.length} tipo(s) • Total: R$ ${fmt(total)}${topType ? ` • Maior: ${topType.label} (${((topType.value/total)*100).toFixed(1)}%)` : ''}`;
@@ -1232,11 +1045,7 @@
                 const assetMap = {};
                 investments.forEach(inv => {
                     const name = inv.name || 'Sem nome';
-                    const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
-                        const d = new Date(ap.date + 'T12:00:00');
-                        return d >= start && d <= end;
-                    });
-                    const value = aportesNoPeriodo.reduce((s, ap) => s + ap.value, 0);
+                    const value = inv.currentValue || inv.totalInvested || 0;
                     if (!assetMap[name]) assetMap[name] = 0;
                     assetMap[name] += value;
                 });
@@ -1251,16 +1060,12 @@
                 const count = investments.length;
                 const avg = count > 0 ? total / count : 0;
                 analysisText = `• ${count} ativo(s) • Total: R$ ${fmt(total)} • Média: R$ ${fmt(avg)}${topAsset ? ` • Maior: ${topAsset.label} (${((topAsset.value/total)*100).toFixed(1)}%)` : ''}`;
-                document.getElementById('filterInfoText').textContent = `🏷️ Filtrando por Tipo: ${investmentFilterValue} → ${count} ativo(s)`;
+                document.getElementById('filterInfoText').textContent = `🏷️ Filtrando por Tipo: ${investmentFilterValue} → ${count} ativo(s) encontrado(s)`;
             } else if (investmentFilterMode === 'institution' && investmentFilterValue === null) {
                 const instMap = {};
                 investments.forEach(inv => {
                     const inst = inv.institution || 'Sem instituição';
-                    const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
-                        const d = new Date(ap.date + 'T12:00:00');
-                        return d >= start && d <= end;
-                    });
-                    const value = aportesNoPeriodo.reduce((s, ap) => s + ap.value, 0);
+                    const value = inv.currentValue || inv.totalInvested || 0;
                     if (!instMap[inst]) instMap[inst] = 0;
                     instMap[inst] += value;
                 });
@@ -1269,7 +1074,7 @@
                     value: value,
                     color: getRandomColor(name)
                 }));
-                pieTitle = '📊 Distribuição por Instituição (período)';
+                pieTitle = '📊 Distribuição por Instituição';
                 const total = pieData.reduce((s, d) => s + d.value, 0);
                 const topInst = pieData.length > 0 ? pieData.reduce((a, b) => a.value > b.value ? a : b) : null;
                 analysisText = `• ${pieData.length} instituição(ões) • Total: R$ ${fmt(total)}${topInst ? ` • Maior: ${topInst.label} (${((topInst.value/total)*100).toFixed(1)}%)` : ''}`;
@@ -1278,11 +1083,7 @@
                 const assetMap = {};
                 investments.forEach(inv => {
                     const name = inv.name || 'Sem nome';
-                    const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
-                        const d = new Date(ap.date + 'T12:00:00');
-                        return d >= start && d <= end;
-                    });
-                    const value = aportesNoPeriodo.reduce((s, ap) => s + ap.value, 0);
+                    const value = inv.currentValue || inv.totalInvested || 0;
                     if (!assetMap[name]) assetMap[name] = 0;
                     assetMap[name] += value;
                 });
@@ -1297,7 +1098,7 @@
                 const count = investments.length;
                 const avg = count > 0 ? total / count : 0;
                 analysisText = `• ${count} ativo(s) • Total: R$ ${fmt(total)} • Média: R$ ${fmt(avg)}${topAsset ? ` • Maior: ${topAsset.label} (${((topAsset.value/total)*100).toFixed(1)}%)` : ''}`;
-                document.getElementById('filterInfoText').textContent = `🏦 Filtrando por Instituição: ${investmentFilterValue} → ${count} ativo(s)`;
+                document.getElementById('filterInfoText').textContent = `🏦 Filtrando por Instituição: ${investmentFilterValue} → ${count} ativo(s) encontrado(s)`;
             }
             
             document.getElementById('pieChartTitle').textContent = pieTitle || '📊 Distribuição';
@@ -1305,18 +1106,14 @@
                 createPieChart('portfolioTypeChart', pieData, pieTitle);
                 document.getElementById('portfolioTypeAnalysis').innerHTML = analysisText;
             } else {
-                document.getElementById('portfolioTypeAnalysis').innerHTML = '⚠️ Nenhum aporte no período selecionado';
+                document.getElementById('portfolioTypeAnalysis').innerHTML = '⚠️ Nenhum dado para exibir';
                 if (charts['portfolioTypeChart']) charts['portfolioTypeChart'].destroy();
             }
             
+            // BURNUP CHART
             const allAportes = [];
             investments.forEach(inv => {
-                (inv.aportes || []).forEach(ap => {
-                    const d = new Date(ap.date + 'T12:00:00');
-                    if (d >= start && d <= end) {
-                        allAportes.push({ ...ap, rate: inv.rate, indexer: inv.indexer, endDate: inv.endDate });
-                    }
-                });
+                (inv.aportes || []).forEach(ap => allAportes.push({ ...ap, rate: inv.rate, indexer: inv.indexer, endDate: inv.endDate }));
             });
             
             if (allAportes.length > 0) {
@@ -1425,7 +1222,7 @@
                         ${own ? `<div class="aporte-add-mini"><input type="text" id="aporte-val-${inv.id}" placeholder="Valor" inputmode="decimal"><input type="date" id="aporte-date-${inv.id}"><button class="btn-sm btn-add" onclick="addAporteToInvestment('${inv.id}')">+</button></div>` : ''}
                     </div>
                 </div>`;
-            }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento com aportes no período selecionado.</p>';
+            }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento encontrado.</p>';
             
             setTimeout(() => {
                 document.querySelectorAll('.tooltip-icon').forEach(el => {
@@ -1462,17 +1259,7 @@
         function loadGoals() {
             try { renderUserFilterTabs('goalsUserFilter', goalUserFilter, getUniqueUsers(allGoals), function(u){ goalUserFilter = u; loadGoals(); }); } catch(e) {}
             
-            const { start, end } = getGlobalDateRange();
-            
-            let goalsSource = allGoals.filter(goal => {
-                const matchingInvestments = allInvestments.filter(i => i.name === goal.investmentName);
-                return matchingInvestments.some(inv => 
-                    (inv.aportes || []).some(ap => {
-                        const d = new Date(ap.date + 'T12:00:00');
-                        return d >= start && d <= end;
-                    })
-                );
-            });
+            let goalsSource = allGoals.slice();
             
             if (goalUserFilter && goalUserFilter !== 'all') {
                 goalsSource = goalsSource.filter(g => (g.userName || 'Outro') === goalUserFilter);
@@ -1514,7 +1301,7 @@
                     <div class="goal-stats"><span>${g.pct.toFixed(1)}% concluído</span> <span>Faltam R$ ${fmt(g.remaining > 0 ? g.remaining : 0)}</span></div>
                     ${g.monthlyHint ? `<p class="goal-hint">${g.monthlyHint}</p>` : ''}
                 </div>`;
-            }).join('') || '<p style="text-align:center;padding:30px;">Nenhuma meta com aportes no período selecionado.</p>';
+            }).join('') || '<p style="text-align:center;padding:30px;">Nenhuma meta criada.</p>';
         }
 
         // ============ SETTINGS ============
@@ -1536,8 +1323,6 @@
         document.getElementById('recAddBtn').addEventListener('click', () => window.saveRecurring());
         document.getElementById('recSaveBtn').addEventListener('click', () => window.saveRecurring());
         document.getElementById('recCancelBtn').addEventListener('click', () => window.cancelEditRecurring());
-
-        document.querySelector('#quickChips .dd-chip[data-period="1m"]')?.classList.add('active');
     </script>
 </body>
 </html>
