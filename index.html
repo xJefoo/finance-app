@@ -64,6 +64,22 @@
         .user-filter-chip { padding:5px 12px; border-radius:14px; font-size:12px; cursor:pointer; border:1px solid var(--border); background:#fff; transition:all .2s; }
         .user-filter-chip:hover { background:var(--bg); }
         .user-filter-chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+        .filter-mode-selector { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+        .filter-mode-btn { padding:6px 16px; border-radius:20px; font-size:12px; cursor:pointer; border:2px solid var(--border); background:#fff; transition:all .2s; font-weight:500; }
+        .filter-mode-btn:hover { background:var(--bg); }
+        .filter-mode-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+        .filter-mode-btn.all-mode { border-color:var(--success); }
+        .filter-mode-btn.all-mode.active { background:var(--success); border-color:var(--success); }
+        .filter-mode-btn.type-mode { border-color:var(--secondary); }
+        .filter-mode-btn.type-mode.active { background:var(--secondary); border-color:var(--secondary); }
+        .filter-mode-btn.institution-mode { border-color:var(--warning); }
+        .filter-mode-btn.institution-mode.active { background:var(--warning); border-color:var(--warning); }
+        .filter-chips-container { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; padding:8px 12px; background:#f8fafc; border-radius:8px; border:1px dashed var(--border); align-items:center; }
+        .filter-chips-container .filter-chip { padding:4px 12px; border-radius:14px; font-size:11px; cursor:pointer; border:1px solid var(--border); background:#fff; transition:all .2s; }
+        .filter-chips-container .filter-chip:hover { background:var(--bg); }
+        .filter-chips-container .filter-chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+        .filter-chips-container .filter-chip.back-chip { background:#e5e7eb; color:var(--text); }
+        .filter-chips-container .filter-chip.back-chip:hover { background:#d1d5db; }
         .period-dropdown input[type=text] { width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px; }
         .period-dropdown input[type=text]:focus { outline:none; border-color:var(--primary); }
         .period-dropdown input[type=date] { padding:6px 8px; border:1px solid var(--border); border-radius:6px; font-size:12px; }
@@ -158,12 +174,146 @@
         .user-tag { font-size:9px; color:var(--text-light); background:#f3f4f6; padding:2px 6px; border-radius:8px; }
         .investment-name-institution { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
         .investment-name-institution .inst-badge { font-size:10px; background:#eff6ff; color:var(--primary); padding:2px 8px; border-radius:10px; }
+        .filter-info { font-size:12px; color:var(--text-light); padding:8px 12px; background:#f9fafb; border-radius:6px; margin-bottom:12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .filter-info strong { color:var(--text); }
+        .filter-info .highlight { background:var(--primary); color:#fff; padding:2px 10px; border-radius:12px; font-size:11px; }
+        
+        /* ===== GAIN ROWS ===== */
+        .gain-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+            margin-bottom: 8px;
+            transition: background 0.2s;
+        }
+        .gain-row:hover {
+            background: #f1f5f9;
+        }
+        .gain-row .gain-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .gain-row .gain-info label {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+        .gain-row .gain-info value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .gain-row .gain-info value.positive {
+            color: var(--success);
+        }
+        .gain-row .gain-info value.negative {
+            color: var(--danger);
+        }
+        .gain-row .gain-info small {
+            font-size: 10px;
+            color: var(--text-light);
+        }
+        .gain-row .tooltip-icon {
+            cursor: help;
+            font-size: 14px;
+            color: var(--primary);
+            position: relative;
+            background: #e8edf5;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .gain-row .tooltip-icon:hover {
+            background: #d1d9e8;
+        }
+        .tooltip-box {
+            display: none;
+            position: absolute;
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            min-width: 260px;
+            max-width: 320px;
+            bottom: 120%;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+            line-height: 1.5;
+        }
+        .tooltip-box::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 10px;
+            border: 6px solid transparent;
+            border-top-color: #1e293b;
+        }
+        .tooltip-box p {
+            margin: 4px 0;
+        }
+        .tooltip-box strong {
+            color: #ffffff;
+        }
+        .tooltip-box hr {
+            border: none;
+            border-top: 1px solid #475569;
+            margin: 6px 0;
+        }
+        .tooltip-box .highlight-green {
+            color: #4ade80;
+        }
+        .tooltip-box .highlight-blue {
+            color: #60a5fa;
+        }
+        .tooltip-box .highlight-yellow {
+            color: #fbbf24;
+        }
+        .gains-section {
+            margin: 8px 0 4px 0;
+            padding: 6px 0;
+            border-top: 1px solid var(--border);
+        }
+        .gains-section .gains-title {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        
         @media (max-width:768px) {
             .app-header { flex-direction:column; }
             .summary-cards { grid-template-columns:1fr 1fr; }
             .charts-grid { grid-template-columns:1fr; }
             .form-row { grid-template-columns:1fr; }
             .period-dropdown { right:-50px; min-width:300px; }
+            .tooltip-box {
+                min-width: 200px;
+                max-width: 260px;
+                right: -20px;
+                bottom: 130%;
+            }
+            .tooltip-box::after {
+                right: 20px;
+            }
+            .gain-row {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .gain-row .tooltip-icon {
+                margin-left: auto;
+            }
         }
     </style>
 </head>
@@ -209,10 +359,21 @@
             <div id="investments" class="tab-content">
                 <div class="section-header"><h2>📈 Investimentos</h2><button class="btn btn-primary btn-sm" onclick="openInvestmentModal()">➕ Novo</button></div>
                 <div class="summary-cards" id="investmentSummary"></div>
-                <!-- Filtro por instituição/tipo -->
-                <div class="user-filter-tabs" id="investmentTypeFilter" style="margin-bottom:12px;"></div>
+                
+                <div class="filter-mode-selector" id="filterModeSelector">
+                    <button class="filter-mode-btn all-mode active" data-mode="all" onclick="setInvestmentFilterMode('all')">📊 Todos (por Usuário)</button>
+                    <button class="filter-mode-btn type-mode" data-mode="type" onclick="setInvestmentFilterMode('type')">🏷️ Filtrar por Tipo</button>
+                    <button class="filter-mode-btn institution-mode" data-mode="institution" onclick="setInvestmentFilterMode('institution')">🏦 Filtrar por Instituição</button>
+                </div>
+                
+                <div class="filter-chips-container" id="investmentFilterChips"></div>
+                
+                <div class="filter-info" id="filterInfo">
+                    <span>📊 </span><span id="filterInfoText">Mostrando todos os investimentos</span>
+                </div>
+                
                 <div class="charts-grid" style="margin-bottom:12px;">
-                    <div class="chart-container"><h3>📊 Distribuição por Tipo</h3><div class="chart-wrapper"><canvas id="portfolioTypeChart"></canvas></div><div id="portfolioTypeAnalysis" style="margin-top:6px;font-size:11px;color:var(--text-light);text-align:center;"></div></div>
+                    <div class="chart-container"><h3 id="pieChartTitle">📊 Distribuição</h3><div class="chart-wrapper"><canvas id="portfolioTypeChart"></canvas></div><div id="portfolioTypeAnalysis" style="margin-top:6px;font-size:11px;color:var(--text-light);text-align:center;"></div></div>
                 </div>
                 <div class="chart-container" style="margin-bottom:12px;"><h3>📈 Burnup - Evolução do Patrimônio</h3><div class="chart-wrapper large"><canvas id="investmentEvolutionChart"></canvas></div></div>
                 <h3>💼 Seus Investimentos</h3><div id="investmentUserFilter"></div><div id="investmentCards"></div>
@@ -237,7 +398,9 @@
         const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getFirestore(app), provider = new GoogleAuthProvider();
         let currentUser = null, charts = {}, allTransactions = [], allInvestments = [], allGoals = [], allCategories = {}, allRecurring = [], indexers = { cdi: 13.65, selic: 13.75, ipca: 4.20 };
         const idx = { cdi: '% CDI', selic: '% Selic', ipca: 'IPCA +', pre: 'Pré' };
-        let transactionUserFilter = 'all', investmentUserFilter = 'all', goalUserFilter = 'all', investmentTypeFilter = 'all';
+        let transactionUserFilter = 'all', investmentUserFilter = 'all', goalUserFilter = 'all';
+        let investmentFilterMode = 'all';
+        let investmentFilterValue = null;
         let selectedColor = '#FF6B6B', selectedIcon = '📦', editingTransactionId = null, editingInvestmentId = null, editingGoalId = null, editingRecurringId = null;
         let currentPeriod = { qty: 30, unit: 'd' };
 
@@ -247,6 +410,7 @@
         const toLocalDateStr = d => { const dd = new Date(d); return dd.getFullYear() + '-' + String(dd.getMonth()+1).padStart(2,'0') + '-' + String(dd.getDate()).padStart(2,'0'); };
         const getDateWithFallback = (v, fb = new Date()) => { const base = String(v || '').split('T')[0] || toLocalDateStr(fb); return new Date(base + 'T12:00:00'); };
         const escapeHtml = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+        const getRandomColor = (seed) => { const colors = ['#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#98D8C8','#2ECC71','#3498DB','#9B59B6','#E67E22','#F39C12','#1ABC9C','#E74C3C','#2980B9','#8E44AD']; return colors[Math.abs(seed.split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % colors.length]; };
 
         function getPeriodRange() { const now = new Date(); let start = new Date(now); const { qty, unit } = currentPeriod; switch (unit) { case 'm': start.setMinutes(now.getMinutes() - qty); break; case 'h': start.setHours(now.getHours() - qty); break; case 'd': start.setDate(now.getDate() - qty); break; case 'M': start.setMonth(now.getMonth() - qty); break; case 'y': start.setFullYear(now.getFullYear() - qty); break; case 'custom': start = currentPeriod.start || start; break; default: start.setDate(now.getDate() - 30); } const end = (unit === 'custom' && currentPeriod.end) ? new Date(currentPeriod.end) : now; if (unit !== 'custom') start.setHours(0, 0, 0, 0); return { start, end }; }
         function filterByPeriod(arr) { const { start, end } = getPeriodRange(); return arr.filter(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); return d >= start && d <= end; }); }
@@ -298,6 +462,62 @@
         function getUniqueUsers(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.userName) s.add(x.userName); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
         function getUniqueInstitutions(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.institution) s.add(x.institution); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
         function getUniqueTypes(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.type) s.add(x.type); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
+        function getUniqueAssetNames(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.name) s.add(x.name); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
+
+        // ============ FILTRO DE INVESTIMENTOS ============
+        window.setInvestmentFilterMode = function(mode) {
+            investmentFilterMode = mode;
+            investmentFilterValue = null;
+            
+            document.querySelectorAll('.filter-mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.mode === mode) btn.classList.add('active');
+            });
+            
+            renderFilterChips();
+            loadInvestments();
+        };
+
+        function renderFilterChips() {
+            const container = document.getElementById('investmentFilterChips');
+            if (!container) return;
+            
+            let html = '';
+            
+            if (investmentFilterMode === 'all') {
+                html = `<span style="font-size:11px;color:var(--text-light);">🔍 Navegando: Todos os investimentos → divisão por <strong>Usuário</strong></span>`;
+            } else if (investmentFilterMode === 'type') {
+                const items = getUniqueTypes(allInvestments);
+                html = `<span style="font-size:11px;color:var(--text-light);font-weight:500;">🏷️ Selecione um Tipo:</span>`;
+                
+                const isAllSelected = investmentFilterValue === null;
+                html += `<span class="filter-chip ${isAllSelected ? 'active' : ''}" data-value="__all__" onclick="selectInvestmentFilter(null)">📋 Todos os Tipos</span>`;
+                
+                items.forEach(item => {
+                    const isSelected = investmentFilterValue === item;
+                    html += `<span class="filter-chip ${isSelected ? 'active' : ''}" data-value="${escapeHtml(item)}" onclick="selectInvestmentFilter('${escapeHtml(item)}')">${escapeHtml(item)}</span>`;
+                });
+            } else if (investmentFilterMode === 'institution') {
+                const items = getUniqueInstitutions(allInvestments);
+                html = `<span style="font-size:11px;color:var(--text-light);font-weight:500;">🏦 Selecione uma Instituição:</span>`;
+                
+                const isAllSelected = investmentFilterValue === null;
+                html += `<span class="filter-chip ${isAllSelected ? 'active' : ''}" data-value="__all__" onclick="selectInvestmentFilter(null)">📋 Todas as Instituições</span>`;
+                
+                items.forEach(item => {
+                    const isSelected = investmentFilterValue === item;
+                    html += `<span class="filter-chip ${isSelected ? 'active' : ''}" data-value="${escapeHtml(item)}" onclick="selectInvestmentFilter('${escapeHtml(item)}')">${escapeHtml(item)}</span>`;
+                });
+            }
+            
+            container.innerHTML = html;
+        }
+
+        window.selectInvestmentFilter = function(value) {
+            investmentFilterValue = value;
+            renderFilterChips();
+            loadInvestments();
+        };
 
         function renderUserFilterTabs(containerId, currentFilter, users, onChangeCallback, labelFn) {
             const container = document.getElementById(containerId);
@@ -316,13 +536,135 @@
             }));
         }
 
+        // ============ CATEGORIES ============
         const defaultCategories = { food: { name: 'Alimentação', icon: '🍽️', color: '#FF6B6B', type: 'expense' }, housing: { name: 'Moradia', icon: '🏠', color: '#4ECDC4', type: 'expense' }, transport: { name: 'Transporte', icon: '🚗', color: '#45B7D1', type: 'expense' }, health: { name: 'Saúde', icon: '🏥', color: '#96CEB4', type: 'expense' }, leisure: { name: 'Lazer', icon: '🎮', color: '#DDA0DD', type: 'expense' }, other: { name: 'Outros', icon: '📦', color: '#98D8C8', type: 'expense' }, salary: { name: 'Salário', icon: '💰', color: '#2ECC71', type: 'income' }, freelance: { name: 'Freelance', icon: '💻', color: '#3498DB', type: 'income' } };
         function getCategories() { return Object.keys(allCategories).length > 0 ? { ...defaultCategories, ...allCategories } : defaultCategories; }
         function getCategoryById(catId) { const cats = getCategories(); return cats[catId] || { name: catId, icon: '📦', color: '#ccc', type: 'expense' }; }
-        function getAnnualRate(rate, indexer) { const base = indexers[indexer] || 0; if (indexer === 'pre') return rate; return (rate / 100) * base; }
-        function calcProjectedValue(aportes, rate, indexer, endDate) { const ar = getAnnualRate(rate, indexer) / 100; const dr = Math.pow(1 + ar, 1 / 365) - 1; let t = 0; const end = endDate || new Date(); aportes.forEach(ap => { const d = new Date(ap.date); const days = Math.max(0, Math.floor((end - d) / 86400000)); t += ap.value * Math.pow(1 + dr, days); }); return t; }
-        function calcCurrentValue(aportes, rate, indexer) { return calcProjectedValue(aportes, rate, indexer, new Date()); }
-        function recalcInvestment(inv) { const a = inv.aportes || []; inv.currentValue = calcCurrentValue(a, inv.rate, inv.indexer); inv.projectedValue = calcProjectedValue(a, inv.rate, inv.indexer, new Date(inv.endDate || Date.now() + 365 * 86400000)); inv.totalInvested = a.reduce((s, x) => s + x.value, 0); return inv; }
+
+        // ============ INVESTMENT CALCULATIONS ============
+        function getAnnualRate(rate, indexer) { 
+            const base = indexers[indexer] || 0; 
+            if (indexer === 'pre') return rate; 
+            return (rate / 100) * base; 
+        }
+        
+        function calcProjectedValue(aportes, rate, indexer, endDate) { 
+            const ar = getAnnualRate(rate, indexer) / 100; 
+            const dr = Math.pow(1 + ar, 1 / 365) - 1; 
+            let t = 0; 
+            const end = endDate || new Date(); 
+            aportes.forEach(ap => { 
+                const d = new Date(ap.date); 
+                const days = Math.max(0, Math.floor((end - d) / 86400000)); 
+                t += ap.value * Math.pow(1 + dr, days); 
+            }); 
+            return t; 
+        }
+
+        function recalcInvestment(inv) {
+            const a = inv.aportes || [];
+            
+            // Calcular total investido
+            inv.totalInvested = a.reduce((s, x) => s + x.value, 0);
+            
+            // ===== PERÍODO ATÉ HOJE =====
+            const hoje = new Date();
+            inv.currentValue = calcProjectedValue(a, inv.rate, inv.indexer, hoje);
+            
+            const ganhoAtual = inv.currentValue - inv.totalInvested;
+            inv.nominalAtual = inv.totalInvested > 0 ? (ganhoAtual / inv.totalInvested) * 100 : 0;
+            
+            // IPCA pro-rata até hoje
+            const startDate = new Date(inv.startDate + 'T12:00:00');
+            const diasAteHoje = Math.max(0, Math.floor((hoje - startDate) / 86400000));
+            const ipcaProrata = (indexers.ipca || 0) * (diasAteHoje / 365);
+            inv.realAtual = ((1 + inv.nominalAtual / 100) / (1 + ipcaProrata / 100) - 1) * 100;
+            inv.ganhoAtual = ganhoAtual;
+            inv.diasAteHoje = diasAteHoje;
+            
+            // ===== PERÍODO ATÉ VENCIMENTO =====
+            let endDate;
+            if (inv.endDate) {
+                endDate = new Date(inv.endDate + 'T12:00:00');
+            } else {
+                endDate = new Date(startDate);
+                endDate.setFullYear(endDate.getFullYear() + 1);
+                inv.endDate = toLocalDateStr(endDate);
+            }
+            
+            inv.projectedValue = calcProjectedValue(a, inv.rate, inv.indexer, endDate);
+            
+            const ganhoProjetado = inv.projectedValue - inv.totalInvested;
+            inv.nominalProjetado = inv.totalInvested > 0 ? (ganhoProjetado / inv.totalInvested) * 100 : 0;
+            
+            // IPCA total até vencimento
+            const diasAteVencimento = Math.max(0, Math.floor((endDate - startDate) / 86400000));
+            const ipcaTotalVencimento = (indexers.ipca || 0) * (diasAteVencimento / 365);
+            inv.realProjetado = ((1 + inv.nominalProjetado / 100) / (1 + ipcaTotalVencimento / 100) - 1) * 100;
+            inv.ganhoProjetado = ganhoProjetado;
+            inv.diasAteVencimento = diasAteVencimento;
+            
+            return inv;
+        }
+
+        // ===== FUNÇÃO PARA CALCULAR PROJEÇÃO BASEADA NO PERÍODO DO FILTRO =====
+        function calcProjectedForPeriod(investments, endDate) {
+            let totalInvested = 0;
+            let projectedValue = 0;
+            
+            investments.forEach(inv => {
+                const aportes = inv.aportes || [];
+                totalInvested += aportes.reduce((s, x) => s + x.value, 0);
+                projectedValue += calcProjectedValue(aportes, inv.rate, inv.indexer, endDate);
+            });
+            
+            return { totalInvested, projectedValue };
+        }
+
+        // ===== FUNÇÃO DE TOOLTIP =====
+        function getTooltipContent(tipo, inv) {
+            if (tipo === 'atual') {
+                const diasAteHoje = inv.diasAteHoje || 0;
+                const taxaAnual = indexers.cdi || 13.65;
+                const meses = Math.floor(diasAteHoje / 30);
+                const diasRestantes = diasAteHoje % 30;
+                const periodoStr = meses > 0 ? `${meses}m ${diasRestantes}d` : `${diasAteHoje}d`;
+                
+                return `
+                    <p><strong>💰 Ganho Atual</strong></p>
+                    <p>Rendimento bruto: <strong class="highlight-green">+${inv.nominalAtual.toFixed(2)}%</strong></p>
+                    <p>Rendimento real: <strong class="highlight-blue">+${inv.realAtual.toFixed(2)}%</strong></p>
+                    <hr>
+                    <p>📅 Período: <strong>${periodoStr}</strong></p>
+                    <p>📊 Taxa anual: <strong>${taxaAnual.toFixed(2)}% CDI</strong></p>
+                    <hr>
+                    <p style="font-size:11px;color:#94a3b8;">💡 Dica: Mantenha até o vencimento para maximizar o rendimento!</p>
+                `;
+            }
+            
+            if (tipo === 'projetado') {
+                const diasAteVencimento = inv.diasAteVencimento || 365;
+                const meses = Math.floor(diasAteVencimento / 30);
+                const diasRestantes = diasAteVencimento % 30;
+                const periodoStr = meses > 0 ? `${meses}m ${diasRestantes}d` : `${diasAteVencimento}d`;
+                const rendAnual = (inv.nominalProjetado / (diasAteVencimento / 365));
+                const rendRealAnual = (inv.realProjetado / (diasAteVencimento / 365));
+                
+                return `
+                    <p><strong>📈 Ganho Projetado</strong></p>
+                    <p>Rendimento bruto: <strong class="highlight-green">+${inv.nominalProjetado.toFixed(2)}%</strong></p>
+                    <p>Rendimento real: <strong class="highlight-blue">+${inv.realProjetado.toFixed(2)}%</strong></p>
+                    <hr>
+                    <p>📈 Rendimento anual bruto: <strong class="highlight-yellow">+${rendAnual.toFixed(2)}% a.a.</strong></p>
+                    <p>💎 Rendimento anual real: <strong class="highlight-yellow">+${rendRealAnual.toFixed(2)}% a.a.</strong></p>
+                    <hr>
+                    <p>📅 Período: <strong>${periodoStr}</strong></p>
+                    <p>🏁 Vencimento: <strong>${new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR')}</strong></p>
+                    <p>📊 Taxa: <strong>${inv.rate || 0}% CDI</strong></p>
+                `;
+            }
+            return '';
+        }
 
         // ============ RECURRING ============
         async function processRecurring() {
@@ -378,7 +720,6 @@
             const ctx = document.getElementById(cid);
             if (!ctx) return;
             if (charts[cid]) charts[cid].destroy();
-            // Reduzir número de labels mostrados
             const maxLabels = 8;
             const step = labels.length > maxLabels ? Math.ceil(labels.length / maxLabels) : 1;
             const displayLabels = labels.map((l, i) => (i % step === 0 || i === labels.length - 1) ? l : '');
@@ -425,23 +766,187 @@
             });
         }
 
-        // ============ DASHBOARD ============
+        function createPieChart(cid, data, title) {
+            const ctx = document.getElementById(cid);
+            if (!ctx) return;
+            if (charts[cid]) charts[cid].destroy();
+            
+            const labels = data.map(d => d.label);
+            const values = data.map(d => d.value);
+            const colors = data.map(d => d.color || getRandomColor(d.label));
+            
+            charts[cid] = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => {
+                                    const total = ctx.dataset.data.reduce((a,b) => a + b, 0);
+                                    const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                                    return `${ctx.label}: R$ ${fmt(ctx.raw)} (${pct}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            return { total: values.reduce((a,b) => a + b, 0), labels, values };
+        }
+
+        // ============ DASHBOARD - CORRIGIDO ============
         function loadDashboard() {
             let ft = filterByPeriod(allTransactions);
             if (transactionUserFilter && transactionUserFilter !== 'all') ft = ft.filter(t => (t.userName || 'Outro') === transactionUserFilter);
+            
             const mi = ft.filter(t => t.type === 'income').reduce((s, t) => s + (t.amount || 0), 0);
             const me = ft.filter(t => t.type === 'expense').reduce((s, t) => s + (t.amount || 0), 0);
             const bal = mi - me;
-            const ti = allInvestments.reduce((s, i) => s + (i.currentValue || i.totalInvested || 0), 0);
-            document.getElementById('summaryCards').innerHTML = `<div class="summary-card income"><div class="card-label">💵 Receitas</div><div class="card-value positive">R$ ${fmt(mi)}</div></div><div class="summary-card expense"><div class="card-label">💸 Despesas</div><div class="card-value negative">R$ ${fmt(me)}</div></div><div class="summary-card balance"><div class="card-label">💰 Saldo</div><div class="card-value ${bal>=0?'positive':'negative'}">R$ ${fmt(bal)}</div></div><div class="summary-card investment"><div class="card-label">📈 Investimentos</div><div class="card-value">R$ ${fmt(ti)}</div></div>`;
-            const ec = {}; ft.filter(t => t.type === 'expense').forEach(t => { const cat = t.category || 'other'; if (!ec[cat]) ec[cat] = 0; ec[cat] += (t.amount || 0); });
-            const cats = getCategories(); const cd = Object.entries(ec).map(([id, amt]) => ({ category: cats[id]?.name || id, amount: amt, color: cats[id]?.color || '#ccc' }));
-            if (cd.length > 0) { const ctx = document.getElementById('categoryChart'); if (ctx) { if (charts['categoryChart']) charts['categoryChart'].destroy(); charts['categoryChart'] = new Chart(ctx, { type: 'pie', data: { labels: cd.map(d => d.category), datasets: [{ data: cd.map(d => d.amount), backgroundColor: cd.map(d => d.color), borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); } }
-            try { renderUserFilterTabs('transactionUserFilter', transactionUserFilter, getUniqueUsers(allTransactions), function(u){ transactionUserFilter = u; loadDashboard(); }); } catch(e) {}
+            
+            // ===== INVESTIMENTOS COM BASE NO FILTRO DE DATA =====
+            // Pegar a data final do período do filtro
+            const { end } = getPeriodRange();
+            
+            // Filtrar investimentos pelo usuário selecionado
+            let investmentData = allInvestments;
+            if (transactionUserFilter && transactionUserFilter !== 'all') {
+                investmentData = investmentData.filter(inv => (inv.userName || 'Outro') === transactionUserFilter);
+            }
+            
+            // Recalcular todos os investimentos
+            investmentData.forEach(inv => recalcInvestment(inv));
+            
+            // Calcular total investido e valor atual (até hoje)
+            const totalInvested = investmentData.reduce((s, inv) => s + (inv.totalInvested || 0), 0);
+            const currentValue = investmentData.reduce((s, inv) => s + (inv.currentValue || 0), 0);
+            
+            // Calcular projeção até a data do filtro
+            let projectedValue = 0;
+            investmentData.forEach(inv => {
+                const aportes = inv.aportes || [];
+                projectedValue += calcProjectedValue(aportes, inv.rate, inv.indexer, end);
+            });
+            
+            // Calcular rendimento real baseado no período do filtro
+            const ganhoProjetado = projectedValue - totalInvested;
+            const nominalProjetado = totalInvested > 0 ? (ganhoProjetado / totalInvested) * 100 : 0;
+            
+            // IPCA proporcional ao período do filtro
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30); // aproximação
+            const diasPeriodo = Math.max(1, Math.floor((end - startDate) / 86400000));
+            const ipcaPeriodo = (indexers.ipca || 0) * (diasPeriodo / 365);
+            const realProjetado = ((1 + nominalProjetado / 100) / (1 + ipcaPeriodo / 100) - 1) * 100;
+            
+            // Atualizar cards
+            document.getElementById('summaryCards').innerHTML = `
+                <div class="summary-card income">
+                    <div class="card-label">💼 Total Investido</div>
+                    <div class="card-value positive">R$ ${fmt(totalInvested)}</div>
+                </div>
+                <div class="summary-card expense">
+                    <div class="card-label">📊 Valor Atual</div>
+                    <div class="card-value">R$ ${fmt(currentValue)}</div>
+                </div>
+                <div class="summary-card balance">
+                    <div class="card-label">📈 Projetado (até ${end.toLocaleDateString('pt-BR')})</div>
+                    <div class="card-value ${ganhoProjetado>=0?'positive':'negative'}">R$ ${fmt(projectedValue)}</div>
+                </div>
+                <div class="summary-card investment">
+                    <div class="card-label">💎 Rendimento Real</div>
+                    <div class="card-value ${realProjetado>=0?'positive':'negative'}">${realProjetado.toFixed(2)}%</div>
+                </div>
+            `;
+            
+            // ===== GRÁFICO DE GASTOS POR CATEGORIA =====
+            const ec = {};
+            ft.filter(t => t.type === 'expense').forEach(t => {
+                const cat = t.category || 'other';
+                if (!ec[cat]) ec[cat] = 0;
+                ec[cat] += (t.amount || 0);
+            });
+            const cats = getCategories();
+            const cd = Object.entries(ec).map(([id, amt]) => ({
+                category: cats[id]?.name || id,
+                amount: amt,
+                color: cats[id]?.color || '#ccc'
+            }));
+            
+            if (cd.length > 0) {
+                const ctx = document.getElementById('categoryChart');
+                if (ctx) {
+                    if (charts['categoryChart']) charts['categoryChart'].destroy();
+                    charts['categoryChart'] = new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: cd.map(d => d.category),
+                            datasets: [{
+                                data: cd.map(d => d.amount),
+                                backgroundColor: cd.map(d => d.color),
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'bottom' }
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // ===== FILTRO DE USUÁRIO =====
+            try {
+                renderUserFilterTabs('transactionUserFilter', transactionUserFilter, getUniqueUsers(allTransactions), function(u){
+                    transactionUserFilter = u;
+                    loadDashboard();
+                });
+            } catch(e) {}
+            
+            // ===== TRANSAÇÕES =====
             const displayTrans = ft.slice(0, 20);
-            document.getElementById('transactionCards').innerHTML = displayTrans.map(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); const cat = getCategoryById(t.category); const own = t.userId === currentUser?.id; return `<div class="data-card"><div class="data-card-header"><h4>${cat.icon} ${t.description}</h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openTransactionModal('${t.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (t.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>${t.type==='income'?'Receita':'Despesa'}</span><span>📅 ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span></div><div class="data-card-amount ${t.type==='income'?'income':'expense'}" style="margin-top:6px;">${t.type==='income'?'+':'-'} R$ ${fmt(t.amount||0)}</div></div>`; }).join('') || '<p style="text-align:center;padding:20px;">Nenhuma transação neste período.</p>';
+            document.getElementById('transactionCards').innerHTML = displayTrans.map(t => {
+                const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
+                const cat = getCategoryById(t.category);
+                const own = t.userId === currentUser?.id;
+                return `<div class="data-card">
+                    <div class="data-card-header">
+                        <h4>${cat.icon} ${t.description}</h4>
+                        <div>${own ? `<button class="btn-sm btn-edit" onclick="openTransactionModal('${t.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (t.userName || 'Outro') + '</span>'}</div>
+                    </div>
+                    <div class="data-card-meta">
+                        <span>${t.type==='income'?'Receita':'Despesa'}</span>
+                        <span>📅 ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span>
+                    </div>
+                    <div class="data-card-amount ${t.type==='income'?'income':'expense'}" style="margin-top:6px;">
+                        ${t.type==='income'?'+':'-'} R$ ${fmt(t.amount||0)}
+                    </div>
+                </div>`;
+            }).join('') || '<p style="text-align:center;padding:20px;">Nenhuma transação neste período.</p>';
         }
 
+        // ============ INVESTMENTS ============
         window.openTransactionModal = function(tid = null) { editingTransactionId = tid; document.getElementById('transactionModal').classList.add('active'); updateCategoryDropdown(); if (tid) { const t = allTransactions.find(x => x.id === tid); if (t) { document.getElementById('transModalTitle').textContent = 'Editar Transação'; document.getElementById('transType').value = t.type; document.getElementById('transDescription').value = t.description; document.getElementById('transAmount').value = fmt(t.amount); document.getElementById('transDate').value = t.date || toLocalDateStr(new Date(t.createdAt?.toDate ? t.createdAt.toDate() : t.createdAt)); document.getElementById('transEditId').value = tid; updateCategoryDropdown(); setTimeout(() => { document.getElementById('transCategory').value = t.category; }, 100); } } else { document.getElementById('transModalTitle').textContent = 'Nova Transação'; document.getElementById('transType').value = 'expense'; document.getElementById('transDescription').value = ''; document.getElementById('transAmount').value = ''; document.getElementById('transDate').value = toLocalDateStr(new Date()); document.getElementById('transEditId').value = ''; updateCategoryDropdown(); } };
         window.closeTransactionModal = function() { document.getElementById('transactionModal').classList.remove('active'); };
         window.saveTransaction = async function() { const type = document.getElementById('transType').value, desc = document.getElementById('transDescription').value.trim(), amt = parseMoney(document.getElementById('transAmount').value), cat = document.getElementById('transCategory').value, date = document.getElementById('transDate').value || toLocalDateStr(new Date()); if (!desc || !amt || amt <= 0) { alert('Preencha'); return; } try { if (editingTransactionId) { await updateDoc(doc(db, "transactions", editingTransactionId), { type, description: desc, amount: amt, category: cat, date, updatedAt: serverTimestamp() }); } else { await addDoc(collection(db, "transactions"), { type, description: desc, amount: amt, category: cat, date, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeTransactionModal(); } catch (e) { alert('Erro'); } };
@@ -450,50 +955,289 @@
         // ============ INVESTMENTS ============
         window.openInvestmentModal = function(invId = null) { editingInvestmentId = invId; document.getElementById('investmentModal').classList.add('active'); if (invId) { const inv = allInvestments.find(i => i.id === invId); if (inv) { document.getElementById('investmentModalTitle').textContent = 'Editar'; document.getElementById('invType').value = inv.type; document.getElementById('invInstitution').value = inv.institution || ''; document.getElementById('invName').value = inv.name; document.getElementById('invRate').value = inv.rate || ''; document.getElementById('invIndexer').value = inv.indexer || 'cdi'; document.getElementById('invStartDate').value = inv.startDate || ''; document.getElementById('invEndDate').value = inv.endDate || ''; document.getElementById('invInitialValue').value = fmt((inv.aportes && inv.aportes.length > 0) ? inv.aportes[0].value : 0); document.getElementById('invEditId').value = invId; } } else { document.getElementById('investmentModalTitle').textContent = 'Novo'; document.getElementById('invType').value = 'CDB'; document.getElementById('invInstitution').value = ''; document.getElementById('invName').value = ''; document.getElementById('invRate').value = ''; document.getElementById('invIndexer').value = 'cdi'; document.getElementById('invStartDate').value = toLocalDateStr(new Date()); document.getElementById('invEndDate').value = ''; document.getElementById('invInitialValue').value = ''; document.getElementById('invEditId').value = ''; } };
         window.closeInvestmentModal = function() { document.getElementById('investmentModal').classList.remove('active'); };
-        window.saveInvestment = async function() { const type = document.getElementById('invType').value, institution = document.getElementById('invInstitution').value.trim(), name = document.getElementById('invName').value.trim(), rate = parseFloat(document.getElementById('invRate').value) || 0, indexer = document.getElementById('invIndexer').value, startDate = document.getElementById('invStartDate').value || toLocalDateStr(new Date()); let endDate = document.getElementById('invEndDate').value; if (!endDate) { const sd = new Date(startDate + 'T12:00:00'); sd.setFullYear(sd.getFullYear() + 1); endDate = toLocalDateStr(sd); } const initialValue = parseMoney(document.getElementById('invInitialValue').value); if (!name || !initialValue || initialValue <= 0) { alert('Preencha'); return; } const aportes = [{ value: initialValue, date: startDate }]; const currentValue = calcCurrentValue(aportes, rate, indexer), projectedValue = calcProjectedValue(aportes, rate, indexer, new Date(endDate + 'T12:00:00')); const invData = { type, institution, name, rate, indexer, startDate, endDate, aportes, totalInvested: initialValue, currentValue, projectedValue, updatedAt: serverTimestamp() }; try { if (editingInvestmentId) { await updateDoc(doc(db, "investments", editingInvestmentId), invData); } else { await addDoc(collection(db, "investments"), { ...invData, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeInvestmentModal(); } catch (e) { alert('Erro'); } };
+        window.saveInvestment = async function() { 
+            const type = document.getElementById('invType').value;
+            const institution = document.getElementById('invInstitution').value.trim();
+            const name = document.getElementById('invName').value.trim();
+            const rate = parseFloat(document.getElementById('invRate').value) || 0;
+            const indexer = document.getElementById('invIndexer').value;
+            const startDate = document.getElementById('invStartDate').value || toLocalDateStr(new Date());
+            let endDate = document.getElementById('invEndDate').value;
+            
+            if (!endDate) {
+                const sd = new Date(startDate + 'T12:00:00');
+                sd.setFullYear(sd.getFullYear() + 1);
+                endDate = toLocalDateStr(sd);
+            }
+            
+            const initialValue = parseMoney(document.getElementById('invInitialValue').value);
+            if (!name || !initialValue || initialValue <= 0) { 
+                alert('Preencha todos os campos obrigatórios'); 
+                return; 
+            }
+            
+            const aportes = [{ value: initialValue, date: startDate }];
+            
+            const invData = { 
+                type, institution, name, rate, indexer, 
+                startDate, endDate, aportes,
+                totalInvested: initialValue,
+                updatedAt: serverTimestamp() 
+            };
+            
+            recalcInvestment(invData);
+            
+            try { 
+                if (editingInvestmentId) { 
+                    await updateDoc(doc(db, "investments", editingInvestmentId), invData); 
+                } else { 
+                    await addDoc(collection(db, "investments"), { 
+                        ...invData, 
+                        userId: currentUser.id, 
+                        userName: currentUser.name, 
+                        createdAt: serverTimestamp() 
+                    }); 
+                } 
+                closeInvestmentModal(); 
+            } catch (e) { 
+                alert('Erro ao salvar: ' + e.message); 
+            } 
+        };
+        
         window.deleteInvestment = async function(id) { if (!confirm('Excluir?')) return; try { await deleteDoc(doc(db, "investments", id)); } catch (e) { } };
-        window.addAporteToInvestment = async function(invId) { const vi = document.getElementById(`aporte-val-${invId}`), di = document.getElementById(`aporte-date-${invId}`); const v = parseMoney(vi?.value), d = di?.value; if (!v || v <= 0 || !d) { alert('Preencha'); return; } const inv = allInvestments.find(i => i.id === invId); if (!inv) return; const na = [...(inv.aportes || []), { value: v, date: d }]; const ni = { ...inv, aportes: na }; recalcInvestment(ni); try { await updateDoc(doc(db, "investments", invId), { aportes: na, totalInvested: ni.totalInvested, currentValue: ni.currentValue, projectedValue: ni.projectedValue, updatedAt: serverTimestamp() }); vi.value = ''; di.value = ''; } catch (e) { alert('Erro'); } };
-        window.removeAporteFromInvestment = async function(invId, index) { const inv = allInvestments.find(i => i.id === invId); if (!inv || inv.aportes.length <= 1) { alert('Não pode remover o aporte inicial.'); return; } const na = inv.aportes.filter((_, i) => i !== index); const ni = { ...inv, aportes: na }; recalcInvestment(ni); try { await updateDoc(doc(db, "investments", invId), { aportes: na, totalInvested: ni.totalInvested, currentValue: ni.currentValue, projectedValue: ni.projectedValue, updatedAt: serverTimestamp() }); } catch (e) { alert('Erro'); } };
+        window.addAporteToInvestment = async function(invId) { 
+            const vi = document.getElementById(`aporte-val-${invId}`);
+            const di = document.getElementById(`aporte-date-${invId}`); 
+            const v = parseMoney(vi?.value);
+            const d = di?.value; 
+            if (!v || v <= 0 || !d) { alert('Preencha valor e data'); return; } 
+            
+            const inv = allInvestments.find(i => i.id === invId); 
+            if (!inv) return; 
+            
+            const na = [...(inv.aportes || []), { value: v, date: d }]; 
+            const ni = { ...inv, aportes: na }; 
+            recalcInvestment(ni); 
+            
+            try { 
+                await updateDoc(doc(db, "investments", invId), { 
+                    aportes: na, 
+                    totalInvested: ni.totalInvested,
+                    updatedAt: serverTimestamp() 
+                }); 
+                vi.value = ''; 
+                di.value = ''; 
+            } catch (e) { 
+                alert('Erro ao adicionar aporte'); 
+            } 
+        };
+        
+        window.removeAporteFromInvestment = async function(invId, index) { 
+            const inv = allInvestments.find(i => i.id === invId); 
+            if (!inv || inv.aportes.length <= 1) { 
+                alert('Não pode remover o aporte inicial.'); 
+                return; 
+            } 
+            const na = inv.aportes.filter((_, i) => i !== index); 
+            const ni = { ...inv, aportes: na }; 
+            recalcInvestment(ni); 
+            try { 
+                await updateDoc(doc(db, "investments", invId), { 
+                    aportes: na, 
+                    totalInvested: ni.totalInvested,
+                    updatedAt: serverTimestamp() 
+                }); 
+            } catch (e) { 
+                alert('Erro ao remover aporte'); 
+            } 
+        };
 
         function loadInvestments() {
             allInvestments.forEach(inv => recalcInvestment(inv));
-            let investments = allInvestments.slice();
-            if (investmentUserFilter && investmentUserFilter !== 'all') investments = investments.filter(i => (i.userName || 'Outro') === investmentUserFilter);
             
-            // Filtro por tipo/instituição
-            if (investmentTypeFilter && investmentTypeFilter !== 'all') {
-                investments = investments.filter(i => i.type === investmentTypeFilter || i.institution === investmentTypeFilter);
+            let investments = allInvestments.slice();
+            if (investmentUserFilter && investmentUserFilter !== 'all') {
+                investments = investments.filter(i => (i.userName || 'Outro') === investmentUserFilter);
             }
             
-            const ti = investments.reduce((s, i) => s + (i.totalInvested || 0), 0), tc = investments.reduce((s, i) => s + (i.currentValue || 0), 0), rv = tc - ti, rp = ti > 0 ? (rv / ti) * 100 : 0;
-            document.getElementById('investmentSummary').innerHTML = `<div class="summary-card investment"><div class="card-label">💼 Total Investido</div><div class="card-value">R$ ${fmt(ti)}</div></div><div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">📊 Valor Atual</div><div class="card-value ${rv>=0?'positive':'negative'}">R$ ${fmt(tc)}</div></div><div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">📈 Rent. Nominal</div><div class="card-value ${rv>=0?'positive':'negative'}">${rp.toFixed(2)}%</div></div><div class="summary-card ${rv-(indexers.ipca||0)>=0?'income':'expense'}"><div class="card-label">💎 Rent. Real</div><div class="card-value ${rv-(indexers.ipca||0)>=0?'positive':'negative'}">${(rp-(indexers.ipca||0)).toFixed(2)}%</div></div>`;
+            if (investmentFilterMode === 'type' && investmentFilterValue !== null) {
+                investments = investments.filter(i => i.type === investmentFilterValue);
+            } else if (investmentFilterMode === 'institution' && investmentFilterValue !== null) {
+                investments = investments.filter(i => i.institution === investmentFilterValue);
+            }
             
-            // Filtro por tipo/instituição - chips
-            const instTypes = [...new Set([...getUniqueTypes(allInvestments), ...getUniqueInstitutions(allInvestments)])];
-            try { renderUserFilterTabs('investmentTypeFilter', investmentTypeFilter, instTypes, function(u){ investmentTypeFilter = u; loadInvestments(); }, u => '🏷️ ' + u); } catch(e) {}
-
-            // Portfólio (usar TODOS os investimentos, não filtrados)
-            const fixaTypes = ['CDB', 'Tesouro Direto', 'LCI/LCA', 'Poupança']; let tf = 0, tv = 0;
-            allInvestments.forEach(inv => { const v = inv.currentValue || inv.totalInvested || 0; if (fixaTypes.includes(inv.type)) tf += v; else tv += v; });
-            const tp = tf + tv;
-            if (tp > 0) { const fp = (tf / tp) * 100, vp = (tv / tp) * 100; const ctxP = document.getElementById('portfolioTypeChart'); if (ctxP) { if (charts['portfolioTypeChart']) charts['portfolioTypeChart'].destroy(); charts['portfolioTypeChart'] = new Chart(ctxP, { type: 'pie', data: { labels: ['Renda Fixa', 'Renda Variável'], datasets: [{ data: [tf, tv], backgroundColor: ['#2563eb', '#ea580c'], borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); } const df = fp - 60; document.getElementById('portfolioTypeAnalysis').innerHTML = `<strong>Ideal 60/40:</strong> Fixa: <strong style="color:#2563eb;">${fp.toFixed(1)}%</strong> ${df>5?'⚠️ Conservador':df<-5?'⚠️ Arriscado':'✅'} | Var: <strong style="color:#ea580c;">${vp.toFixed(1)}%</strong>${Math.abs(df)>10?'<br>💡 Rebalancear':''}`; }
-
-            // Burnup
-            const allAportes = []; investments.forEach(inv => { (inv.aportes || []).forEach(ap => allAportes.push({ ...ap, rate: inv.rate, indexer: inv.indexer, endDate: inv.endDate })); });
+            // ===== SUMMARY CARDS =====
+            const ti = investments.reduce((s, i) => s + (i.totalInvested || 0), 0);
+            const tc = investments.reduce((s, i) => s + (i.currentValue || 0), 0);
+            const rv = tc - ti, rp = ti > 0 ? (rv / ti) * 100 : 0;
+            const ipcaPeriodo = (indexers.ipca || 0);
+            const realRet = ((1 + rp / 100) / (1 + ipcaPeriodo / 100) - 1) * 100;
+            
+            document.getElementById('investmentSummary').innerHTML = `
+                <div class="summary-card investment"><div class="card-label">💼 Total Investido</div><div class="card-value">R$ ${fmt(ti)}</div></div>
+                <div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">📊 Valor Atual</div><div class="card-value ${rv>=0?'positive':'negative'}">R$ ${fmt(tc)}</div></div>
+                <div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">📈 Rent. Nominal</div><div class="card-value ${rv>=0?'positive':'negative'}">${rp.toFixed(2)}%</div></div>
+                <div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">💎 Rent. Real</div><div class="card-value ${realRet>=0?'positive':'negative'}">${realRet.toFixed(2)}%</div></div>
+            `;
+            
+            // ===== PIE CHART =====
+            let pieData = [];
+            let pieTitle = '';
+            let analysisText = '';
+            
+            if (investmentFilterMode === 'all') {
+                const userMap = {};
+                investments.forEach(inv => {
+                    const userName = inv.userName || 'Outro';
+                    const value = inv.currentValue || inv.totalInvested || 0;
+                    if (!userMap[userName]) userMap[userName] = 0;
+                    userMap[userName] += value;
+                });
+                pieData = Object.entries(userMap).map(([name, value]) => ({
+                    label: `👤 ${name}`,
+                    value: value,
+                    color: getRandomColor(name)
+                }));
+                pieTitle = '📊 Distribuição por Usuário';
+                const total = pieData.reduce((s, d) => s + d.value, 0);
+                const topUser = pieData.length > 0 ? pieData.reduce((a, b) => a.value > b.value ? a : b) : null;
+                analysisText = `• ${pieData.length} usuário(s) ativo(s) • Total: R$ ${fmt(total)}${topUser ? ` • Maior: ${topUser.label} (${((topUser.value/total)*100).toFixed(1)}%)` : ''}`;
+                document.getElementById('filterInfoText').textContent = `Mostrando todos os investimentos → divisão por Usuário`;
+            } else if (investmentFilterMode === 'type' && investmentFilterValue === null) {
+                const typeMap = {};
+                investments.forEach(inv => {
+                    const type = inv.type || 'Outro';
+                    const value = inv.currentValue || inv.totalInvested || 0;
+                    if (!typeMap[type]) typeMap[type] = 0;
+                    typeMap[type] += value;
+                });
+                pieData = Object.entries(typeMap).map(([name, value]) => ({
+                    label: `📋 ${name}`,
+                    value: value,
+                    color: getRandomColor(name)
+                }));
+                pieTitle = '📊 Distribuição por Tipo';
+                const total = pieData.reduce((s, d) => s + d.value, 0);
+                const topType = pieData.length > 0 ? pieData.reduce((a, b) => a.value > b.value ? a : b) : null;
+                analysisText = `• ${pieData.length} tipo(s) • Total: R$ ${fmt(total)}${topType ? ` • Maior: ${topType.label} (${((topType.value/total)*100).toFixed(1)}%)` : ''}`;
+                document.getElementById('filterInfoText').textContent = `🏷️ Selecione um tipo para ver os ativos detalhados`;
+            } else if (investmentFilterMode === 'type' && investmentFilterValue !== null) {
+                const assetMap = {};
+                investments.forEach(inv => {
+                    const name = inv.name || 'Sem nome';
+                    const value = inv.currentValue || inv.totalInvested || 0;
+                    if (!assetMap[name]) assetMap[name] = 0;
+                    assetMap[name] += value;
+                });
+                pieData = Object.entries(assetMap).map(([name, value]) => ({
+                    label: `📈 ${name}`,
+                    value: value,
+                    color: getRandomColor(name)
+                }));
+                pieTitle = `📊 Distribuição dos Ativos (${investmentFilterValue})`;
+                const total = pieData.reduce((s, d) => s + d.value, 0);
+                const topAsset = pieData.length > 0 ? pieData.reduce((a, b) => a.value > b.value ? a : b) : null;
+                const count = investments.length;
+                const avg = count > 0 ? total / count : 0;
+                analysisText = `• ${count} ativo(s) • Total: R$ ${fmt(total)} • Média: R$ ${fmt(avg)}${topAsset ? ` • Maior: ${topAsset.label} (${((topAsset.value/total)*100).toFixed(1)}%)` : ''}`;
+                document.getElementById('filterInfoText').textContent = `🏷️ Filtrando por Tipo: ${investmentFilterValue} → ${count} ativo(s) encontrado(s)`;
+            } else if (investmentFilterMode === 'institution' && investmentFilterValue === null) {
+                const instMap = {};
+                investments.forEach(inv => {
+                    const inst = inv.institution || 'Sem instituição';
+                    const value = inv.currentValue || inv.totalInvested || 0;
+                    if (!instMap[inst]) instMap[inst] = 0;
+                    instMap[inst] += value;
+                });
+                pieData = Object.entries(instMap).map(([name, value]) => ({
+                    label: `🏦 ${name}`,
+                    value: value,
+                    color: getRandomColor(name)
+                }));
+                pieTitle = '📊 Distribuição por Instituição';
+                const total = pieData.reduce((s, d) => s + d.value, 0);
+                const topInst = pieData.length > 0 ? pieData.reduce((a, b) => a.value > b.value ? a : b) : null;
+                analysisText = `• ${pieData.length} instituição(ões) • Total: R$ ${fmt(total)}${topInst ? ` • Maior: ${topInst.label} (${((topInst.value/total)*100).toFixed(1)}%)` : ''}`;
+                document.getElementById('filterInfoText').textContent = `🏦 Selecione uma instituição para ver os ativos detalhados`;
+            } else if (investmentFilterMode === 'institution' && investmentFilterValue !== null) {
+                const assetMap = {};
+                investments.forEach(inv => {
+                    const name = inv.name || 'Sem nome';
+                    const value = inv.currentValue || inv.totalInvested || 0;
+                    if (!assetMap[name]) assetMap[name] = 0;
+                    assetMap[name] += value;
+                });
+                pieData = Object.entries(assetMap).map(([name, value]) => ({
+                    label: `📈 ${name}`,
+                    value: value,
+                    color: getRandomColor(name)
+                }));
+                pieTitle = `📊 Distribuição dos Ativos (${investmentFilterValue})`;
+                const total = pieData.reduce((s, d) => s + d.value, 0);
+                const topAsset = pieData.length > 0 ? pieData.reduce((a, b) => a.value > b.value ? a : b) : null;
+                const count = investments.length;
+                const avg = count > 0 ? total / count : 0;
+                analysisText = `• ${count} ativo(s) • Total: R$ ${fmt(total)} • Média: R$ ${fmt(avg)}${topAsset ? ` • Maior: ${topAsset.label} (${((topAsset.value/total)*100).toFixed(1)}%)` : ''}`;
+                document.getElementById('filterInfoText').textContent = `🏦 Filtrando por Instituição: ${investmentFilterValue} → ${count} ativo(s) encontrado(s)`;
+            }
+            
+            document.getElementById('pieChartTitle').textContent = pieTitle || '📊 Distribuição';
+            
+            if (pieData.length > 0) {
+                createPieChart('portfolioTypeChart', pieData, pieTitle);
+                document.getElementById('portfolioTypeAnalysis').innerHTML = analysisText;
+            } else {
+                document.getElementById('portfolioTypeAnalysis').innerHTML = '⚠️ Nenhum dado para exibir';
+                if (charts['portfolioTypeChart']) charts['portfolioTypeChart'].destroy();
+            }
+            
+            // ===== BURNUP CHART =====
+            const allAportes = [];
+            investments.forEach(inv => {
+                (inv.aportes || []).forEach(ap => allAportes.push({ ...ap, rate: inv.rate, indexer: inv.indexer, endDate: inv.endDate }));
+            });
+            
             if (allAportes.length > 0) {
-                const dailyData = {}; allAportes.forEach(ap => { const d = getDateWithFallback(ap.date); const key = toLocalDateStr(d); if (!dailyData[key]) dailyData[key] = { invested: 0, aportesDoDia: [] }; dailyData[key].invested += ap.value; dailyData[key].aportesDoDia.push(ap); });
-                const sortedDays = Object.keys(dailyData).sort(); const investedLine = [], currentLine = [], projLine = []; let cumInvested = 0;
+                const dailyData = {};
+                allAportes.forEach(ap => {
+                    const d = getDateWithFallback(ap.date);
+                    const key = toLocalDateStr(d);
+                    if (!dailyData[key]) dailyData[key] = { invested: 0, aportesDoDia: [] };
+                    dailyData[key].invested += ap.value;
+                    dailyData[key].aportesDoDia.push(ap);
+                });
+                
+                const sortedDays = Object.keys(dailyData).sort();
+                const investedLine = [], currentLine = [], projLine = [];
+                let cumInvested = 0;
                 let maxProjDate = new Date();
-                investments.forEach(inv => { const ed = new Date((inv.endDate || toLocalDateStr(new Date(new Date().setFullYear(new Date().getFullYear()+1)))) + 'T12:00:00'); if (ed > maxProjDate) maxProjDate = ed; });
+                investments.forEach(inv => {
+                    const ed = new Date((inv.endDate || toLocalDateStr(new Date(new Date().setFullYear(new Date().getFullYear()+1)))) + 'T12:00:00');
+                    if (ed > maxProjDate) maxProjDate = ed;
+                });
+                
                 sortedDays.forEach(day => {
-                    cumInvested += dailyData[day].invested; investedLine.push(cumInvested);
-                    const allUntilNow = []; sortedDays.filter(d => d <= day).forEach(d => { dailyData[d].aportesDoDia.forEach(ap => allUntilNow.push(ap)); });
+                    cumInvested += dailyData[day].invested;
+                    investedLine.push(cumInvested);
+                    const allUntilNow = [];
+                    sortedDays.filter(d => d <= day).forEach(d => {
+                        dailyData[d].aportesDoDia.forEach(ap => allUntilNow.push(ap));
+                    });
                     currentLine.push(allUntilNow.reduce((s, ap) => s + calcProjectedValue([ap], ap.rate || 0, ap.indexer || 'pre', new Date()), 0));
                     projLine.push(allUntilNow.reduce((s, ap) => s + calcProjectedValue([ap], ap.rate || 0, ap.indexer || 'pre', maxProjDate), 0));
                 });
-                const projDays = []; const lastDay = new Date(sortedDays[sortedDays.length-1] + 'T12:00:00'); const current = new Date(lastDay);
-                while (current <= maxProjDate) { current.setDate(current.getDate() + 30); if (current <= maxProjDate) projDays.push(toLocalDateStr(current)); }
-                if (projDays.length === 0 || projDays[projDays.length-1] !== toLocalDateStr(maxProjDate)) projDays.push(toLocalDateStr(maxProjDate));
+                
+                const projDays = [];
+                const lastDay = new Date(sortedDays[sortedDays.length-1] + 'T12:00:00');
+                const current = new Date(lastDay);
+                while (current <= maxProjDate) {
+                    current.setDate(current.getDate() + 30);
+                    if (current <= maxProjDate) projDays.push(toLocalDateStr(current));
+                }
+                if (projDays.length === 0 || projDays[projDays.length-1] !== toLocalDateStr(maxProjDate)) {
+                    projDays.push(toLocalDateStr(maxProjDate));
+                }
+                
                 const allLabels = [...sortedDays, ...projDays];
                 createLineChart('investmentEvolutionChart', allLabels, [
                     { label: 'Valor Investido', data: [...investedLine, ...projDays.map(() => investedLine[investedLine.length-1])], color: '#2563eb' },
@@ -502,10 +1246,102 @@
                 ]);
             }
             
-            try { renderUserFilterTabs('investmentUserFilter', investmentUserFilter, getUniqueUsers(allInvestments), function(u){ investmentUserFilter = u; loadInvestments(); }); } catch(e) {}
+            // ===== USER FILTER =====
+            try {
+                renderUserFilterTabs('investmentUserFilter', investmentUserFilter, getUniqueUsers(allInvestments), function(u){
+                    investmentUserFilter = u;
+                    loadInvestments();
+                });
+            } catch(e) {}
             
-            // Cards com instituição ao lado do nome
-            document.getElementById('investmentCards').innerHTML = investments.map(inv => { const ret = (inv.currentValue || 0) - (inv.totalInvested || 0), retP = inv.totalInvested > 0 ? (ret / inv.totalInvested) * 100 : 0, realRet = retP - (indexers.ipca || 0); const own = inv.userId === currentUser?.id, aportes = inv.aportes || []; return `<div class="data-card"><div class="data-card-header"><h4><span class="investment-name-institution">📈 ${inv.name} ${inv.institution ? `<span class="inst-badge">🏦 ${inv.institution}</span>` : ''}</span></h4><div>${own ? `<button class="btn-sm btn-edit" onclick="openInvestmentModal('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (inv.userName || 'Outro') + '</span>'}</div></div><div class="data-card-meta"><span>📋 ${inv.type}</span><span>📊 ${inv.rate || 0}% ${idx[inv.indexer] || ''}</span><span>📅 ${new Date(inv.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span><span>🏁 ${new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span></div><div class="investment-card-values"><div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${fmt(inv.totalInvested || 0)}</div></div><div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${fmt(inv.currentValue || 0)}</div></div><div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${fmt(inv.projectedValue || 0)}</div></div><div class="val-item"><div class="val-label">📈 Nominal</div><div class="val-number ${ret>=0?'positive':'negative'}">${retP.toFixed(2)}%</div></div><div class="val-item"><div class="val-label">💎 Real</div><div class="val-number ${realRet>=0?'positive':'negative'}">${realRet.toFixed(2)}%</div></div></div><div class="aportes-section"><h4>🏷️ Aportes (${aportes.length})</h4>${aportes.map((ap, i) => `<div class="aporte-mini-item"><span>R$ ${fmt(ap.value)}</span><span class="aporte-date">${new Date(ap.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>${i > 0 && own ? `<button onclick="removeAporteFromInvestment('${inv.id}',${i})">✕</button>` : (i === 0 ? '<span style="font-size:10px;">inicial</span>' : '')}</div>`).join('')}${own ? `<div class="aporte-add-mini"><input type="text" id="aporte-val-${inv.id}" placeholder="Valor" inputmode="decimal"><input type="date" id="aporte-date-${inv.id}"><button class="btn-sm btn-add" onclick="addAporteToInvestment('${inv.id}')">+</button></div>` : ''}</div></div>`; }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento.</p>';
+            // ===== INVESTMENT CARDS =====
+            document.getElementById('investmentCards').innerHTML = investments.map(inv => {
+                const own = inv.userId === currentUser?.id;
+                const aportes = inv.aportes || [];
+                const ganhoAtual = inv.ganhoAtual || 0;
+                const ganhoProjetado = inv.ganhoProjetado || 0;
+                const ganhoAtualStr = fmt(ganhoAtual);
+                const ganhoProjetadoStr = fmt(ganhoProjetado);
+                const isPositiveAtual = ganhoAtual >= 0;
+                const isPositiveProjetado = ganhoProjetado >= 0;
+                const endDateFormatted = new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR');
+                
+                return `<div class="data-card" data-investment-id="${inv.id}">
+                    <div class="data-card-header">
+                        <h4><span class="investment-name-institution">📈 ${inv.name} ${inv.institution ? `<span class="inst-badge">🏦 ${inv.institution}</span>` : ''}</span></h4>
+                        <div>${own ? `<button class="btn-sm btn-edit" onclick="openInvestmentModal('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (inv.userName || 'Outro') + '</span>'}</div>
+                    </div>
+                    <div class="data-card-meta">
+                        <span>📋 ${inv.type}</span>
+                        <span>📊 ${inv.rate || 0}% ${idx[inv.indexer] || ''}</span>
+                        <span>📅 ${new Date(inv.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
+                        <span>🏁 ${endDateFormatted}</span>
+                    </div>
+                    <div class="investment-card-values">
+                        <div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${fmt(inv.totalInvested || 0)}</div></div>
+                        <div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${fmt(inv.currentValue || 0)}</div></div>
+                        <div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${fmt(inv.projectedValue || 0)}</div></div>
+                    </div>
+                    
+                    <!-- SEÇÃO DE GANHOS COM TOOLTIPS -->
+                    <div class="gains-section">
+                        <div class="gains-title">💵 Ganhos</div>
+                        
+                        <div class="gain-row">
+                            <div class="gain-info">
+                                <label>Ganho Atual</label>
+                                <value class="${isPositiveAtual ? 'positive' : 'negative'}">${isPositiveAtual ? '+' : ''}R$ ${ganhoAtualStr}</value>
+                                <small>até hoje</small>
+                            </div>
+                            <span class="tooltip-icon" data-tooltip="atual" data-investment-id="${inv.id}">ℹ️</span>
+                        </div>
+                        
+                        <div class="gain-row">
+                            <div class="gain-info">
+                                <label>Ganho Projetado</label>
+                                <value class="${isPositiveProjetado ? 'positive' : 'negative'}">${isPositiveProjetado ? '+' : ''}R$ ${ganhoProjetadoStr}</value>
+                                <small>até ${endDateFormatted}</small>
+                            </div>
+                            <span class="tooltip-icon" data-tooltip="projetado" data-investment-id="${inv.id}">ℹ️</span>
+                        </div>
+                    </div>
+                    
+                    <div class="aportes-section">
+                        <h4>🏷️ Aportes (${aportes.length})</h4>
+                        ${aportes.map((ap, i) => `<div class="aporte-mini-item"><span>R$ ${fmt(ap.value)}</span><span class="aporte-date">${new Date(ap.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>${i > 0 && own ? `<button onclick="removeAporteFromInvestment('${inv.id}',${i})">✕</button>` : (i === 0 ? '<span style="font-size:10px;">inicial</span>' : '')}</div>`).join('')}
+                        ${own ? `<div class="aporte-add-mini"><input type="text" id="aporte-val-${inv.id}" placeholder="Valor" inputmode="decimal"><input type="date" id="aporte-date-${inv.id}"><button class="btn-sm btn-add" onclick="addAporteToInvestment('${inv.id}')">+</button></div>` : ''}
+                    </div>
+                </div>`;
+            }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento encontrado com o filtro atual.</p>';
+            
+            // ===== INICIALIZAR TOOLTIPS =====
+            setTimeout(() => {
+                document.querySelectorAll('.tooltip-icon').forEach(el => {
+                    const tipo = el.getAttribute('data-tooltip');
+                    const invId = el.getAttribute('data-investment-id');
+                    const inv = allInvestments.find(i => i.id === invId);
+                    
+                    if (!inv) return;
+                    
+                    const oldTooltip = el.querySelector('.tooltip-box');
+                    if (oldTooltip) oldTooltip.remove();
+                    
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip-box';
+                    tooltip.innerHTML = getTooltipContent(tipo, inv);
+                    el.appendChild(tooltip);
+                    
+                    el.addEventListener('mouseenter', function(e) {
+                        const tb = this.querySelector('.tooltip-box');
+                        if (tb) tb.style.display = 'block';
+                    });
+                    
+                    el.addEventListener('mouseleave', function(e) {
+                        const tb = this.querySelector('.tooltip-box');
+                        if (tb) tb.style.display = 'none';
+                    });
+                });
+            }, 100);
         }
 
         // ============ GOALS ============
