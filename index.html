@@ -60,26 +60,6 @@
         .period-dropdown .dd-chip:hover { background:var(--bg); }
         .period-dropdown .dd-chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
         .period-dropdown .dd-row { display:flex; gap:8px; align-items:center; }
-        .user-filter-tabs { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
-        .user-filter-chip { padding:5px 12px; border-radius:14px; font-size:12px; cursor:pointer; border:1px solid var(--border); background:#fff; transition:all .2s; }
-        .user-filter-chip:hover { background:var(--bg); }
-        .user-filter-chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
-        .filter-mode-selector { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
-        .filter-mode-btn { padding:6px 16px; border-radius:20px; font-size:12px; cursor:pointer; border:2px solid var(--border); background:#fff; transition:all .2s; font-weight:500; }
-        .filter-mode-btn:hover { background:var(--bg); }
-        .filter-mode-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
-        .filter-mode-btn.all-mode { border-color:var(--success); }
-        .filter-mode-btn.all-mode.active { background:var(--success); border-color:var(--success); }
-        .filter-mode-btn.type-mode { border-color:var(--secondary); }
-        .filter-mode-btn.type-mode.active { background:var(--secondary); border-color:var(--secondary); }
-        .filter-mode-btn.institution-mode { border-color:var(--warning); }
-        .filter-mode-btn.institution-mode.active { background:var(--warning); border-color:var(--warning); }
-        .filter-chips-container { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; padding:8px 12px; background:#f8fafc; border-radius:8px; border:1px dashed var(--border); align-items:center; }
-        .filter-chips-container .filter-chip { padding:4px 12px; border-radius:14px; font-size:11px; cursor:pointer; border:1px solid var(--border); background:#fff; transition:all .2s; }
-        .filter-chips-container .filter-chip:hover { background:var(--bg); }
-        .filter-chips-container .filter-chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
-        .filter-chips-container .filter-chip.back-chip { background:#e5e7eb; color:var(--text); }
-        .filter-chips-container .filter-chip.back-chip:hover { background:#d1d5db; }
         .period-dropdown input[type=text] { width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px; }
         .period-dropdown input[type=text]:focus { outline:none; border-color:var(--primary); }
         .period-dropdown input[type=date] { padding:6px 8px; border:1px solid var(--border); border-radius:6px; font-size:12px; }
@@ -179,68 +159,68 @@
         .filter-info .highlight { background:var(--primary); color:#fff; padding:2px 10px; border-radius:12px; font-size:11px; }
         
         /* ===== FILTRO DO DASHBOARD ===== */
-        .filter-section {
+        .dashboard-filter {
             display: flex;
-            gap: 20px;
+            gap: 12px;
             margin-bottom: 20px;
-            padding: 16px 20px;
+            padding: 14px 20px;
             background: #f8fafc;
             border-radius: var(--radius);
             border: 1px solid var(--border);
             flex-wrap: wrap;
             align-items: center;
         }
-        .filter-section .filter-label {
+        .dashboard-filter .filter-label {
             font-size: 13px;
             font-weight: 600;
             color: var(--text-light);
-            margin-right: 4px;
         }
-        .filter-section .quick-filters {
+        .dashboard-filter .quick-filters {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             flex-wrap: wrap;
         }
-        .filter-section .quick-filters .filter-btn {
-            padding: 6px 14px;
+        .dashboard-filter .quick-filters .filter-btn {
+            padding: 5px 12px;
             border: 2px solid var(--border);
             background: #fff;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 12px;
-            transition: all 0.3s;
+            font-size: 11px;
+            transition: all 0.2s;
             color: var(--text);
         }
-        .filter-section .quick-filters .filter-btn:hover {
+        .dashboard-filter .quick-filters .filter-btn:hover {
             background: var(--bg);
             border-color: var(--primary);
         }
-        .filter-section .quick-filters .filter-btn.active {
+        .dashboard-filter .quick-filters .filter-btn.active {
             background: var(--primary);
             color: #fff;
             border-color: var(--primary);
         }
-        .filter-section .exact-filter {
+        .dashboard-filter .exact-filter {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
             margin-left: auto;
         }
-        .filter-section .exact-filter input[type="date"] {
-            padding: 6px 12px;
+        .dashboard-filter .exact-filter input[type="date"] {
+            padding: 5px 10px;
             border: 1px solid var(--border);
             border-radius: 6px;
-            font-size: 13px;
+            font-size: 12px;
             background: #fff;
             color: var(--text);
+            width: 140px;
         }
-        .filter-section .exact-filter input[type="date"]:focus {
+        .dashboard-filter .exact-filter input[type="date"]:focus {
             outline: none;
             border-color: var(--primary);
         }
-        .filter-section .exact-filter .apply-filter-btn {
-            padding: 6px 16px;
+        .dashboard-filter .exact-filter .apply-filter-btn {
+            padding: 5px 14px;
             background: var(--primary);
             color: #fff;
             border: none;
@@ -248,19 +228,21 @@
             cursor: pointer;
             font-weight: 600;
             font-size: 12px;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            white-space: nowrap;
         }
-        .filter-section .exact-filter .apply-filter-btn:hover {
+        .dashboard-filter .exact-filter .apply-filter-btn:hover {
             background: var(--secondary);
             transform: translateY(-1px);
         }
-        .filter-section .period-info {
+        .dashboard-filter .period-info {
             font-size: 12px;
             color: var(--text-light);
-            padding: 4px 12px;
+            padding: 3px 12px;
             background: #fff;
             border-radius: 12px;
             border: 1px solid var(--border);
+            white-space: nowrap;
         }
         
         /* ===== GAIN ROWS ===== */
@@ -399,20 +381,21 @@
             .gain-row .tooltip-icon {
                 margin-left: auto;
             }
-            .filter-section {
+            .dashboard-filter {
                 flex-direction: column;
                 align-items: stretch;
-                gap: 12px;
+                gap: 10px;
             }
-            .filter-section .exact-filter {
+            .dashboard-filter .exact-filter {
                 margin-left: 0;
-            }
-            .filter-section .quick-filters {
-                justify-content: center;
-            }
-            .filter-section .exact-filter {
                 flex-wrap: wrap;
                 justify-content: center;
+            }
+            .dashboard-filter .quick-filters {
+                justify-content: center;
+            }
+            .dashboard-filter .period-info {
+                text-align: center;
             }
         }
     </style>
@@ -450,21 +433,20 @@
         </header>
         <main class="app-content">
             <div id="dashboard" class="tab-content active">
-                <!-- ===== NOVO FILTRO DO DASHBOARD ===== -->
-                <div class="filter-section" id="dashboardFilter">
+                <!-- FILTRO DO DASHBOARD -->
+                <div class="dashboard-filter">
                     <span class="filter-label">📅 Período:</span>
                     <div class="quick-filters">
                         <button class="filter-btn" data-days="1">1D</button>
                         <button class="filter-btn" data-days="7">7D</button>
                         <button class="filter-btn active" data-days="30">30D</button>
                         <button class="filter-btn" data-days="60">60D</button>
-                        <button class="filter-btn" data-days="90">90D</button>
                         <button class="filter-btn" data-days="180">180D</button>
                         <button class="filter-btn" data-days="365">1A</button>
                     </div>
                     <div class="exact-filter">
-                        <input type="date" id="filterDate">
-                        <button class="apply-filter-btn" id="applyFilter">📌 Aplicar</button>
+                        <input type="date" id="filterEndDate" value="">
+                        <button class="apply-filter-btn" id="applyFilterBtn">📌 Aplicar</button>
                     </div>
                     <span class="period-info" id="periodInfo">30 dias</span>
                 </div>
@@ -522,8 +504,10 @@
         let investmentFilterValue = null;
         let selectedColor = '#FF6B6B', selectedIcon = '📦', editingTransactionId = null, editingInvestmentId = null, editingGoalId = null, editingRecurringId = null;
         let currentPeriod = { qty: 30, unit: 'd' };
-        let dashboardFilterDays = 30; // Dias para filtrar o dashboard
-        let dashboardFilterEndDate = new Date(); // Data final do filtro
+        
+        // ===== VARIÁVEIS DO FILTRO DO DASHBOARD =====
+        let dashboardFilterDays = 30;
+        let dashboardFilterEndDate = new Date();
 
         // ============ UTILS ============
         const fmt = v => { const n = Number(v) || 0; const p = n.toFixed(2).split('.'); return `${p[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${p[1]}`; };
@@ -532,92 +516,6 @@
         const getDateWithFallback = (v, fb = new Date()) => { const base = String(v || '').split('T')[0] || toLocalDateStr(fb); return new Date(base + 'T12:00:00'); };
         const escapeHtml = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
         const getRandomColor = (seed) => { const colors = ['#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#98D8C8','#2ECC71','#3498DB','#9B59B6','#E67E22','#F39C12','#1ABC9C','#E74C3C','#2980B9','#8E44AD']; return colors[Math.abs(seed.split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % colors.length]; };
-
-        // ============ PERÍODO DO DASHBOARD ============
-        function getDashboardPeriod() {
-            const end = new Date();
-            const start = new Date(end);
-            start.setDate(start.getDate() - dashboardFilterDays);
-            return { start, end };
-        }
-
-        function updatePeriodInfo() {
-            const days = dashboardFilterDays;
-            let label = '';
-            if (days < 30) label = `${days} dias`;
-            else if (days === 30) label = '30 dias (1 mês)';
-            else if (days === 60) label = '60 dias (2 meses)';
-            else if (days === 90) label = '90 dias (3 meses)';
-            else if (days === 180) label = '180 dias (6 meses)';
-            else if (days === 365) label = '365 dias (1 ano)';
-            else label = `${days} dias`;
-            
-            document.getElementById('periodInfo').textContent = label;
-            
-            // Atualizar badge
-            const { start, end } = getDashboardPeriod();
-            const fmtDate = d => d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
-            document.querySelectorAll('.period-badge').forEach(el => {
-                el.textContent = `${fmtDate(start)} - ${fmtDate(end)}`;
-            });
-        }
-
-        function setDashboardFilter(days) {
-            dashboardFilterDays = days;
-            dashboardFilterEndDate = new Date();
-            
-            // Atualizar botões
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.toggle('active', parseInt(btn.dataset.days) === days);
-            });
-            
-            updatePeriodInfo();
-            loadDashboard();
-        }
-
-        function setDashboardFilterExact(date) {
-            if (!date) return;
-            dashboardFilterEndDate = new Date(date);
-            const diffDays = Math.floor((new Date() - dashboardFilterEndDate) / 86400000);
-            dashboardFilterDays = diffDays;
-            
-            // Desmarcar botões rápidos
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            
-            updatePeriodInfo();
-            loadDashboard();
-        }
-
-        // ============ CONFIGURAR FILTROS DO DASHBOARD ============
-        function setupDashboardFilters() {
-            // Filtros rápidos
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    const days = parseInt(this.dataset.days);
-                    setDashboardFilter(days);
-                });
-            });
-            
-            // Filtro exato
-            document.getElementById('applyFilter').addEventListener('click', function() {
-                const dateInput = document.getElementById('filterDate');
-                if (dateInput.value) {
-                    setDashboardFilterExact(new Date(dateInput.value));
-                } else {
-                    alert('Selecione uma data primeiro.');
-                }
-            });
-            
-            // Enter no input de data
-            document.getElementById('filterDate').addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    document.getElementById('applyFilter').click();
-                }
-            });
-            
-            // Inicializar com 30 dias
-            setDashboardFilter(30);
-        }
 
         // ============ PERÍODO DO APP (para transações) ============
         function getPeriodRange() { 
@@ -693,6 +591,114 @@
         function getUniqueInstitutions(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.institution) s.add(x.institution); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
         function getUniqueTypes(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.type) s.add(x.type); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
         function getUniqueAssetNames(source) { const s = new Set(); (source || []).forEach(x => { if (x && x.name) s.add(x.name); }); return [...s].sort((a,b) => a.localeCompare(b, 'pt-BR')); }
+
+        // ============ FILTRO DO DASHBOARD ============
+        function getDashboardEndDate() {
+            return dashboardFilterEndDate;
+        }
+
+        function getDashboardStartDate() {
+            const end = new Date(dashboardFilterEndDate);
+            const start = new Date(end);
+            start.setDate(start.getDate() - dashboardFilterDays);
+            return start;
+        }
+
+        function getDashboardDays() {
+            return dashboardFilterDays;
+        }
+
+        function updatePeriodInfo() {
+            const days = dashboardFilterDays;
+            let label = '';
+            if (days === 1) label = '1 dia';
+            else if (days === 7) label = '7 dias';
+            else if (days === 30) label = '30 dias (1 mês)';
+            else if (days === 60) label = '60 dias (2 meses)';
+            else if (days === 180) label = '180 dias (6 meses)';
+            else if (days === 365) label = '365 dias (1 ano)';
+            else label = `${days} dias`;
+            
+            document.getElementById('periodInfo').textContent = label;
+            
+            // Atualizar badge das transações
+            const end = getDashboardEndDate();
+            const start = getDashboardStartDate();
+            const fmtDate = d => d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+            document.querySelectorAll('.period-badge').forEach(el => {
+                el.textContent = `${fmtDate(start)} - ${fmtDate(end)}`;
+            });
+        }
+
+        function setDashboardFilter(days) {
+            dashboardFilterDays = days;
+            dashboardFilterEndDate = new Date();
+            
+            // Atualizar botões
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.days) === days);
+            });
+            
+            // Limpar input de data
+            document.getElementById('filterEndDate').value = '';
+            
+            updatePeriodInfo();
+            loadDashboard();
+        }
+
+        function setDashboardFilterExact(dateStr) {
+            if (!dateStr) return;
+            
+            const selectedDate = new Date(dateStr + 'T23:59:59');
+            if (isNaN(selectedDate.getTime())) {
+                alert('Data inválida');
+                return;
+            }
+            
+            // Calcular dias a partir da data selecionada até hoje
+            const hoje = new Date();
+            const diffTime = hoje.getTime() - selectedDate.getTime();
+            const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+            
+            dashboardFilterDays = diffDays;
+            dashboardFilterEndDate = hoje;
+            
+            // Desmarcar botões rápidos
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            
+            updatePeriodInfo();
+            loadDashboard();
+        }
+
+        function setupDashboardFilters() {
+            // Filtros rápidos
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const days = parseInt(this.dataset.days);
+                    setDashboardFilter(days);
+                });
+            });
+            
+            // Filtro exato
+            document.getElementById('applyFilterBtn').addEventListener('click', function() {
+                const dateInput = document.getElementById('filterEndDate');
+                if (dateInput.value) {
+                    setDashboardFilterExact(dateInput.value);
+                } else {
+                    alert('Selecione uma data primeiro.');
+                }
+            });
+            
+            // Enter no input de data
+            document.getElementById('filterEndDate').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('applyFilterBtn').click();
+                }
+            });
+            
+            // Inicializar com 30 dias
+            setDashboardFilter(30);
+        }
 
         // ============ FILTRO DE INVESTIMENTOS ============
         window.setInvestmentFilterMode = function(mode) {
@@ -932,7 +938,7 @@
             updateCategoryDropdown(); 
             updatePeriodLabel(); 
             setupPeriodEvents(); 
-            setupDashboardFilters(); // <-- NOVO
+            setupDashboardFilters();
             showTab('dashboard'); 
         }
         window.logout = async function() { if (confirm('Sair?')) { try { await signOut(auth); } catch (e) { } currentUser = null; allTransactions = []; allInvestments = []; allGoals = []; allCategories = {}; allRecurring = []; document.getElementById('mainApp').classList.remove('active'); document.getElementById('loginScreen').classList.remove('hidden'); } };
@@ -1035,8 +1041,9 @@
             return { total: values.reduce((a,b) => a + b, 0), labels, values };
         }
 
-        // ============ DASHBOARD - CORRIGIDO ============
+        // ============ DASHBOARD ============
         function loadDashboard() {
+            // Transações
             let ft = filterByPeriod(allTransactions);
             if (transactionUserFilter && transactionUserFilter !== 'all') ft = ft.filter(t => (t.userName || 'Outro') === transactionUserFilter);
             
@@ -1045,7 +1052,9 @@
             const bal = mi - me;
             
             // ===== INVESTIMENTOS COM BASE NO FILTRO DO DASHBOARD =====
-            const { end } = getDashboardPeriod();
+            const endDate = getDashboardEndDate();
+            const startDate = getDashboardStartDate();
+            const days = getDashboardDays();
             
             let investmentData = allInvestments;
             if (transactionUserFilter && transactionUserFilter !== 'all') {
@@ -1057,21 +1066,18 @@
             const totalInvested = investmentData.reduce((s, inv) => s + (inv.totalInvested || 0), 0);
             const currentValue = investmentData.reduce((s, inv) => s + (inv.currentValue || 0), 0);
             
-            // Calcular projeção até a data do filtro
+            // Calcular projeção até a data final do filtro (endDate)
             let projectedValue = 0;
             investmentData.forEach(inv => {
                 const aportes = inv.aportes || [];
-                projectedValue += calcProjectedValue(aportes, inv.rate, inv.indexer, end);
+                projectedValue += calcProjectedValue(aportes, inv.rate, inv.indexer, endDate);
             });
             
             const ganhoProjetado = projectedValue - totalInvested;
             const nominalProjetado = totalInvested > 0 ? (ganhoProjetado / totalInvested) * 100 : 0;
             
-            // IPCA proporcional ao período do filtro
-            const startDate = new Date(end);
-            startDate.setDate(startDate.getDate() - dashboardFilterDays);
-            const diasPeriodo = Math.max(1, dashboardFilterDays);
-            const ipcaPeriodo = (indexers.ipca || 0) * (diasPeriodo / 365);
+            // IPCA proporcional ao período do filtro (usando dias exatos)
+            const ipcaPeriodo = (indexers.ipca || 0) * (days / 365);
             const realProjetado = ((1 + nominalProjetado / 100) / (1 + ipcaPeriodo / 100) - 1) * 100;
             
             // Atualizar cards
@@ -1085,7 +1091,7 @@
                     <div class="card-value">R$ ${fmt(currentValue)}</div>
                 </div>
                 <div class="summary-card balance">
-                    <div class="card-label">📈 Projetado (até ${end.toLocaleDateString('pt-BR')})</div>
+                    <div class="card-label">📈 Projetado (até ${endDate.toLocaleDateString('pt-BR')})</div>
                     <div class="card-value ${ganhoProjetado>=0?'positive':'negative'}">R$ ${fmt(projectedValue)}</div>
                 </div>
                 <div class="summary-card investment">
