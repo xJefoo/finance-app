@@ -864,6 +864,7 @@
             
             // ===== CARDS DE INVESTIMENTO CORRIGIDOS =====
             const { start, end } = getGlobalDateRange();
+            const hoje = new Date();
             
             // FILTRAR investimentos por aportes no período
             let investmentData = allInvestments.filter(inv => {
@@ -878,7 +879,7 @@
                 investmentData = investmentData.filter(inv => (inv.userName || 'Outro') === transactionUserFilter);
             }
             
-            // CALCULAR APENAS com aportes do período
+            // 1. TOTAL INVESTIDO (apenas aportes do período)
             const totalInvested = investmentData.reduce((sum, inv) => {
                 const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
                     const d = new Date(ap.date + 'T12:00:00');
@@ -887,17 +888,18 @@
                 return sum + aportesNoPeriodo.reduce((s, ap) => s + ap.value, 0);
             }, 0);
             
+            // 2. VALOR ATUAL (projeção até HOJE)
             const currentValue = investmentData.reduce((sum, inv) => {
                 const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
                     const d = new Date(ap.date + 'T12:00:00');
                     return d >= start && d <= end;
                 });
                 if (aportesNoPeriodo.length === 0) return sum;
-                const currentPeriodo = calcProjectedValue(aportesNoPeriodo, inv.rate, inv.indexer, end);
+                const currentPeriodo = calcProjectedValue(aportesNoPeriodo, inv.rate, inv.indexer, hoje);
                 return sum + currentPeriodo;
             }, 0);
             
-            // Projeção até o final do período
+            // 3. PROJEÇÃO (até a data final do filtro)
             let projectedValue = 0;
             investmentData.forEach(inv => {
                 const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
@@ -908,11 +910,19 @@
                 projectedValue += calcProjectedValue(aportesNoPeriodo, inv.rate, inv.indexer, end);
             });
             
+            // 4. GANHO NOMINAL (valor atual - investido)
+            const ganhoNominal = currentValue - totalInvested;
+            const nominalPct = totalInvested > 0 ? (ganhoNominal / totalInvested) * 100 : 0;
+            
+            // 5. IPCA do período (do início do filtro até HOJE)
+            const diasAteHoje = Math.max(1, Math.floor((hoje - start) / 86400000));
+            const ipcaPeriodo = (indexers.ipca || 0) * (diasAteHoje / 365);
+            
+            // 6. RENDIMENTO REAL
+            const realRetorno = ((1 + nominalPct / 100) / (1 + ipcaPeriodo / 100) - 1) * 100;
+            
+            // 7. PROJEÇÃO DE GANHO (até o final do período)
             const ganhoProjetado = projectedValue - totalInvested;
-            const nominalProjetado = totalInvested > 0 ? (ganhoProjetado / totalInvested) * 100 : 0;
-            const diasPeriodo = Math.max(1, Math.floor((end - start) / 86400000));
-            const ipcaPeriodo = (indexers.ipca || 0) * (diasPeriodo / 365);
-            const realProjetado = ((1 + nominalProjetado / 100) / (1 + ipcaPeriodo / 100) - 1) * 100;
             
             document.getElementById('summaryCards').innerHTML = `
                 <div class="summary-card income">
@@ -929,7 +939,7 @@
                 </div>
                 <div class="summary-card investment">
                     <div class="card-label">💎 Rendimento Real</div>
-                    <div class="card-value ${realProjetado>=0?'positive':'negative'}">${realProjetado.toFixed(2)}%</div>
+                    <div class="card-value ${realRetorno>=0?'positive':'negative'}">${realRetorno.toFixed(2)}%</div>
                 </div>
             `;
             
@@ -1112,6 +1122,7 @@
             allInvestments.forEach(inv => recalcInvestment(inv));
             
             const { start, end } = getGlobalDateRange();
+            const hoje = new Date();
             
             let investments = allInvestments.filter(inv => {
                 const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
@@ -1131,6 +1142,7 @@
                 investments = investments.filter(i => i.institution === investmentFilterValue);
             }
             
+            // CÁLCULOS APENAS COM APORTES DO PERÍODO
             const ti = investments.reduce((sum, inv) => {
                 const aportesNoPeriodo = (inv.aportes || []).filter(ap => {
                     const d = new Date(ap.date + 'T12:00:00');
@@ -1145,12 +1157,16 @@
                     return d >= start && d <= end;
                 });
                 if (aportesNoPeriodo.length === 0) return sum;
-                const currentPeriodo = calcProjectedValue(aportesNoPeriodo, inv.rate, inv.indexer, end);
+                const currentPeriodo = calcProjectedValue(aportesNoPeriodo, inv.rate, inv.indexer, hoje);
                 return sum + currentPeriodo;
             }, 0);
             
-            const rv = tc - ti, rp = ti > 0 ? (rv / ti) * 100 : 0;
-            const ipcaPeriodo = (indexers.ipca || 0);
+            const rv = tc - ti;
+            const rp = ti > 0 ? (rv / ti) * 100 : 0;
+            
+            // IPCA do período (do início do filtro até HOJE)
+            const diasAteHoje = Math.max(1, Math.floor((hoje - start) / 86400000));
+            const ipcaPeriodo = (indexers.ipca || 0) * (diasAteHoje / 365);
             const realRet = ((1 + rp / 100) / (1 + ipcaPeriodo / 100) - 1) * 100;
             
             document.getElementById('investmentSummary').innerHTML = `
@@ -1289,6 +1305,7 @@
                 if (charts['portfolioTypeChart']) charts['portfolioTypeChart'].destroy();
             }
             
+            // BURNUP CHART - APENAS APORTES DO PERÍODO
             const allAportes = [];
             investments.forEach(inv => {
                 (inv.aportes || []).forEach(ap => {
