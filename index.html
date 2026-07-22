@@ -177,12 +177,145 @@
         .filter-info { font-size:12px; color:var(--text-light); padding:8px 12px; background:#f9fafb; border-radius:6px; margin-bottom:12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
         .filter-info strong { color:var(--text); }
         .filter-info .highlight { background:var(--primary); color:#fff; padding:2px 10px; border-radius:12px; font-size:11px; }
+        
+        /* ===== NOVOS ESTILOS DOS TOOLTIPS ===== */
+        .gain-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+            margin-bottom: 8px;
+            transition: background 0.2s;
+        }
+        .gain-row:hover {
+            background: #f1f5f9;
+        }
+        .gain-row .gain-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .gain-row .gain-info label {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+        .gain-row .gain-info value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .gain-row .gain-info value.positive {
+            color: var(--success);
+        }
+        .gain-row .gain-info value.negative {
+            color: var(--danger);
+        }
+        .gain-row .gain-info small {
+            font-size: 10px;
+            color: var(--text-light);
+        }
+        .gain-row .tooltip-icon {
+            cursor: help;
+            font-size: 14px;
+            color: var(--primary);
+            position: relative;
+            background: #e8edf5;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .gain-row .tooltip-icon:hover {
+            background: #d1d9e8;
+        }
+        .tooltip-box {
+            display: none;
+            position: absolute;
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            min-width: 260px;
+            max-width: 320px;
+            bottom: 120%;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+            line-height: 1.5;
+        }
+        .tooltip-box::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 10px;
+            border: 6px solid transparent;
+            border-top-color: #1e293b;
+        }
+        .tooltip-box p {
+            margin: 4px 0;
+        }
+        .tooltip-box strong {
+            color: #ffffff;
+        }
+        .tooltip-box hr {
+            border: none;
+            border-top: 1px solid #475569;
+            margin: 6px 0;
+        }
+        .tooltip-box .highlight-green {
+            color: #4ade80;
+        }
+        .tooltip-box .highlight-blue {
+            color: #60a5fa;
+        }
+        .tooltip-box .highlight-yellow {
+            color: #fbbf24;
+        }
+        
+        /* NOVA SEÇÃO DE GANHOS NO CARD */
+        .gains-section {
+            margin: 8px 0 4px 0;
+            padding: 6px 0;
+            border-top: 1px solid var(--border);
+        }
+        .gains-section .gains-title {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        
         @media (max-width:768px) {
             .app-header { flex-direction:column; }
             .summary-cards { grid-template-columns:1fr 1fr; }
             .charts-grid { grid-template-columns:1fr; }
             .form-row { grid-template-columns:1fr; }
             .period-dropdown { right:-50px; min-width:300px; }
+            .tooltip-box {
+                min-width: 200px;
+                max-width: 260px;
+                right: -20px;
+                bottom: 130%;
+            }
+            .tooltip-box::after {
+                right: 20px;
+            }
+            .gain-row {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .gain-row .tooltip-icon {
+                margin-left: auto;
+            }
         }
     </style>
 </head>
@@ -413,7 +546,7 @@
         function getCategories() { return Object.keys(allCategories).length > 0 ? { ...defaultCategories, ...allCategories } : defaultCategories; }
         function getCategoryById(catId) { const cats = getCategories(); return cats[catId] || { name: catId, icon: '📦', color: '#ccc', type: 'expense' }; }
 
-        // ============ INVESTMENT CALCULATIONS - CORRIGIDO ============
+        // ============ INVESTMENT CALCULATIONS ============
         function getAnnualRate(rate, indexer) { 
             const base = indexers[indexer] || 0; 
             if (indexer === 'pre') return rate; 
@@ -433,7 +566,6 @@
             return t; 
         }
 
-        // ===== FUNÇÃO RECALC INVESTMENT CORRIGIDA =====
         function recalcInvestment(inv) {
             const a = inv.aportes || [];
             
@@ -452,13 +584,14 @@
             const diasAteHoje = Math.max(0, Math.floor((hoje - startDate) / 86400000));
             const ipcaProrata = (indexers.ipca || 0) * (diasAteHoje / 365);
             inv.realAtual = ((1 + inv.nominalAtual / 100) / (1 + ipcaProrata / 100) - 1) * 100;
+            inv.ganhoAtual = ganhoAtual;
+            inv.diasAteHoje = diasAteHoje;
             
             // ===== PERÍODO ATÉ VENCIMENTO =====
             let endDate;
             if (inv.endDate) {
                 endDate = new Date(inv.endDate + 'T12:00:00');
             } else {
-                // Default: 1 ano a partir da data de início
                 endDate = new Date(startDate);
                 endDate.setFullYear(endDate.getFullYear() + 1);
                 inv.endDate = toLocalDateStr(endDate);
@@ -473,8 +606,55 @@
             const diasAteVencimento = Math.max(0, Math.floor((endDate - startDate) / 86400000));
             const ipcaTotalVencimento = (indexers.ipca || 0) * (diasAteVencimento / 365);
             inv.realProjetado = ((1 + inv.nominalProjetado / 100) / (1 + ipcaTotalVencimento / 100) - 1) * 100;
+            inv.ganhoProjetado = ganhoProjetado;
+            inv.diasAteVencimento = diasAteVencimento;
             
             return inv;
+        }
+
+        // ===== FUNÇÃO DE TOOLTIP =====
+        function getTooltipContent(tipo, inv) {
+            if (tipo === 'atual') {
+                const diasAteHoje = inv.diasAteHoje || 0;
+                const taxaAnual = indexers.cdi || 13.65;
+                const meses = Math.floor(diasAteHoje / 30);
+                const diasRestantes = diasAteHoje % 30;
+                const periodoStr = meses > 0 ? `${meses}m ${diasRestantes}d` : `${diasAteHoje}d`;
+                
+                return `
+                    <p><strong>💰 Ganho Atual</strong></p>
+                    <p>Rendimento bruto: <strong class="highlight-green">+${inv.nominalAtual.toFixed(2)}%</strong></p>
+                    <p>Rendimento real: <strong class="highlight-blue">+${inv.realAtual.toFixed(2)}%</strong></p>
+                    <hr>
+                    <p>📅 Período: <strong>${periodoStr}</strong></p>
+                    <p>📊 Taxa anual: <strong>${taxaAnual.toFixed(2)}% CDI</strong></p>
+                    <hr>
+                    <p style="font-size:11px;color:#94a3b8;">💡 Dica: Mantenha até o vencimento para maximizar o rendimento!</p>
+                `;
+            }
+            
+            if (tipo === 'projetado') {
+                const diasAteVencimento = inv.diasAteVencimento || 365;
+                const meses = Math.floor(diasAteVencimento / 30);
+                const diasRestantes = diasAteVencimento % 30;
+                const periodoStr = meses > 0 ? `${meses}m ${diasRestantes}d` : `${diasAteVencimento}d`;
+                const rendAnual = (inv.nominalProjetado / (diasAteVencimento / 365));
+                const rendRealAnual = (inv.realProjetado / (diasAteVencimento / 365));
+                
+                return `
+                    <p><strong>📈 Ganho Projetado</strong></p>
+                    <p>Rendimento bruto: <strong class="highlight-green">+${inv.nominalProjetado.toFixed(2)}%</strong></p>
+                    <p>Rendimento real: <strong class="highlight-blue">+${inv.realProjetado.toFixed(2)}%</strong></p>
+                    <hr>
+                    <p>📈 Rendimento anual bruto: <strong class="highlight-yellow">+${rendAnual.toFixed(2)}% a.a.</strong></p>
+                    <p>💎 Rendimento anual real: <strong class="highlight-yellow">+${rendRealAnual.toFixed(2)}% a.a.</strong></p>
+                    <hr>
+                    <p>📅 Período: <strong>${periodoStr}</strong></p>
+                    <p>🏁 Vencimento: <strong>${new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR')}</strong></p>
+                    <p>📊 Taxa: <strong>${inv.rate || 0}% CDI</strong></p>
+                `;
+            }
+            return '';
         }
 
         // ============ RECURRING ============
@@ -671,7 +851,6 @@
             
             const aportes = [{ value: initialValue, date: startDate }];
             
-            // Calcular usando a função recalcInvestment
             const invData = { 
                 type, institution, name, rate, indexer, 
                 startDate, endDate, aportes,
@@ -679,7 +858,6 @@
                 updatedAt: serverTimestamp() 
             };
             
-            // Calcular valores usando a função corrigida
             recalcInvestment(invData);
             
             try { 
@@ -718,12 +896,6 @@
                 await updateDoc(doc(db, "investments", invId), { 
                     aportes: na, 
                     totalInvested: ni.totalInvested,
-                    currentValue: ni.currentValue,
-                    projectedValue: ni.projectedValue,
-                    nominalAtual: ni.nominalAtual,
-                    realAtual: ni.realAtual,
-                    nominalProjetado: ni.nominalProjetado,
-                    realProjetado: ni.realProjetado,
                     updatedAt: serverTimestamp() 
                 }); 
                 vi.value = ''; 
@@ -746,12 +918,6 @@
                 await updateDoc(doc(db, "investments", invId), { 
                     aportes: na, 
                     totalInvested: ni.totalInvested,
-                    currentValue: ni.currentValue,
-                    projectedValue: ni.projectedValue,
-                    nominalAtual: ni.nominalAtual,
-                    realAtual: ni.realAtual,
-                    nominalProjetado: ni.nominalProjetado,
-                    realProjetado: ni.realProjetado,
                     updatedAt: serverTimestamp() 
                 }); 
             } catch (e) { 
@@ -760,16 +926,13 @@
         };
 
         function loadInvestments() {
-            // Recalcular todos os investimentos com a função corrigida
             allInvestments.forEach(inv => recalcInvestment(inv));
             
-            // Filtro por usuário
             let investments = allInvestments.slice();
             if (investmentUserFilter && investmentUserFilter !== 'all') {
                 investments = investments.filter(i => (i.userName || 'Outro') === investmentUserFilter);
             }
             
-            // Filtro por modo (tipo ou instituição)
             if (investmentFilterMode === 'type' && investmentFilterValue !== null) {
                 investments = investments.filter(i => i.type === investmentFilterValue);
             } else if (investmentFilterMode === 'institution' && investmentFilterValue !== null) {
@@ -780,8 +943,6 @@
             const ti = investments.reduce((s, i) => s + (i.totalInvested || 0), 0);
             const tc = investments.reduce((s, i) => s + (i.currentValue || 0), 0);
             const rv = tc - ti, rp = ti > 0 ? (rv / ti) * 100 : 0;
-            
-            // Calcular rentabilidade real considerando IPCA total do período
             const ipcaPeriodo = (indexers.ipca || 0);
             const realRet = ((1 + rp / 100) / (1 + ipcaPeriodo / 100) - 1) * 100;
             
@@ -792,7 +953,7 @@
                 <div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">💎 Rent. Real</div><div class="card-value ${realRet>=0?'positive':'negative'}">${realRet.toFixed(2)}%</div></div>
             `;
             
-            // ===== PIE CHART - LÓGICA HIERÁRQUICA =====
+            // ===== PIE CHART =====
             let pieData = [];
             let pieTitle = '';
             let analysisText = '';
@@ -815,7 +976,6 @@
                 const topUser = pieData.length > 0 ? pieData.reduce((a, b) => a.value > b.value ? a : b) : null;
                 analysisText = `• ${pieData.length} usuário(s) ativo(s) • Total: R$ ${fmt(total)}${topUser ? ` • Maior: ${topUser.label} (${((topUser.value/total)*100).toFixed(1)}%)` : ''}`;
                 document.getElementById('filterInfoText').textContent = `Mostrando todos os investimentos → divisão por Usuário`;
-                
             } else if (investmentFilterMode === 'type' && investmentFilterValue === null) {
                 const typeMap = {};
                 investments.forEach(inv => {
@@ -834,7 +994,6 @@
                 const topType = pieData.length > 0 ? pieData.reduce((a, b) => a.value > b.value ? a : b) : null;
                 analysisText = `• ${pieData.length} tipo(s) • Total: R$ ${fmt(total)}${topType ? ` • Maior: ${topType.label} (${((topType.value/total)*100).toFixed(1)}%)` : ''}`;
                 document.getElementById('filterInfoText').textContent = `🏷️ Selecione um tipo para ver os ativos detalhados`;
-                
             } else if (investmentFilterMode === 'type' && investmentFilterValue !== null) {
                 const assetMap = {};
                 investments.forEach(inv => {
@@ -855,7 +1014,6 @@
                 const avg = count > 0 ? total / count : 0;
                 analysisText = `• ${count} ativo(s) • Total: R$ ${fmt(total)} • Média: R$ ${fmt(avg)}${topAsset ? ` • Maior: ${topAsset.label} (${((topAsset.value/total)*100).toFixed(1)}%)` : ''}`;
                 document.getElementById('filterInfoText').textContent = `🏷️ Filtrando por Tipo: ${investmentFilterValue} → ${count} ativo(s) encontrado(s)`;
-                
             } else if (investmentFilterMode === 'institution' && investmentFilterValue === null) {
                 const instMap = {};
                 investments.forEach(inv => {
@@ -874,7 +1032,6 @@
                 const topInst = pieData.length > 0 ? pieData.reduce((a, b) => a.value > b.value ? a : b) : null;
                 analysisText = `• ${pieData.length} instituição(ões) • Total: R$ ${fmt(total)}${topInst ? ` • Maior: ${topInst.label} (${((topInst.value/total)*100).toFixed(1)}%)` : ''}`;
                 document.getElementById('filterInfoText').textContent = `🏦 Selecione uma instituição para ver os ativos detalhados`;
-                
             } else if (investmentFilterMode === 'institution' && investmentFilterValue !== null) {
                 const assetMap = {};
                 investments.forEach(inv => {
@@ -970,16 +1127,19 @@
                 });
             } catch(e) {}
             
-            // ===== INVESTMENT CARDS - COM NOVOS CAMPOS =====
+            // ===== INVESTMENT CARDS COM TOOLTIPS =====
             document.getElementById('investmentCards').innerHTML = investments.map(inv => {
                 const own = inv.userId === currentUser?.id;
                 const aportes = inv.aportes || [];
-                const nominalAtual = inv.nominalAtual || 0;
-                const realAtual = inv.realAtual || 0;
-                const nominalProjetado = inv.nominalProjetado || 0;
-                const realProjetado = inv.realProjetado || 0;
+                const ganhoAtual = inv.ganhoAtual || 0;
+                const ganhoProjetado = inv.ganhoProjetado || 0;
+                const ganhoAtualStr = fmt(ganhoAtual);
+                const ganhoProjetadoStr = fmt(ganhoProjetado);
+                const isPositiveAtual = ganhoAtual >= 0;
+                const isPositiveProjetado = ganhoProjetado >= 0;
+                const endDateFormatted = new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR');
                 
-                return `<div class="data-card">
+                return `<div class="data-card" data-investment-id="${inv.id}">
                     <div class="data-card-header">
                         <h4><span class="investment-name-institution">📈 ${inv.name} ${inv.institution ? `<span class="inst-badge">🏦 ${inv.institution}</span>` : ''}</span></h4>
                         <div>${own ? `<button class="btn-sm btn-edit" onclick="openInvestmentModal('${inv.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteInvestment('${inv.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (inv.userName || 'Outro') + '</span>'}</div>
@@ -988,17 +1148,37 @@
                         <span>📋 ${inv.type}</span>
                         <span>📊 ${inv.rate || 0}% ${idx[inv.indexer] || ''}</span>
                         <span>📅 ${new Date(inv.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
-                        <span>🏁 ${new Date(inv.endDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
+                        <span>🏁 ${endDateFormatted}</span>
                     </div>
                     <div class="investment-card-values">
                         <div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${fmt(inv.totalInvested || 0)}</div></div>
                         <div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${fmt(inv.currentValue || 0)}</div></div>
                         <div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${fmt(inv.projectedValue || 0)}</div></div>
-                        <div class="val-item"><div class="val-label">📈 Nominal Atual</div><div class="val-number ${nominalAtual>=0?'positive':'negative'}">${nominalAtual.toFixed(2)}%</div></div>
-                        <div class="val-item"><div class="val-label">💎 Real Atual</div><div class="val-number ${realAtual>=0?'positive':'negative'}">${realAtual.toFixed(2)}%</div></div>
-                        <div class="val-item"><div class="val-label">📈 Nominal Proj.</div><div class="val-number ${nominalProjetado>=0?'positive':'negative'}">${nominalProjetado.toFixed(2)}%</div></div>
-                        <div class="val-item"><div class="val-label">💎 Real Proj.</div><div class="val-number ${realProjetado>=0?'positive':'negative'}">${realProjetado.toFixed(2)}%</div></div>
                     </div>
+                    
+                    <!-- NOVA SEÇÃO DE GANHOS COM TOOLTIPS -->
+                    <div class="gains-section">
+                        <div class="gains-title">💵 Ganhos</div>
+                        
+                        <div class="gain-row">
+                            <div class="gain-info">
+                                <label>Ganho Atual</label>
+                                <value class="${isPositiveAtual ? 'positive' : 'negative'}">${isPositiveAtual ? '+' : ''}R$ ${ganhoAtualStr}</value>
+                                <small>até hoje</small>
+                            </div>
+                            <span class="tooltip-icon" data-tooltip="atual" data-investment-id="${inv.id}">ℹ️</span>
+                        </div>
+                        
+                        <div class="gain-row">
+                            <div class="gain-info">
+                                <label>Ganho Projetado</label>
+                                <value class="${isPositiveProjetado ? 'positive' : 'negative'}">${isPositiveProjetado ? '+' : ''}R$ ${ganhoProjetadoStr}</value>
+                                <small>até ${endDateFormatted}</small>
+                            </div>
+                            <span class="tooltip-icon" data-tooltip="projetado" data-investment-id="${inv.id}">ℹ️</span>
+                        </div>
+                    </div>
+                    
                     <div class="aportes-section">
                         <h4>🏷️ Aportes (${aportes.length})</h4>
                         ${aportes.map((ap, i) => `<div class="aporte-mini-item"><span>R$ ${fmt(ap.value)}</span><span class="aporte-date">${new Date(ap.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>${i > 0 && own ? `<button onclick="removeAporteFromInvestment('${inv.id}',${i})">✕</button>` : (i === 0 ? '<span style="font-size:10px;">inicial</span>' : '')}</div>`).join('')}
@@ -1006,6 +1186,38 @@
                     </div>
                 </div>`;
             }).join('') || '<p style="text-align:center;padding:30px;">Nenhum investimento encontrado com o filtro atual.</p>';
+            
+            // ===== INICIALIZAR TOOLTIPS =====
+            setTimeout(() => {
+                document.querySelectorAll('.tooltip-icon').forEach(el => {
+                    const tipo = el.getAttribute('data-tooltip');
+                    const invId = el.getAttribute('data-investment-id');
+                    const inv = allInvestments.find(i => i.id === invId);
+                    
+                    if (!inv) return;
+                    
+                    // Remover tooltips antigos
+                    const oldTooltip = el.querySelector('.tooltip-box');
+                    if (oldTooltip) oldTooltip.remove();
+                    
+                    // Criar novo tooltip
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip-box';
+                    tooltip.innerHTML = getTooltipContent(tipo, inv);
+                    el.appendChild(tooltip);
+                    
+                    // Event listeners
+                    el.addEventListener('mouseenter', function(e) {
+                        const tb = this.querySelector('.tooltip-box');
+                        if (tb) tb.style.display = 'block';
+                    });
+                    
+                    el.addEventListener('mouseleave', function(e) {
+                        const tb = this.querySelector('.tooltip-box');
+                        if (tb) tb.style.display = 'none';
+                    });
+                });
+            }, 100);
         }
 
         // ============ GOALS ============
