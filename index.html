@@ -178,6 +178,91 @@
         .filter-info strong { color:var(--text); }
         .filter-info .highlight { background:var(--primary); color:#fff; padding:2px 10px; border-radius:12px; font-size:11px; }
         
+        /* ===== FILTRO DO DASHBOARD ===== */
+        .filter-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 16px 20px;
+            background: #f8fafc;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filter-section .filter-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-right: 4px;
+        }
+        .filter-section .quick-filters {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .filter-section .quick-filters .filter-btn {
+            padding: 6px 14px;
+            border: 2px solid var(--border);
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s;
+            color: var(--text);
+        }
+        .filter-section .quick-filters .filter-btn:hover {
+            background: var(--bg);
+            border-color: var(--primary);
+        }
+        .filter-section .quick-filters .filter-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+        .filter-section .exact-filter {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-left: auto;
+        }
+        .filter-section .exact-filter input[type="date"] {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            background: #fff;
+            color: var(--text);
+        }
+        .filter-section .exact-filter input[type="date"]:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .filter-section .exact-filter .apply-filter-btn {
+            padding: 6px 16px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        .filter-section .exact-filter .apply-filter-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-1px);
+        }
+        .filter-section .period-info {
+            font-size: 12px;
+            color: var(--text-light);
+            padding: 4px 12px;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        
         /* ===== GAIN ROWS ===== */
         .gain-row {
             display: flex;
@@ -314,6 +399,21 @@
             .gain-row .tooltip-icon {
                 margin-left: auto;
             }
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .filter-section .exact-filter {
+                margin-left: 0;
+            }
+            .filter-section .quick-filters {
+                justify-content: center;
+            }
+            .filter-section .exact-filter {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -350,6 +450,25 @@
         </header>
         <main class="app-content">
             <div id="dashboard" class="tab-content active">
+                <!-- ===== NOVO FILTRO DO DASHBOARD ===== -->
+                <div class="filter-section" id="dashboardFilter">
+                    <span class="filter-label">📅 Período:</span>
+                    <div class="quick-filters">
+                        <button class="filter-btn" data-days="1">1D</button>
+                        <button class="filter-btn" data-days="7">7D</button>
+                        <button class="filter-btn active" data-days="30">30D</button>
+                        <button class="filter-btn" data-days="60">60D</button>
+                        <button class="filter-btn" data-days="90">90D</button>
+                        <button class="filter-btn" data-days="180">180D</button>
+                        <button class="filter-btn" data-days="365">1A</button>
+                    </div>
+                    <div class="exact-filter">
+                        <input type="date" id="filterDate">
+                        <button class="apply-filter-btn" id="applyFilter">📌 Aplicar</button>
+                    </div>
+                    <span class="period-info" id="periodInfo">30 dias</span>
+                </div>
+                
                 <div class="summary-cards" id="summaryCards"></div>
                 <div class="charts-grid"><div class="chart-container"><h3>📊 Gastos por Categoria</h3><div class="chart-wrapper"><canvas id="categoryChart"></canvas></div></div></div>
                 <div class="section-header"><h3>💳 Transações <span class="period-badge"></span></h3><button class="btn btn-primary btn-sm" onclick="openTransactionModal()">➕ Nova</button></div>
@@ -403,6 +522,8 @@
         let investmentFilterValue = null;
         let selectedColor = '#FF6B6B', selectedIcon = '📦', editingTransactionId = null, editingInvestmentId = null, editingGoalId = null, editingRecurringId = null;
         let currentPeriod = { qty: 30, unit: 'd' };
+        let dashboardFilterDays = 30; // Dias para filtrar o dashboard
+        let dashboardFilterEndDate = new Date(); // Data final do filtro
 
         // ============ UTILS ============
         const fmt = v => { const n = Number(v) || 0; const p = n.toFixed(2).split('.'); return `${p[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${p[1]}`; };
@@ -412,8 +533,118 @@
         const escapeHtml = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
         const getRandomColor = (seed) => { const colors = ['#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#98D8C8','#2ECC71','#3498DB','#9B59B6','#E67E22','#F39C12','#1ABC9C','#E74C3C','#2980B9','#8E44AD']; return colors[Math.abs(seed.split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % colors.length]; };
 
-        function getPeriodRange() { const now = new Date(); let start = new Date(now); const { qty, unit } = currentPeriod; switch (unit) { case 'm': start.setMinutes(now.getMinutes() - qty); break; case 'h': start.setHours(now.getHours() - qty); break; case 'd': start.setDate(now.getDate() - qty); break; case 'M': start.setMonth(now.getMonth() - qty); break; case 'y': start.setFullYear(now.getFullYear() - qty); break; case 'custom': start = currentPeriod.start || start; break; default: start.setDate(now.getDate() - 30); } const end = (unit === 'custom' && currentPeriod.end) ? new Date(currentPeriod.end) : now; if (unit !== 'custom') start.setHours(0, 0, 0, 0); return { start, end }; }
-        function filterByPeriod(arr) { const { start, end } = getPeriodRange(); return arr.filter(t => { const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); return d >= start && d <= end; }); }
+        // ============ PERÍODO DO DASHBOARD ============
+        function getDashboardPeriod() {
+            const end = new Date();
+            const start = new Date(end);
+            start.setDate(start.getDate() - dashboardFilterDays);
+            return { start, end };
+        }
+
+        function updatePeriodInfo() {
+            const days = dashboardFilterDays;
+            let label = '';
+            if (days < 30) label = `${days} dias`;
+            else if (days === 30) label = '30 dias (1 mês)';
+            else if (days === 60) label = '60 dias (2 meses)';
+            else if (days === 90) label = '90 dias (3 meses)';
+            else if (days === 180) label = '180 dias (6 meses)';
+            else if (days === 365) label = '365 dias (1 ano)';
+            else label = `${days} dias`;
+            
+            document.getElementById('periodInfo').textContent = label;
+            
+            // Atualizar badge
+            const { start, end } = getDashboardPeriod();
+            const fmtDate = d => d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+            document.querySelectorAll('.period-badge').forEach(el => {
+                el.textContent = `${fmtDate(start)} - ${fmtDate(end)}`;
+            });
+        }
+
+        function setDashboardFilter(days) {
+            dashboardFilterDays = days;
+            dashboardFilterEndDate = new Date();
+            
+            // Atualizar botões
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.days) === days);
+            });
+            
+            updatePeriodInfo();
+            loadDashboard();
+        }
+
+        function setDashboardFilterExact(date) {
+            if (!date) return;
+            dashboardFilterEndDate = new Date(date);
+            const diffDays = Math.floor((new Date() - dashboardFilterEndDate) / 86400000);
+            dashboardFilterDays = diffDays;
+            
+            // Desmarcar botões rápidos
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            
+            updatePeriodInfo();
+            loadDashboard();
+        }
+
+        // ============ CONFIGURAR FILTROS DO DASHBOARD ============
+        function setupDashboardFilters() {
+            // Filtros rápidos
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const days = parseInt(this.dataset.days);
+                    setDashboardFilter(days);
+                });
+            });
+            
+            // Filtro exato
+            document.getElementById('applyFilter').addEventListener('click', function() {
+                const dateInput = document.getElementById('filterDate');
+                if (dateInput.value) {
+                    setDashboardFilterExact(new Date(dateInput.value));
+                } else {
+                    alert('Selecione uma data primeiro.');
+                }
+            });
+            
+            // Enter no input de data
+            document.getElementById('filterDate').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('applyFilter').click();
+                }
+            });
+            
+            // Inicializar com 30 dias
+            setDashboardFilter(30);
+        }
+
+        // ============ PERÍODO DO APP (para transações) ============
+        function getPeriodRange() { 
+            const now = new Date(); 
+            let start = new Date(now); 
+            const { qty, unit } = currentPeriod; 
+            switch (unit) { 
+                case 'm': start.setMinutes(now.getMinutes() - qty); break; 
+                case 'h': start.setHours(now.getHours() - qty); break; 
+                case 'd': start.setDate(now.getDate() - qty); break; 
+                case 'M': start.setMonth(now.getMonth() - qty); break; 
+                case 'y': start.setFullYear(now.getFullYear() - qty); break; 
+                case 'custom': start = currentPeriod.start || start; break; 
+                default: start.setDate(now.getDate() - 30); 
+            } 
+            const end = (unit === 'custom' && currentPeriod.end) ? new Date(currentPeriod.end) : now; 
+            if (unit !== 'custom') start.setHours(0, 0, 0, 0); 
+            return { start, end }; 
+        }
+        
+        function filterByPeriod(arr) { 
+            const { start, end } = getPeriodRange(); 
+            return arr.filter(t => { 
+                const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date); 
+                return d >= start && d <= end; 
+            }); 
+        }
 
         function updatePeriodLabel() {
             const { qty, unit } = currentPeriod;
@@ -426,7 +657,6 @@
             const fmtTime = d => d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             let startStr = fmtDate(start), endStr = fmtDate(end);
             if (unit === 'm' || unit === 'h') { startStr += ' ' + fmtTime(start); endStr += ' ' + fmtTime(end); }
-            document.querySelectorAll('.period-badge').forEach(el => el.textContent = `${startStr} - ${endStr}`);
         }
 
         function parseCustomPeriod(str) { const m = str.match(/^(\d+)\s*(m|h|d|M|y)$/); return m ? { qty: parseInt(m[1]), unit: m[2] } : null; }
@@ -564,17 +794,14 @@
         function recalcInvestment(inv) {
             const a = inv.aportes || [];
             
-            // Calcular total investido
             inv.totalInvested = a.reduce((s, x) => s + x.value, 0);
             
-            // ===== PERÍODO ATÉ HOJE =====
             const hoje = new Date();
             inv.currentValue = calcProjectedValue(a, inv.rate, inv.indexer, hoje);
             
             const ganhoAtual = inv.currentValue - inv.totalInvested;
             inv.nominalAtual = inv.totalInvested > 0 ? (ganhoAtual / inv.totalInvested) * 100 : 0;
             
-            // IPCA pro-rata até hoje
             const startDate = new Date(inv.startDate + 'T12:00:00');
             const diasAteHoje = Math.max(0, Math.floor((hoje - startDate) / 86400000));
             const ipcaProrata = (indexers.ipca || 0) * (diasAteHoje / 365);
@@ -582,7 +809,6 @@
             inv.ganhoAtual = ganhoAtual;
             inv.diasAteHoje = diasAteHoje;
             
-            // ===== PERÍODO ATÉ VENCIMENTO =====
             let endDate;
             if (inv.endDate) {
                 endDate = new Date(inv.endDate + 'T12:00:00');
@@ -597,7 +823,6 @@
             const ganhoProjetado = inv.projectedValue - inv.totalInvested;
             inv.nominalProjetado = inv.totalInvested > 0 ? (ganhoProjetado / inv.totalInvested) * 100 : 0;
             
-            // IPCA total até vencimento
             const diasAteVencimento = Math.max(0, Math.floor((endDate - startDate) / 86400000));
             const ipcaTotalVencimento = (indexers.ipca || 0) * (diasAteVencimento / 365);
             inv.realProjetado = ((1 + inv.nominalProjetado / 100) / (1 + ipcaTotalVencimento / 100) - 1) * 100;
@@ -605,20 +830,6 @@
             inv.diasAteVencimento = diasAteVencimento;
             
             return inv;
-        }
-
-        // ===== FUNÇÃO PARA CALCULAR PROJEÇÃO BASEADA NO PERÍODO DO FILTRO =====
-        function calcProjectedForPeriod(investments, endDate) {
-            let totalInvested = 0;
-            let projectedValue = 0;
-            
-            investments.forEach(inv => {
-                const aportes = inv.aportes || [];
-                totalInvested += aportes.reduce((s, x) => s + x.value, 0);
-                projectedValue += calcProjectedValue(aportes, inv.rate, inv.indexer, endDate);
-            });
-            
-            return { totalInvested, projectedValue };
         }
 
         // ===== FUNÇÃO DE TOOLTIP =====
@@ -711,7 +922,19 @@
         window.loginWithGoogle = async function() { const le = document.getElementById('loginError'); le.classList.remove('show'); try { showLoading(true); const r = await signInWithPopup(auth, provider); if (!await checkUserAuthorization(r.user.uid)) { await signOut(auth); le.classList.add('show'); showLoading(false); return; } currentUser = { id: r.user.uid, name: r.user.displayName || r.user.email.split('@')[0], avatar: r.user.photoURL || null, email: r.user.email }; startListeningToFirestore(); enterApp(); showLoading(false); } catch (e) { if (e.code !== 'auth/popup-closed-by-user') alert('Erro: ' + e.message); showLoading(false); } };
         onAuthStateChanged(auth, async (u) => { if (u) { showLoading(true); if (!await checkUserAuthorization(u.uid)) { await signOut(auth); document.getElementById('loginError').classList.add('show'); showLoading(false); return; } currentUser = { id: u.uid, name: u.displayName || u.email.split('@')[0], avatar: u.photoURL || null, email: u.email }; startListeningToFirestore(); enterApp(); showLoading(false); } else { currentUser = null; allTransactions = []; allInvestments = []; allGoals = []; allCategories = {}; allRecurring = []; document.getElementById('mainApp').classList.remove('active'); document.getElementById('loginScreen').classList.remove('hidden'); showLoading(false); } });
         function showLoading(s) { document.getElementById('loadingOverlay').classList.toggle('hidden', !s); }
-        function enterApp() { const b = document.getElementById('userBadge'); if (currentUser.avatar?.startsWith('http')) b.innerHTML = `<img src="${currentUser.avatar}" style="width:22px;height:22px;border-radius:50%;"> ${currentUser.name}`; else b.textContent = '👤 ' + currentUser.name; document.getElementById('loginScreen').classList.add('hidden'); document.getElementById('mainApp').classList.add('active'); document.getElementById('loginError').classList.remove('show'); updateCategoryDropdown(); updatePeriodLabel(); setupPeriodEvents(); showTab('dashboard'); }
+        function enterApp() { 
+            const b = document.getElementById('userBadge'); 
+            if (currentUser.avatar?.startsWith('http')) b.innerHTML = `<img src="${currentUser.avatar}" style="width:22px;height:22px;border-radius:50%;"> ${currentUser.name}`; 
+            else b.textContent = '👤 ' + currentUser.name; 
+            document.getElementById('loginScreen').classList.add('hidden'); 
+            document.getElementById('mainApp').classList.add('active'); 
+            document.getElementById('loginError').classList.remove('show'); 
+            updateCategoryDropdown(); 
+            updatePeriodLabel(); 
+            setupPeriodEvents(); 
+            setupDashboardFilters(); // <-- NOVO
+            showTab('dashboard'); 
+        }
         window.logout = async function() { if (confirm('Sair?')) { try { await signOut(auth); } catch (e) { } currentUser = null; allTransactions = []; allInvestments = []; allGoals = []; allCategories = {}; allRecurring = []; document.getElementById('mainApp').classList.remove('active'); document.getElementById('loginScreen').classList.remove('hidden'); } };
         window.showTab = function(tn) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active')); const te = document.getElementById(tn); if (te) te.classList.add('active'); const tm = { dashboard: 0, investments: 1, goals: 2, settings: 3 }; const bt = document.querySelectorAll('.nav-tab'); if (bt[tm[tn]]) bt[tm[tn]].classList.add('active'); switch (tn) { case 'dashboard': loadDashboard(); break; case 'investments': loadInvestments(); break; case 'goals': loadGoals(); break; case 'settings': loadSettingsView(); break; } };
 
@@ -821,20 +1044,16 @@
             const me = ft.filter(t => t.type === 'expense').reduce((s, t) => s + (t.amount || 0), 0);
             const bal = mi - me;
             
-            // ===== INVESTIMENTOS COM BASE NO FILTRO DE DATA =====
-            // Pegar a data final do período do filtro
-            const { end } = getPeriodRange();
+            // ===== INVESTIMENTOS COM BASE NO FILTRO DO DASHBOARD =====
+            const { end } = getDashboardPeriod();
             
-            // Filtrar investimentos pelo usuário selecionado
             let investmentData = allInvestments;
             if (transactionUserFilter && transactionUserFilter !== 'all') {
                 investmentData = investmentData.filter(inv => (inv.userName || 'Outro') === transactionUserFilter);
             }
             
-            // Recalcular todos os investimentos
             investmentData.forEach(inv => recalcInvestment(inv));
             
-            // Calcular total investido e valor atual (até hoje)
             const totalInvested = investmentData.reduce((s, inv) => s + (inv.totalInvested || 0), 0);
             const currentValue = investmentData.reduce((s, inv) => s + (inv.currentValue || 0), 0);
             
@@ -845,14 +1064,13 @@
                 projectedValue += calcProjectedValue(aportes, inv.rate, inv.indexer, end);
             });
             
-            // Calcular rendimento real baseado no período do filtro
             const ganhoProjetado = projectedValue - totalInvested;
             const nominalProjetado = totalInvested > 0 ? (ganhoProjetado / totalInvested) * 100 : 0;
             
             // IPCA proporcional ao período do filtro
-            const startDate = new Date();
-            startDate.setDate(startDate.getDate() - 30); // aproximação
-            const diasPeriodo = Math.max(1, Math.floor((end - startDate) / 86400000));
+            const startDate = new Date(end);
+            startDate.setDate(startDate.getDate() - dashboardFilterDays);
+            const diasPeriodo = Math.max(1, dashboardFilterDays);
             const ipcaPeriodo = (indexers.ipca || 0) * (diasPeriodo / 365);
             const realProjetado = ((1 + nominalProjetado / 100) / (1 + ipcaPeriodo / 100) - 1) * 100;
             
@@ -1066,7 +1284,6 @@
                 investments = investments.filter(i => i.institution === investmentFilterValue);
             }
             
-            // ===== SUMMARY CARDS =====
             const ti = investments.reduce((s, i) => s + (i.totalInvested || 0), 0);
             const tc = investments.reduce((s, i) => s + (i.currentValue || 0), 0);
             const rv = tc - ti, rp = ti > 0 ? (rv / ti) * 100 : 0;
@@ -1283,7 +1500,6 @@
                         <div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${fmt(inv.projectedValue || 0)}</div></div>
                     </div>
                     
-                    <!-- SEÇÃO DE GANHOS COM TOOLTIPS -->
                     <div class="gains-section">
                         <div class="gains-title">💵 Ganhos</div>
                         
