@@ -272,7 +272,7 @@
         const idx = { cdi: '% CDI', selic: '% Selic', ipca: 'IPCA +', pre: 'Pré' };
         let transactionUserFilter = 'all', investmentUserFilter = 'all', goalUserFilter = 'all';
         let investmentFilterMode = 'all';
-        let investmentFilterValue = null; // Valor selecionado (tipo ou instituição)
+        let investmentFilterValue = null;
         let selectedColor = '#FF6B6B', selectedIcon = '📦', editingTransactionId = null, editingInvestmentId = null, editingGoalId = null, editingRecurringId = null;
         let currentPeriod = { qty: 30, unit: 'd' };
 
@@ -413,11 +413,69 @@
         function getCategories() { return Object.keys(allCategories).length > 0 ? { ...defaultCategories, ...allCategories } : defaultCategories; }
         function getCategoryById(catId) { const cats = getCategories(); return cats[catId] || { name: catId, icon: '📦', color: '#ccc', type: 'expense' }; }
 
-        // ============ INVESTMENT CALCULATIONS ============
-        function getAnnualRate(rate, indexer) { const base = indexers[indexer] || 0; if (indexer === 'pre') return rate; return (rate / 100) * base; }
-        function calcProjectedValue(aportes, rate, indexer, endDate) { const ar = getAnnualRate(rate, indexer) / 100; const dr = Math.pow(1 + ar, 1 / 365) - 1; let t = 0; const end = endDate || new Date(); aportes.forEach(ap => { const d = new Date(ap.date); const days = Math.max(0, Math.floor((end - d) / 86400000)); t += ap.value * Math.pow(1 + dr, days); }); return t; }
-        function calcCurrentValue(aportes, rate, indexer) { return calcProjectedValue(aportes, rate, indexer, new Date()); }
-        function recalcInvestment(inv) { const a = inv.aportes || []; inv.currentValue = calcCurrentValue(a, inv.rate, inv.indexer); inv.projectedValue = calcProjectedValue(a, inv.rate, inv.indexer, new Date(inv.endDate || Date.now() + 365 * 86400000)); inv.totalInvested = a.reduce((s, x) => s + x.value, 0); return inv; }
+        // ============ INVESTMENT CALCULATIONS - CORRIGIDO ============
+        function getAnnualRate(rate, indexer) { 
+            const base = indexers[indexer] || 0; 
+            if (indexer === 'pre') return rate; 
+            return (rate / 100) * base; 
+        }
+        
+        function calcProjectedValue(aportes, rate, indexer, endDate) { 
+            const ar = getAnnualRate(rate, indexer) / 100; 
+            const dr = Math.pow(1 + ar, 1 / 365) - 1; 
+            let t = 0; 
+            const end = endDate || new Date(); 
+            aportes.forEach(ap => { 
+                const d = new Date(ap.date); 
+                const days = Math.max(0, Math.floor((end - d) / 86400000)); 
+                t += ap.value * Math.pow(1 + dr, days); 
+            }); 
+            return t; 
+        }
+
+        // ===== FUNÇÃO RECALC INVESTMENT CORRIGIDA =====
+        function recalcInvestment(inv) {
+            const a = inv.aportes || [];
+            
+            // Calcular total investido
+            inv.totalInvested = a.reduce((s, x) => s + x.value, 0);
+            
+            // ===== PERÍODO ATÉ HOJE =====
+            const hoje = new Date();
+            inv.currentValue = calcProjectedValue(a, inv.rate, inv.indexer, hoje);
+            
+            const ganhoAtual = inv.currentValue - inv.totalInvested;
+            inv.nominalAtual = inv.totalInvested > 0 ? (ganhoAtual / inv.totalInvested) * 100 : 0;
+            
+            // IPCA pro-rata até hoje
+            const startDate = new Date(inv.startDate + 'T12:00:00');
+            const diasAteHoje = Math.max(0, Math.floor((hoje - startDate) / 86400000));
+            const ipcaProrata = (indexers.ipca || 0) * (diasAteHoje / 365);
+            inv.realAtual = ((1 + inv.nominalAtual / 100) / (1 + ipcaProrata / 100) - 1) * 100;
+            
+            // ===== PERÍODO ATÉ VENCIMENTO =====
+            let endDate;
+            if (inv.endDate) {
+                endDate = new Date(inv.endDate + 'T12:00:00');
+            } else {
+                // Default: 1 ano a partir da data de início
+                endDate = new Date(startDate);
+                endDate.setFullYear(endDate.getFullYear() + 1);
+                inv.endDate = toLocalDateStr(endDate);
+            }
+            
+            inv.projectedValue = calcProjectedValue(a, inv.rate, inv.indexer, endDate);
+            
+            const ganhoProjetado = inv.projectedValue - inv.totalInvested;
+            inv.nominalProjetado = inv.totalInvested > 0 ? (ganhoProjetado / inv.totalInvested) * 100 : 0;
+            
+            // IPCA total até vencimento
+            const diasAteVencimento = Math.max(0, Math.floor((endDate - startDate) / 86400000));
+            const ipcaTotalVencimento = (indexers.ipca || 0) * (diasAteVencimento / 365);
+            inv.realProjetado = ((1 + inv.nominalProjetado / 100) / (1 + ipcaTotalVencimento / 100) - 1) * 100;
+            
+            return inv;
+        }
 
         // ============ RECURRING ============
         async function processRecurring() {
@@ -590,12 +648,119 @@
         // ============ INVESTMENTS ============
         window.openInvestmentModal = function(invId = null) { editingInvestmentId = invId; document.getElementById('investmentModal').classList.add('active'); if (invId) { const inv = allInvestments.find(i => i.id === invId); if (inv) { document.getElementById('investmentModalTitle').textContent = 'Editar'; document.getElementById('invType').value = inv.type; document.getElementById('invInstitution').value = inv.institution || ''; document.getElementById('invName').value = inv.name; document.getElementById('invRate').value = inv.rate || ''; document.getElementById('invIndexer').value = inv.indexer || 'cdi'; document.getElementById('invStartDate').value = inv.startDate || ''; document.getElementById('invEndDate').value = inv.endDate || ''; document.getElementById('invInitialValue').value = fmt((inv.aportes && inv.aportes.length > 0) ? inv.aportes[0].value : 0); document.getElementById('invEditId').value = invId; } } else { document.getElementById('investmentModalTitle').textContent = 'Novo'; document.getElementById('invType').value = 'CDB'; document.getElementById('invInstitution').value = ''; document.getElementById('invName').value = ''; document.getElementById('invRate').value = ''; document.getElementById('invIndexer').value = 'cdi'; document.getElementById('invStartDate').value = toLocalDateStr(new Date()); document.getElementById('invEndDate').value = ''; document.getElementById('invInitialValue').value = ''; document.getElementById('invEditId').value = ''; } };
         window.closeInvestmentModal = function() { document.getElementById('investmentModal').classList.remove('active'); };
-        window.saveInvestment = async function() { const type = document.getElementById('invType').value, institution = document.getElementById('invInstitution').value.trim(), name = document.getElementById('invName').value.trim(), rate = parseFloat(document.getElementById('invRate').value) || 0, indexer = document.getElementById('invIndexer').value, startDate = document.getElementById('invStartDate').value || toLocalDateStr(new Date()); let endDate = document.getElementById('invEndDate').value; if (!endDate) { const sd = new Date(startDate + 'T12:00:00'); sd.setFullYear(sd.getFullYear() + 1); endDate = toLocalDateStr(sd); } const initialValue = parseMoney(document.getElementById('invInitialValue').value); if (!name || !initialValue || initialValue <= 0) { alert('Preencha'); return; } const aportes = [{ value: initialValue, date: startDate }]; const currentValue = calcCurrentValue(aportes, rate, indexer), projectedValue = calcProjectedValue(aportes, rate, indexer, new Date(endDate + 'T12:00:00')); const invData = { type, institution, name, rate, indexer, startDate, endDate, aportes, totalInvested: initialValue, currentValue, projectedValue, updatedAt: serverTimestamp() }; try { if (editingInvestmentId) { await updateDoc(doc(db, "investments", editingInvestmentId), invData); } else { await addDoc(collection(db, "investments"), { ...invData, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); } closeInvestmentModal(); } catch (e) { alert('Erro'); } };
+        window.saveInvestment = async function() { 
+            const type = document.getElementById('invType').value;
+            const institution = document.getElementById('invInstitution').value.trim();
+            const name = document.getElementById('invName').value.trim();
+            const rate = parseFloat(document.getElementById('invRate').value) || 0;
+            const indexer = document.getElementById('invIndexer').value;
+            const startDate = document.getElementById('invStartDate').value || toLocalDateStr(new Date());
+            let endDate = document.getElementById('invEndDate').value;
+            
+            if (!endDate) {
+                const sd = new Date(startDate + 'T12:00:00');
+                sd.setFullYear(sd.getFullYear() + 1);
+                endDate = toLocalDateStr(sd);
+            }
+            
+            const initialValue = parseMoney(document.getElementById('invInitialValue').value);
+            if (!name || !initialValue || initialValue <= 0) { 
+                alert('Preencha todos os campos obrigatórios'); 
+                return; 
+            }
+            
+            const aportes = [{ value: initialValue, date: startDate }];
+            
+            // Calcular usando a função recalcInvestment
+            const invData = { 
+                type, institution, name, rate, indexer, 
+                startDate, endDate, aportes,
+                totalInvested: initialValue,
+                updatedAt: serverTimestamp() 
+            };
+            
+            // Calcular valores usando a função corrigida
+            recalcInvestment(invData);
+            
+            try { 
+                if (editingInvestmentId) { 
+                    await updateDoc(doc(db, "investments", editingInvestmentId), invData); 
+                } else { 
+                    await addDoc(collection(db, "investments"), { 
+                        ...invData, 
+                        userId: currentUser.id, 
+                        userName: currentUser.name, 
+                        createdAt: serverTimestamp() 
+                    }); 
+                } 
+                closeInvestmentModal(); 
+            } catch (e) { 
+                alert('Erro ao salvar: ' + e.message); 
+            } 
+        };
+        
         window.deleteInvestment = async function(id) { if (!confirm('Excluir?')) return; try { await deleteDoc(doc(db, "investments", id)); } catch (e) { } };
-        window.addAporteToInvestment = async function(invId) { const vi = document.getElementById(`aporte-val-${invId}`), di = document.getElementById(`aporte-date-${invId}`); const v = parseMoney(vi?.value), d = di?.value; if (!v || v <= 0 || !d) { alert('Preencha'); return; } const inv = allInvestments.find(i => i.id === invId); if (!inv) return; const na = [...(inv.aportes || []), { value: v, date: d }]; const ni = { ...inv, aportes: na }; recalcInvestment(ni); try { await updateDoc(doc(db, "investments", invId), { aportes: na, totalInvested: ni.totalInvested, currentValue: ni.currentValue, projectedValue: ni.projectedValue, updatedAt: serverTimestamp() }); vi.value = ''; di.value = ''; } catch (e) { alert('Erro'); } };
-        window.removeAporteFromInvestment = async function(invId, index) { const inv = allInvestments.find(i => i.id === invId); if (!inv || inv.aportes.length <= 1) { alert('Não pode remover o aporte inicial.'); return; } const na = inv.aportes.filter((_, i) => i !== index); const ni = { ...inv, aportes: na }; recalcInvestment(ni); try { await updateDoc(doc(db, "investments", invId), { aportes: na, totalInvested: ni.totalInvested, currentValue: ni.currentValue, projectedValue: ni.projectedValue, updatedAt: serverTimestamp() }); } catch (e) { alert('Erro'); } };
+        window.addAporteToInvestment = async function(invId) { 
+            const vi = document.getElementById(`aporte-val-${invId}`);
+            const di = document.getElementById(`aporte-date-${invId}`); 
+            const v = parseMoney(vi?.value);
+            const d = di?.value; 
+            if (!v || v <= 0 || !d) { alert('Preencha valor e data'); return; } 
+            
+            const inv = allInvestments.find(i => i.id === invId); 
+            if (!inv) return; 
+            
+            const na = [...(inv.aportes || []), { value: v, date: d }]; 
+            const ni = { ...inv, aportes: na }; 
+            recalcInvestment(ni); 
+            
+            try { 
+                await updateDoc(doc(db, "investments", invId), { 
+                    aportes: na, 
+                    totalInvested: ni.totalInvested,
+                    currentValue: ni.currentValue,
+                    projectedValue: ni.projectedValue,
+                    nominalAtual: ni.nominalAtual,
+                    realAtual: ni.realAtual,
+                    nominalProjetado: ni.nominalProjetado,
+                    realProjetado: ni.realProjetado,
+                    updatedAt: serverTimestamp() 
+                }); 
+                vi.value = ''; 
+                di.value = ''; 
+            } catch (e) { 
+                alert('Erro ao adicionar aporte'); 
+            } 
+        };
+        
+        window.removeAporteFromInvestment = async function(invId, index) { 
+            const inv = allInvestments.find(i => i.id === invId); 
+            if (!inv || inv.aportes.length <= 1) { 
+                alert('Não pode remover o aporte inicial.'); 
+                return; 
+            } 
+            const na = inv.aportes.filter((_, i) => i !== index); 
+            const ni = { ...inv, aportes: na }; 
+            recalcInvestment(ni); 
+            try { 
+                await updateDoc(doc(db, "investments", invId), { 
+                    aportes: na, 
+                    totalInvested: ni.totalInvested,
+                    currentValue: ni.currentValue,
+                    projectedValue: ni.projectedValue,
+                    nominalAtual: ni.nominalAtual,
+                    realAtual: ni.realAtual,
+                    nominalProjetado: ni.nominalProjetado,
+                    realProjetado: ni.realProjetado,
+                    updatedAt: serverTimestamp() 
+                }); 
+            } catch (e) { 
+                alert('Erro ao remover aporte'); 
+            } 
+        };
 
         function loadInvestments() {
+            // Recalcular todos os investimentos com a função corrigida
             allInvestments.forEach(inv => recalcInvestment(inv));
             
             // Filtro por usuário
@@ -615,11 +780,16 @@
             const ti = investments.reduce((s, i) => s + (i.totalInvested || 0), 0);
             const tc = investments.reduce((s, i) => s + (i.currentValue || 0), 0);
             const rv = tc - ti, rp = ti > 0 ? (rv / ti) * 100 : 0;
+            
+            // Calcular rentabilidade real considerando IPCA total do período
+            const ipcaPeriodo = (indexers.ipca || 0);
+            const realRet = ((1 + rp / 100) / (1 + ipcaPeriodo / 100) - 1) * 100;
+            
             document.getElementById('investmentSummary').innerHTML = `
                 <div class="summary-card investment"><div class="card-label">💼 Total Investido</div><div class="card-value">R$ ${fmt(ti)}</div></div>
                 <div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">📊 Valor Atual</div><div class="card-value ${rv>=0?'positive':'negative'}">R$ ${fmt(tc)}</div></div>
                 <div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">📈 Rent. Nominal</div><div class="card-value ${rv>=0?'positive':'negative'}">${rp.toFixed(2)}%</div></div>
-                <div class="summary-card ${rv-(indexers.ipca||0)>=0?'income':'expense'}"><div class="card-label">💎 Rent. Real</div><div class="card-value ${rv-(indexers.ipca||0)>=0?'positive':'negative'}">${(rp-(indexers.ipca||0)).toFixed(2)}%</div></div>
+                <div class="summary-card ${rv>=0?'income':'expense'}"><div class="card-label">💎 Rent. Real</div><div class="card-value ${realRet>=0?'positive':'negative'}">${realRet.toFixed(2)}%</div></div>
             `;
             
             // ===== PIE CHART - LÓGICA HIERÁRQUICA =====
@@ -628,7 +798,6 @@
             let analysisText = '';
             
             if (investmentFilterMode === 'all') {
-                // Modo Todos: divisão por usuário
                 const userMap = {};
                 investments.forEach(inv => {
                     const userName = inv.userName || 'Outro';
@@ -648,7 +817,6 @@
                 document.getElementById('filterInfoText').textContent = `Mostrando todos os investimentos → divisão por Usuário`;
                 
             } else if (investmentFilterMode === 'type' && investmentFilterValue === null) {
-                // Modo Tipo - nível 1: distribuição por tipo
                 const typeMap = {};
                 investments.forEach(inv => {
                     const type = inv.type || 'Outro';
@@ -668,7 +836,6 @@
                 document.getElementById('filterInfoText').textContent = `🏷️ Selecione um tipo para ver os ativos detalhados`;
                 
             } else if (investmentFilterMode === 'type' && investmentFilterValue !== null) {
-                // Modo Tipo - nível 2: distribuição por nome do ativo (filtrado por tipo)
                 const assetMap = {};
                 investments.forEach(inv => {
                     const name = inv.name || 'Sem nome';
@@ -690,7 +857,6 @@
                 document.getElementById('filterInfoText').textContent = `🏷️ Filtrando por Tipo: ${investmentFilterValue} → ${count} ativo(s) encontrado(s)`;
                 
             } else if (investmentFilterMode === 'institution' && investmentFilterValue === null) {
-                // Modo Instituição - nível 1: distribuição por instituição
                 const instMap = {};
                 investments.forEach(inv => {
                     const inst = inv.institution || 'Sem instituição';
@@ -710,7 +876,6 @@
                 document.getElementById('filterInfoText').textContent = `🏦 Selecione uma instituição para ver os ativos detalhados`;
                 
             } else if (investmentFilterMode === 'institution' && investmentFilterValue !== null) {
-                // Modo Instituição - nível 2: distribuição por nome do ativo (filtrado por instituição)
                 const assetMap = {};
                 investments.forEach(inv => {
                     const name = inv.name || 'Sem nome';
@@ -732,10 +897,8 @@
                 document.getElementById('filterInfoText').textContent = `🏦 Filtrando por Instituição: ${investmentFilterValue} → ${count} ativo(s) encontrado(s)`;
             }
             
-            // Atualizar título do gráfico
             document.getElementById('pieChartTitle').textContent = pieTitle || '📊 Distribuição';
             
-            // Renderizar gráfico de pizza
             if (pieData.length > 0) {
                 createPieChart('portfolioTypeChart', pieData, pieTitle);
                 document.getElementById('portfolioTypeAnalysis').innerHTML = analysisText;
@@ -807,13 +970,15 @@
                 });
             } catch(e) {}
             
-            // ===== INVESTMENT CARDS =====
+            // ===== INVESTMENT CARDS - COM NOVOS CAMPOS =====
             document.getElementById('investmentCards').innerHTML = investments.map(inv => {
-                const ret = (inv.currentValue || 0) - (inv.totalInvested || 0);
-                const retP = inv.totalInvested > 0 ? (ret / inv.totalInvested) * 100 : 0;
-                const realRet = retP - (indexers.ipca || 0);
                 const own = inv.userId === currentUser?.id;
                 const aportes = inv.aportes || [];
+                const nominalAtual = inv.nominalAtual || 0;
+                const realAtual = inv.realAtual || 0;
+                const nominalProjetado = inv.nominalProjetado || 0;
+                const realProjetado = inv.realProjetado || 0;
+                
                 return `<div class="data-card">
                     <div class="data-card-header">
                         <h4><span class="investment-name-institution">📈 ${inv.name} ${inv.institution ? `<span class="inst-badge">🏦 ${inv.institution}</span>` : ''}</span></h4>
@@ -829,8 +994,10 @@
                         <div class="val-item"><div class="val-label">💰 Investido</div><div class="val-number">R$ ${fmt(inv.totalInvested || 0)}</div></div>
                         <div class="val-item"><div class="val-label">📊 Atual</div><div class="val-number">R$ ${fmt(inv.currentValue || 0)}</div></div>
                         <div class="val-item"><div class="val-label">📈 Projeção</div><div class="val-number">R$ ${fmt(inv.projectedValue || 0)}</div></div>
-                        <div class="val-item"><div class="val-label">📈 Nominal</div><div class="val-number ${ret>=0?'positive':'negative'}">${retP.toFixed(2)}%</div></div>
-                        <div class="val-item"><div class="val-label">💎 Real</div><div class="val-number ${realRet>=0?'positive':'negative'}">${realRet.toFixed(2)}%</div></div>
+                        <div class="val-item"><div class="val-label">📈 Nominal Atual</div><div class="val-number ${nominalAtual>=0?'positive':'negative'}">${nominalAtual.toFixed(2)}%</div></div>
+                        <div class="val-item"><div class="val-label">💎 Real Atual</div><div class="val-number ${realAtual>=0?'positive':'negative'}">${realAtual.toFixed(2)}%</div></div>
+                        <div class="val-item"><div class="val-label">📈 Nominal Proj.</div><div class="val-number ${nominalProjetado>=0?'positive':'negative'}">${nominalProjetado.toFixed(2)}%</div></div>
+                        <div class="val-item"><div class="val-label">💎 Real Proj.</div><div class="val-number ${realProjetado>=0?'positive':'negative'}">${realProjetado.toFixed(2)}%</div></div>
                     </div>
                     <div class="aportes-section">
                         <h4>🏷️ Aportes (${aportes.length})</h4>
