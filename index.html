@@ -571,6 +571,7 @@
                 <div class="summary-card investment"><div class="card-label">💎 Rend. Real</div><div class="card-value ${realRetorno>=0?'positive':'negative'}">${realRetorno.toFixed(2)}%</div></div>
             `;
             
+            // ===== GRÁFICO DE GASTOS COM TOTAIS =====
             const ec = {};
             filtered.filter(t => t.type === 'expense').forEach(t => {
                 const cat = t.category || 'other';
@@ -578,16 +579,110 @@
                 ec[cat] += (t.amount || 0);
             });
             const cats = getCategories();
-            const cd = Object.entries(ec).map(([id, amt]) => ({ category: cats[id]?.name || id, amount: amt, color: cats[id]?.color || '#ccc' }));
+            const cd = Object.entries(ec).map(([id, amt]) => ({
+                category: cats[id]?.name || id,
+                amount: amt,
+                color: cats[id]?.color || '#ccc'
+            }));
+            
+            // Calcular total geral
+            const totalGeral = cd.reduce((sum, item) => sum + item.amount, 0);
+            
             if (cd.length > 0) {
                 const ctx = document.getElementById('categoryChart');
                 if (ctx) {
                     if (charts['categoryChart']) charts['categoryChart'].destroy();
                     charts['categoryChart'] = new Chart(ctx, {
                         type: 'pie',
-                        data: { labels: cd.map(d => d.category), datasets: [{ data: cd.map(d => d.amount), backgroundColor: cd.map(d => d.color), borderWidth: 1, borderColor: '#fff' }] },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } } }
+                        data: {
+                            labels: cd.map(d => d.category),
+                            datasets: [{
+                                data: cd.map(d => d.amount),
+                                backgroundColor: cd.map(d => d.color),
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { 
+                                    position: 'bottom',
+                                    labels: {
+                                        font: { size: 11 },
+                                        padding: 12
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = context.raw || 0;
+                                            const percentage = totalGeral > 0 ? ((value / totalGeral) * 100).toFixed(1) : 0;
+                                            return `${label}: R$ ${fmt(value)} (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     });
+                }
+                
+                // ===== ADICIONAR RESUMO ABAIXO DO GRÁFICO =====
+                const chartContainer = ctx?.parentElement?.parentElement;
+                if (chartContainer) {
+                    // Remove resumo antigo se existir
+                    const oldSummary = chartContainer.querySelector('.category-summary');
+                    if (oldSummary) oldSummary.remove();
+                    
+                    // Cria resumo com os totais
+                    const summary = document.createElement('div');
+                    summary.className = 'category-summary';
+                    summary.style.cssText = `
+                        margin-top: 12px;
+                        padding: 10px 14px;
+                        background: #f8fafc;
+                        border-radius: 8px;
+                        font-size: 12px;
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                        gap: 6px;
+                    `;
+                    
+                    // Ordena por valor (maior para menor)
+                    const sorted = [...cd].sort((a, b) => b.amount - a.amount);
+                    
+                    summary.innerHTML = `
+                        <div style="grid-column: 1 / -1; font-weight: 600; color: var(--text-light); margin-bottom: 4px;">
+                            💰 Total de Gastos: <span style="color: var(--danger);">R$ ${fmt(totalGeral)}</span>
+                            (${cd.length} categorias)
+                        </div>
+                        ${sorted.map(item => {
+                            const pct = totalGeral > 0 ? ((item.amount / totalGeral) * 100).toFixed(1) : 0;
+                            return `
+                                <div style="display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: #fff; border-radius: 4px; border-left: 3px solid ${item.color};">
+                                    <span style="font-weight: 500; font-size: 11px;">${item.category}</span>
+                                    <span style="margin-left: auto; font-weight: 600; font-size: 12px; color: var(--danger);">R$ ${fmt(item.amount)}</span>
+                                    <span style="font-size: 10px; color: var(--text-light);">(${pct}%)</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    `;
+                    
+                    chartContainer.appendChild(summary);
+                }
+            } else {
+                // Se não houver dados, mostra mensagem
+                const ctx = document.getElementById('categoryChart');
+                if (ctx) {
+                    if (charts['categoryChart']) charts['categoryChart'].destroy();
+                    const parent = ctx.parentElement;
+                    parent.innerHTML = `
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-light); font-size: 14px;">
+                            📊 Nenhum gasto registrado
+                        </div>
+                    `;
                 }
             }
             

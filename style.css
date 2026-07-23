@@ -558,6 +558,65 @@ body {
     .investment-card-values { grid-template-columns:1fr 1fr; }
 }
 
+/* ===== CATEGORY SUMMARY ===== */
+.category-summary {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #f8fafc;
+    border-radius: 8px;
+    font-size: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 6px;
+}
+
+.category-summary .total-header {
+    grid-column: 1 / -1;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 4px;
+}
+
+.category-summary .category-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: #fff;
+    border-radius: 4px;
+    border-left: 3px solid #ccc;
+}
+
+.category-summary .category-item .cat-name {
+    font-weight: 500;
+    font-size: 11px;
+}
+
+.category-summary .category-item .cat-value {
+    margin-left: auto;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--danger);
+}
+
+.category-summary .category-item .cat-pct {
+    font-size: 10px;
+    color: var(--text-light);
+}
+
+/* Dark Mode */
+[data-theme="dark"] .category-summary {
+    background: var(--bg-hover) !important;
+}
+
+[data-theme="dark"] .category-summary .category-item {
+    background: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .category-summary .category-item .cat-value {
+    color: #f87171 !important;
+}
 /* ===== DARK MODE ===== */
 [data-theme="dark"] {
     --bg-primary: #0f172a;
