@@ -215,6 +215,47 @@
         let selectedColor = '#FF6B6B', selectedIcon = '📦', editingTransactionId = null, editingInvestmentId = null, editingGoalId = null, editingRecurringId = null;
         let colorConfig = { chartColor: '#2563eb', goalColor: '#16a34a' };
 
+        // ===== DARK MODE =====
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon();
+        }        
+
+        function updateThemeIcon() {
+            const theme = document.documentElement.getAttribute('data-theme') || 'light';
+            const btn = document.getElementById('themeToggle');
+            if (btn) {
+                btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+            }
+        }        
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+            updateThemeIcon();
+        }        
+
+        // Carregar tema ao iniciar
+        loadTheme();        
+
+        // Ouvir mudanças no sistema (opcional)
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                const theme = e.matches ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', theme);
+                updateThemeIcon();
+            }
+        });        
+
+        // Expor toggle para o HTML (importante!)
+        window.toggleTheme = toggleTheme;
+
         // ============ UTILS ============
         const fmt = v => { const n = Number(v) || 0; const p = n.toFixed(2).split('.'); return `${p[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${p[1]}`; };
         const parseMoney = v => { if (v === null || v === undefined || v === '') return 0; const s = String(v).replace(/R\$|\s/g, '').replace(/\./g, '').replace(',', '.'); return parseFloat(s) || 0; };
