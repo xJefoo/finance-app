@@ -494,216 +494,238 @@
             }
         }
 
-        // ============ DASHBOARD ============
-        function loadDashboard() {
-            console.log('🔄 Carregando Dashboard...');
-            console.log('📊 Total de transações:', allTransactions.length);
-            
-            const ft = allTransactions;
-            const filtered = transactionUserFilter && transactionUserFilter !== 'all' 
-                ? ft.filter(t => (t.userName || 'Outro') === transactionUserFilter)
-                : ft;
-            
-            console.log('👤 Filtro de usuário:', transactionUserFilter);
-            console.log('📊 Transações após filtro:', filtered.length);
-            
-            // ===== CALCULA RECEITAS E DESPESAS =====
-            const mi = filtered.filter(t => t.type === 'income' || t.type === 'receita').reduce((s, t) => s + (t.amount || 0), 0);
-            const me = filtered.filter(t => t.type === 'expense' || t.type === 'despesa').reduce((s, t) => s + (t.amount || 0), 0);
-            const bal = mi - me;
-            
-            console.log('💰 Receitas:', mi, 'Despesas:', me, 'Saldo:', bal);
-            
-            // ===== CARDS DE INVESTIMENTO =====
-            const hoje = new Date();
-            let investmentData = allInvestments;
-            if (transactionUserFilter && transactionUserFilter !== 'all') {
-                investmentData = investmentData.filter(inv => (inv.userName || 'Outro') === transactionUserFilter);
-            }
-            investmentData.forEach(inv => recalcInvestment(inv));
-            
-            const totalInvested = investmentData.reduce((sum, inv) => sum + (inv.totalInvested || 0), 0);
-            const currentValue = investmentData.reduce((sum, inv) => sum + (inv.currentValue || 0), 0);
-            const projectedValue = investmentData.reduce((sum, inv) => sum + (inv.projectedValue || 0), 0);
-            const ganhoNominal = currentValue - totalInvested;
-            const nominalPct = totalInvested > 0 ? (ganhoNominal / totalInvested) * 100 : 0;
-            const firstStartDate = investmentData.length > 0 ? new Date(Math.min(...investmentData.map(inv => new Date(inv.startDate + 'T12:00:00').getTime()))) : new Date();
-            const diasTotal = Math.max(1, Math.floor((hoje - firstStartDate) / 86400000));
-            const ipcaPeriodo = (indexers.ipca || 0) * (diasTotal / 365);
-            const realRetorno = ((1 + nominalPct / 100) / (1 + ipcaPeriodo / 100) - 1) * 100;
-            const ganhoProjetado = projectedValue - totalInvested;
-            
-            document.getElementById('summaryCards').innerHTML = `
-                <div class="summary-card income"><div class="card-label">💼 Total Investido</div><div class="card-value positive">R$ ${fmt(totalInvested)}</div></div>
-                <div class="summary-card expense"><div class="card-label">📊 Valor Atual</div><div class="card-value">R$ ${fmt(currentValue)}</div></div>
-                <div class="summary-card balance"><div class="card-label">📈 Projetado</div><div class="card-value ${ganhoProjetado>=0?'positive':'negative'}">R$ ${fmt(projectedValue)}</div></div>
-                <div class="summary-card investment"><div class="card-label">💎 Rend. Real</div><div class="card-value ${realRetorno>=0?'positive':'negative'}">${realRetorno.toFixed(2)}%</div></div>
-            `;
-            
-            // ===== GRÁFICO DE GASTOS POR CATEGORIA =====
-            const chartContainer = document.querySelector('.chart-container');
-            const chartWrapper = document.getElementById('categoryChart')?.parentElement;
-            
-            // ===== FILTRA APENAS DESPESAS =====
-            const expenses = filtered.filter(t => {
-                const type = (t.type || '').toLowerCase();
-                return type === 'expense' || type === 'despesa';
-            });
-            
-            console.log('💳 Despesas encontradas:', expenses.length);
-            
-            // ===== AGRUPA POR CATEGORIA =====
-            const ec = {};
-            expenses.forEach(t => {
-                const cat = t.category || 'other';
-                if (!ec[cat]) ec[cat] = 0;
-                ec[cat] += (t.amount || 0);
-            });
-            
-            console.log('📊 Categorias agrupadas:', ec);
-            
-            const cats = getCategories();
-            const cd = Object.entries(ec).map(([id, amt]) => ({
-                category: cats[id]?.name || id,
-                amount: amt,
-                color: cats[id]?.color || getRandomColor(id)
-            }));
-            
-            const totalGeral = cd.reduce((sum, item) => sum + item.amount, 0);
-            console.log('💰 Total de gastos:', totalGeral);
-            
-            // ===== VERIFICA SE O CANVAS EXISTE =====
-            const canvas = document.getElementById('categoryChart');
-            if (!canvas) {
-                console.error('❌ Canvas #categoryChart não encontrado!');
-                return;
-            }
-            
-            // ===== LIMPA O CONTEÚDO ANTERIOR =====
-            const oldSummary = chartContainer?.querySelector('.category-summary');
-            if (oldSummary) oldSummary.remove();
-            
-            // ===== SE HOUVER GASTOS, MOSTRA O GRÁFICO =====
-            if (cd.length > 0 && totalGeral > 0) {
-                console.log('✅ Gerando gráfico com', cd.length, 'categorias');
-                
-                if (charts['categoryChart']) {
-                    charts['categoryChart'].destroy();
-                    delete charts['categoryChart'];
-                }
-                
-                charts['categoryChart'] = new Chart(canvas, {
-                    type: 'pie',
-                    data: {
-                        labels: cd.map(d => d.category),
-                        datasets: [{
-                            data: cd.map(d => d.amount),
-                            backgroundColor: cd.map(d => d.color || '#ccc'),
-                            borderWidth: 2,
-                            borderColor: '#fff'
-                        }]
+        // ============ DASHBOARD (CORRIGIDO - VERSÃO FINAL) ============
+function loadDashboard() {
+    console.log('🔄 Carregando Dashboard...');
+    console.log('📊 Total de transações:', allTransactions.length);
+    
+    const ft = allTransactions;
+    const filtered = transactionUserFilter && transactionUserFilter !== 'all' 
+        ? ft.filter(t => (t.userName || 'Outro') === transactionUserFilter)
+        : ft;
+    
+    console.log('👤 Filtro de usuário:', transactionUserFilter);
+    console.log('📊 Transações após filtro:', filtered.length);
+    
+    // ===== CALCULA RECEITAS E DESPESAS =====
+    const mi = filtered.filter(t => t.type === 'income' || t.type === 'receita').reduce((s, t) => s + (t.amount || 0), 0);
+    const me = filtered.filter(t => t.type === 'expense' || t.type === 'despesa').reduce((s, t) => s + (t.amount || 0), 0);
+    const bal = mi - me;
+    
+    console.log('💰 Receitas:', mi, 'Despesas:', me, 'Saldo:', bal);
+    
+    // ===== CARDS DE INVESTIMENTO =====
+    const hoje = new Date();
+    let investmentData = allInvestments;
+    if (transactionUserFilter && transactionUserFilter !== 'all') {
+        investmentData = investmentData.filter(inv => (inv.userName || 'Outro') === transactionUserFilter);
+    }
+    investmentData.forEach(inv => recalcInvestment(inv));
+    
+    const totalInvested = investmentData.reduce((sum, inv) => sum + (inv.totalInvested || 0), 0);
+    const currentValue = investmentData.reduce((sum, inv) => sum + (inv.currentValue || 0), 0);
+    const projectedValue = investmentData.reduce((sum, inv) => sum + (inv.projectedValue || 0), 0);
+    const ganhoNominal = currentValue - totalInvested;
+    const nominalPct = totalInvested > 0 ? (ganhoNominal / totalInvested) * 100 : 0;
+    const firstStartDate = investmentData.length > 0 ? new Date(Math.min(...investmentData.map(inv => new Date(inv.startDate + 'T12:00:00').getTime()))) : new Date();
+    const diasTotal = Math.max(1, Math.floor((hoje - firstStartDate) / 86400000));
+    const ipcaPeriodo = (indexers.ipca || 0) * (diasTotal / 365);
+    const realRetorno = ((1 + nominalPct / 100) / (1 + ipcaPeriodo / 100) - 1) * 100;
+    const ganhoProjetado = projectedValue - totalInvested;
+    
+    document.getElementById('summaryCards').innerHTML = `
+        <div class="summary-card income"><div class="card-label">💼 Total Investido</div><div class="card-value positive">R$ ${fmt(totalInvested)}</div></div>
+        <div class="summary-card expense"><div class="card-label">📊 Valor Atual</div><div class="card-value">R$ ${fmt(currentValue)}</div></div>
+        <div class="summary-card balance"><div class="card-label">📈 Projetado</div><div class="card-value ${ganhoProjetado>=0?'positive':'negative'}">R$ ${fmt(projectedValue)}</div></div>
+        <div class="summary-card investment"><div class="card-label">💎 Rend. Real</div><div class="card-value ${realRetorno>=0?'positive':'negative'}">${realRetorno.toFixed(2)}%</div></div>
+    `;
+    
+    // ===== GRÁFICO DE GASTOS POR CATEGORIA (CORRIGIDO) =====
+    // ===== FILTRA APENAS DESPESAS =====
+    const expenses = filtered.filter(t => {
+        const type = (t.type || '').toLowerCase();
+        return type === 'expense' || type === 'despesa';
+    });
+    
+    console.log('💳 Despesas encontradas:', expenses.length);
+    
+    // ===== AGRUPA POR CATEGORIA =====
+    const ec = {};
+    expenses.forEach(t => {
+        const cat = t.category || 'other';
+        if (!ec[cat]) ec[cat] = 0;
+        ec[cat] += (t.amount || 0);
+    });
+    
+    console.log('📊 Categorias agrupadas:', ec);
+    
+    const cats = getCategories();
+    const cd = Object.entries(ec).map(([id, amt]) => ({
+        category: cats[id]?.name || id,
+        amount: amt,
+        color: cats[id]?.color || getRandomColor(id)
+    }));
+    
+    const totalGeral = cd.reduce((sum, item) => sum + item.amount, 0);
+    console.log('💰 Total de gastos:', totalGeral);
+    
+    // ===== RECONSTRÓI O CONTAINER DO GRÁFICO =====
+    const chartsGrid = document.querySelector('.charts-grid');
+    if (!chartsGrid) {
+        console.error('❌ .charts-grid não encontrado!');
+        return;
+    }
+    
+    // ===== RECRIA O CONTAINER DO GRÁFICO COM O CANVAS =====
+    const chartContainer = document.createElement('div');
+    chartContainer.className = 'chart-container';
+    chartContainer.innerHTML = `
+        <h3>📊 Gastos por Categoria</h3>
+        <div class="chart-wrapper">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    `;
+    
+    // Remove o container antigo se existir
+    const oldContainer = chartsGrid.querySelector('.chart-container');
+    if (oldContainer) {
+        oldContainer.remove();
+    }
+    
+    // Adiciona o novo container
+    chartsGrid.appendChild(chartContainer);
+    
+    // ===== PEGA O CANVAS RECÉM CRIADO =====
+    const canvas = document.getElementById('categoryChart');
+    if (!canvas) {
+        console.error('❌ Canvas #categoryChart ainda não encontrado!');
+        return;
+    }
+    
+    const chartWrapper = canvas.parentElement;
+    
+    // ===== SE HOUVER GASTOS, MOSTRA O GRÁFICO =====
+    if (cd.length > 0 && totalGeral > 0) {
+        console.log('✅ Gerando gráfico com', cd.length, 'categorias');
+        
+        if (charts['categoryChart']) {
+            charts['categoryChart'].destroy();
+            delete charts['categoryChart'];
+        }
+        
+        charts['categoryChart'] = new Chart(canvas, {
+            type: 'pie',
+            data: {
+                labels: cd.map(d => d.category),
+                datasets: [{
+                    data: cd.map(d => d.amount),
+                    backgroundColor: cd.map(d => d.color || '#ccc'),
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 11 },
+                            padding: 12
+                        }
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    font: { size: 11 },
-                                    padding: 12
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.raw || 0;
-                                        const percentage = totalGeral > 0 ? ((value / totalGeral) * 100).toFixed(1) : 0;
-                                        return `${label}: R$ ${fmt(value)} (${percentage}%)`;
-                                    }
-                                }
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const percentage = totalGeral > 0 ? ((value / totalGeral) * 100).toFixed(1) : 0;
+                                return `${label}: R$ ${fmt(value)} (${percentage}%)`;
                             }
                         }
                     }
-                });
-                
-                // ===== CRIA O SUMMARY ABAIXO DO GRÁFICO =====
-                const sorted = [...cd].sort((a, b) => b.amount - a.amount);
-                
-                const summary = document.createElement('div');
-                summary.className = 'category-summary';
-                summary.innerHTML = `
-                    <div style="grid-column: 1 / -1; font-weight: 600; color: var(--text-light); margin-bottom: 4px; font-size: 13px;">
-                        💰 Total de Gastos: <span style="color: var(--danger); font-weight: 700;">R$ ${fmt(totalGeral)}</span>
-                        <span style="font-weight: 400; font-size: 11px; color: var(--text-light);">(${cd.length} categorias)</span>
+                }
+            }
+        });
+        
+        // ===== REMOVE SUMMARY ANTIGO =====
+        const oldSummary = chartContainer.querySelector('.category-summary');
+        if (oldSummary) oldSummary.remove();
+        
+        // ===== CRIA O SUMMARY =====
+        const sorted = [...cd].sort((a, b) => b.amount - a.amount);
+        
+        const summary = document.createElement('div');
+        summary.className = 'category-summary';
+        summary.innerHTML = `
+            <div style="grid-column: 1 / -1; font-weight: 600; color: var(--text-light); margin-bottom: 4px; font-size: 13px;">
+                💰 Total de Gastos: <span style="color: var(--danger); font-weight: 700;">R$ ${fmt(totalGeral)}</span>
+                <span style="font-weight: 400; font-size: 11px; color: var(--text-light);">(${cd.length} categorias)</span>
+            </div>
+            ${sorted.map(item => {
+                const pct = totalGeral > 0 ? ((item.amount / totalGeral) * 100).toFixed(1) : 0;
+                return `
+                    <div style="display: flex; align-items: center; gap: 6px; padding: 5px 10px; background: var(--bg-card); border-radius: 6px; border-left: 3px solid ${item.color || '#ccc'}; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                        <span style="font-weight: 500; font-size: 11px; color: var(--text-primary);">${item.category}</span>
+                        <span style="margin-left: auto; font-weight: 600; font-size: 12px; color: var(--danger);">R$ ${fmt(item.amount)}</span>
+                        <span style="font-size: 10px; color: var(--text-light); background: var(--bg-hover); padding: 0 6px; border-radius: 8px;">${pct}%</span>
                     </div>
-                    ${sorted.map(item => {
-                        const pct = totalGeral > 0 ? ((item.amount / totalGeral) * 100).toFixed(1) : 0;
-                        return `
-                            <div style="display: flex; align-items: center; gap: 6px; padding: 5px 10px; background: var(--bg-card); border-radius: 6px; border-left: 3px solid ${item.color || '#ccc'}; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                                <span style="font-weight: 500; font-size: 11px; color: var(--text-primary);">${item.category}</span>
-                                <span style="margin-left: auto; font-weight: 600; font-size: 12px; color: var(--danger);">R$ ${fmt(item.amount)}</span>
-                                <span style="font-size: 10px; color: var(--text-light); background: var(--bg-hover); padding: 0 6px; border-radius: 8px;">${pct}%</span>
-                            </div>
-                        `;
-                    }).join('')}
                 `;
-                
-                if (chartContainer) {
-                    chartContainer.appendChild(summary);
-                }
-                
-                canvas.style.display = 'block';
-                
-            } else {
-                console.log('ℹ️ Nenhum gasto encontrado. Exibindo mensagem.');
-                
-                if (charts['categoryChart']) {
-                    charts['categoryChart'].destroy();
-                    delete charts['categoryChart'];
-                }
-                
-                if (chartWrapper) {
-                    chartWrapper.innerHTML = `
-                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-light); font-size: 14px; flex-direction: column; gap: 8px;">
-                            <span style="font-size: 32px;">📊</span>
-                            <span>Nenhum gasto registrado</span>
-                            <span style="font-size: 11px; color: var(--text-secondary);">Adicione suas despesas para ver o gráfico</span>
-                        </div>
-                    `;
-                }
-            }
-            
-            // ===== FILTROS DE USUÁRIO =====
-            try {
-                renderUserFilterTabs('transactionUserFilter', transactionUserFilter, getUniqueUsers(allTransactions), function(u) {
-                    transactionUserFilter = u;
-                    loadDashboard();
-                });
-            } catch(e) {
-                console.warn('Erro ao renderizar filtros:', e);
-            }
-            
-            // ===== LISTA DE TRANSAÇÕES =====
-            const displayTrans = filtered.slice(0, 20);
-            document.getElementById('transactionCards').innerHTML = displayTrans.map(t => {
-                const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
-                const cat = getCategoryById(t.category);
-                const own = t.userId === currentUser?.id;
-                const type = (t.type || '').toLowerCase();
-                return `<div class="data-card">
-                    <div class="data-card-header">
-                        <h4>${cat.icon} ${t.description}</h4>
-                        <div>${own ? `<button class="btn-sm btn-edit" onclick="openTransactionModal('${t.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (t.userName || 'Outro') + '</span>'}</div>
-                    </div>
-                    <div class="data-card-meta"><span>${type === 'income' || type === 'receita' ? 'Receita' : 'Despesa'}</span><span>📅 ${d.toLocaleDateString('pt-BR')}</span></div>
-                    <div class="data-card-amount ${type === 'income' || type === 'receita' ? 'income' : 'expense'}" style="margin-top:4px;">${type === 'income' || type === 'receita' ? '+' : '-'} R$ ${fmt(t.amount||0)}</div>
-                </div>`;
-            }).join('') || '<p style="text-align:center;padding:20px;font-size:13px;color:var(--text-light);">Nenhuma transação.</p>';
-            
-            console.log('✅ Dashboard carregado com sucesso!');
+            }).join('')}
+        `;
+        
+        chartContainer.appendChild(summary);
+        canvas.style.display = 'block';
+        
+    } else {
+        console.log('ℹ️ Nenhum gasto encontrado. Exibindo mensagem.');
+        
+        if (charts['categoryChart']) {
+            charts['categoryChart'].destroy();
+            delete charts['categoryChart'];
         }
+        
+        if (chartWrapper) {
+            chartWrapper.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-light); font-size: 14px; flex-direction: column; gap: 8px;">
+                    <span style="font-size: 32px;">📊</span>
+                    <span>Nenhum gasto registrado</span>
+                    <span style="font-size: 11px; color: var(--text-secondary);">Adicione suas despesas para ver o gráfico</span>
+                </div>
+            `;
+        }
+    }
+    
+    // ===== FILTROS DE USUÁRIO =====
+    try {
+        renderUserFilterTabs('transactionUserFilter', transactionUserFilter, getUniqueUsers(allTransactions), function(u) {
+            transactionUserFilter = u;
+            loadDashboard();
+        });
+    } catch(e) {
+        console.warn('Erro ao renderizar filtros:', e);
+    }
+    
+    // ===== LISTA DE TRANSAÇÕES =====
+    const displayTrans = filtered.slice(0, 20);
+    document.getElementById('transactionCards').innerHTML = displayTrans.map(t => {
+        const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || t.date);
+        const cat = getCategoryById(t.category);
+        const own = t.userId === currentUser?.id;
+        const type = (t.type || '').toLowerCase();
+        return `<div class="data-card">
+            <div class="data-card-header">
+                <h4>${cat.icon} ${t.description}</h4>
+                <div>${own ? `<button class="btn-sm btn-edit" onclick="openTransactionModal('${t.id}')">✏️</button><button class="btn-sm btn-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>` : '<span class="user-tag">👤 ' + (t.userName || 'Outro') + '</span>'}</div>
+            </div>
+            <div class="data-card-meta"><span>${type === 'income' || type === 'receita' ? 'Receita' : 'Despesa'}</span><span>📅 ${d.toLocaleDateString('pt-BR')}</span></div>
+            <div class="data-card-amount ${type === 'income' || type === 'receita' ? 'income' : 'expense'}" style="margin-top:4px;">${type === 'income' || type === 'receita' ? '+' : '-'} R$ ${fmt(t.amount||0)}</div>
+        </div>`;
+    }).join('') || '<p style="text-align:center;padding:20px;font-size:13px;color:var(--text-light);">Nenhuma transação.</p>';
+    
+    console.log('✅ Dashboard carregado com sucesso!');
+}
 
         // ============ TRANSACTIONS ============
         window.openTransactionModal = function(tid = null) { editingTransactionId = tid; document.getElementById('transactionModal').classList.add('active'); updateCategoryDropdown(); if (tid) { const t = allTransactions.find(x => x.id === tid); if (t) { document.getElementById('transModalTitle').textContent = 'Editar'; document.getElementById('transType').value = t.type; document.getElementById('transDescription').value = t.description; document.getElementById('transAmount').value = fmt(t.amount); document.getElementById('transDate').value = t.date || toLocalDateStr(new Date(t.createdAt?.toDate ? t.createdAt.toDate() : t.createdAt)); document.getElementById('transEditId').value = tid; updateCategoryDropdown(); setTimeout(() => { document.getElementById('transCategory').value = t.category; }, 100); } } else { document.getElementById('transModalTitle').textContent = 'Nova'; document.getElementById('transType').value = 'expense'; document.getElementById('transDescription').value = ''; document.getElementById('transAmount').value = ''; document.getElementById('transDate').value = toLocalDateStr(new Date()); document.getElementById('transEditId').value = ''; updateCategoryDropdown(); } };
