@@ -223,7 +223,7 @@
             html.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             updateThemeIcon();
-        }        
+        }
 
         function updateThemeIcon() {
             const theme = document.documentElement.getAttribute('data-theme') || 'light';
@@ -231,7 +231,7 @@
             if (btn) {
                 btn.textContent = theme === 'dark' ? '☀️' : '🌙';
             }
-        }        
+        }
 
         function loadTheme() {
             const savedTheme = localStorage.getItem('theme');
@@ -239,21 +239,16 @@
             const theme = savedTheme || (prefersDark ? 'dark' : 'light');
             document.documentElement.setAttribute('data-theme', theme);
             updateThemeIcon();
-        }        
+        }
 
-        // Carregar tema ao iniciar
-        loadTheme();        
-
-        // Ouvir mudanças no sistema (opcional)
+        loadTheme();
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
             if (!localStorage.getItem('theme')) {
                 const theme = e.matches ? 'dark' : 'light';
                 document.documentElement.setAttribute('data-theme', theme);
                 updateThemeIcon();
             }
-        });        
-
-        // Expor toggle para o HTML (importante!)
+        });
         window.toggleTheme = toggleTheme;
 
         // ============ UTILS ============
@@ -584,10 +579,9 @@
                 amount: amt,
                 color: cats[id]?.color || '#ccc'
             }));
-            
-            // Calcular total geral
+
             const totalGeral = cd.reduce((sum, item) => sum + item.amount, 0);
-            
+
             if (cd.length > 0) {
                 const ctx = document.getElementById('categoryChart');
                 if (ctx) {
@@ -632,11 +626,9 @@
                 // ===== ADICIONAR RESUMO ABAIXO DO GRÁFICO =====
                 const chartContainer = ctx?.parentElement?.parentElement;
                 if (chartContainer) {
-                    // Remove resumo antigo se existir
                     const oldSummary = chartContainer.querySelector('.category-summary');
                     if (oldSummary) oldSummary.remove();
                     
-                    // Cria resumo com os totais
                     const summary = document.createElement('div');
                     summary.className = 'category-summary';
                     summary.style.cssText = `
@@ -650,7 +642,6 @@
                         gap: 6px;
                     `;
                     
-                    // Ordena por valor (maior para menor)
                     const sorted = [...cd].sort((a, b) => b.amount - a.amount);
                     
                     summary.innerHTML = `
@@ -673,7 +664,6 @@
                     chartContainer.appendChild(summary);
                 }
             } else {
-                // Se não houver dados, mostra mensagem
                 const ctx = document.getElementById('categoryChart');
                 if (ctx) {
                     if (charts['categoryChart']) charts['categoryChart'].destroy();
